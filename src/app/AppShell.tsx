@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from '@/app/router'
 import { useAuth } from '@/domains/auth/auth.store'
 import { findMatchingRoute } from '@/app/router/router'
@@ -6,6 +6,7 @@ import { canAccessRoute, isExecutiveRole } from '@/domains/auth/auth.permissions
 import { AppSidebar } from '@/components/shell/AppSidebar'
 import { Topbar } from '@/components/shell/Topbar'
 import { CommandPalette } from '@/components/shell/CommandPalette'
+import { NotificationCenter } from '@/components/shell/NotificationCenter'
 import { AccessDenied } from '@/components/core/AccessDenied'
 import { matchRoute } from '@/app/router/router'
 
@@ -53,8 +54,21 @@ function resolvePageComponent(currentPath: string): React.ComponentType | null {
 
 export function AppShell() {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
   const { currentPath, navigate } = useRouter()
   const { user, status, setRole } = useAuth()
+
+  // Global keyboard shortcut for command palette
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault()
+        setCommandPaletteOpen(prev => !prev)
+      }
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [])
 
   const currentRole = user?.role ?? 'gm'
 
@@ -90,6 +104,7 @@ export function AppShell() {
           currentRole={currentRole}
           onRoleChange={setRole}
           onCommandPaletteOpen={() => setCommandPaletteOpen(true)}
+          onNotificationsOpen={() => setNotificationsOpen(true)}
         />
 
         <main className="flex-1 overflow-y-auto p-8">
@@ -106,6 +121,11 @@ export function AppShell() {
       <CommandPalette
         open={commandPaletteOpen}
         onOpenChange={setCommandPaletteOpen}
+      />
+
+      <NotificationCenter
+        open={notificationsOpen}
+        onOpenChange={setNotificationsOpen}
       />
     </div>
   )
