@@ -30,8 +30,8 @@ function notifyListeners(event: PublishedEvent): void {
   for (const listener of listeners) {
     try {
       listener(event)
-    } catch {
-      // listeners should not throw, but don't break the bus
+    } catch (err) {
+      console.warn('[EventBus] Listener error:', err)
     }
   }
 }
@@ -64,3 +64,4 @@ export async function emitEvent(
 
   return result
 }
+

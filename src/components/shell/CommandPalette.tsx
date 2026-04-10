@@ -129,7 +129,17 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     return groups
   }, [filtered])
 
-  let flatIndex = 0
+  // Pre-compute flat index for each item to avoid mutation during render
+  const flatIndexMap = useMemo(() => {
+    const map = new Map<string, number>()
+    let idx = 0
+    for (const [, groupItems] of Object.entries(grouped)) {
+      for (const item of groupItems) {
+        map.set(item.id, idx++)
+      }
+    }
+    return map
+  }, [grouped])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -159,7 +169,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                   {categoryLabel(category)}
                 </div>
                 {groupItems.map(item => {
-                  const idx = flatIndex++
+                  const idx = flatIndexMap.get(item.id) ?? 0
                   const Icon = item.icon
                   return (
                     <button

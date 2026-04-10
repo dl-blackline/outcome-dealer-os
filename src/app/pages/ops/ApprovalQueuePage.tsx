@@ -43,8 +43,9 @@ export function ApprovalQueuePage() {
       } else {
         await denyRequest(resolution, ctx)
       }
-    } catch {
-      // Service call may fail for mock-seeded approvals not in KV — that's ok
+    } catch (err) {
+      // Service call may fail for mock-seeded approvals not in KV — log but don't block UI
+      console.warn('[ApprovalQueue] Service call failed (expected for mock data):', err)
     }
 
     // Emit event through the bus (persists + may generate workstation card)
