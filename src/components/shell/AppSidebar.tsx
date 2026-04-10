@@ -7,15 +7,16 @@ import {
   ChartLine,
   Wrench,
   CurrencyDollar,
+  Kanban,
 } from '@phosphor-icons/react'
-import { AppRole, ROLE_NAV_GROUPS } from '@/domains/roles/roles'
+import { AppRole, ROLE_NAV_GROUPS, type NavGroup } from '@/domains/roles/roles'
 import { cn } from '@/lib/utils'
 
 export interface NavItem {
   label: string
   href: string
   icon: React.ComponentType<{ className?: string }>
-  group: 'dashboard' | 'records' | 'operations' | 'settings'
+  group: NavGroup
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -24,6 +25,12 @@ const NAV_ITEMS: NavItem[] = [
     href: '/app/dashboard',
     icon: House,
     group: 'dashboard',
+  },
+  {
+    label: 'Workstation',
+    href: '/app/workstation',
+    icon: Kanban,
+    group: 'workstation',
   },
   {
     label: 'Households',
@@ -78,9 +85,10 @@ const NAV_ITEMS: NavItem[] = [
 interface AppSidebarProps {
   currentPath: string
   currentRole: AppRole
+  onNavigate: (path: string) => void
 }
 
-export function AppSidebar({ currentPath, currentRole }: AppSidebarProps) {
+export function AppSidebar({ currentPath, currentRole, onNavigate }: AppSidebarProps) {
   const allowedGroups = ROLE_NAV_GROUPS[currentRole]
   const visibleItems = NAV_ITEMS.filter((item) => allowedGroups.includes(item.group))
 
@@ -98,11 +106,12 @@ export function AppSidebar({ currentPath, currentRole }: AppSidebarProps) {
           const isActive = currentPath === item.href || currentPath.startsWith(item.href + '/')
           
           return (
-            <a
+            <button
               key={item.href}
-              href={item.href}
+              type="button"
+              onClick={() => onNavigate(item.href)}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
+                'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
                 isActive
                   ? 'bg-primary/10 text-primary ring-1 ring-primary/20'
                   : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
@@ -110,7 +119,7 @@ export function AppSidebar({ currentPath, currentRole }: AppSidebarProps) {
             >
               <Icon className="h-5 w-5 flex-shrink-0" />
               {item.label}
-            </a>
+            </button>
           )
         })}
       </nav>
