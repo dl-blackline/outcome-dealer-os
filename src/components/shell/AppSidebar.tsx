@@ -1,0 +1,123 @@
+import {
+  House,
+  UsersThree,
+  ClipboardText,
+  Gauge,
+  Gear,
+  ChartLine,
+  Wrench,
+  CurrencyDollar,
+} from '@phosphor-icons/react'
+import { AppRole, ROLE_NAV_GROUPS } from '@/domains/roles/roles'
+import { cn } from '@/lib/utils'
+
+export interface NavItem {
+  label: string
+  href: string
+  icon: React.ComponentType<{ className?: string }>
+  group: 'dashboard' | 'records' | 'operations' | 'settings'
+}
+
+const NAV_ITEMS: NavItem[] = [
+  {
+    label: 'Dashboard',
+    href: '/app/dashboard',
+    icon: House,
+    group: 'dashboard',
+  },
+  {
+    label: 'Households',
+    href: '/app/records/households',
+    icon: UsersThree,
+    group: 'records',
+  },
+  {
+    label: 'Leads',
+    href: '/app/records/leads',
+    icon: ClipboardText,
+    group: 'records',
+  },
+  {
+    label: 'Deals',
+    href: '/app/records/deals',
+    icon: CurrencyDollar,
+    group: 'records',
+  },
+  {
+    label: 'Inventory',
+    href: '/app/records/inventory',
+    icon: Gauge,
+    group: 'records',
+  },
+  {
+    label: 'Events',
+    href: '/app/ops/events',
+    icon: ChartLine,
+    group: 'operations',
+  },
+  {
+    label: 'Approvals',
+    href: '/app/ops/approvals',
+    icon: ClipboardText,
+    group: 'operations',
+  },
+  {
+    label: 'Audit',
+    href: '/app/ops/audit',
+    icon: Wrench,
+    group: 'operations',
+  },
+  {
+    label: 'Settings',
+    href: '/app/settings/roles',
+    icon: Gear,
+    group: 'settings',
+  },
+]
+
+interface AppSidebarProps {
+  currentPath: string
+  currentRole: AppRole
+}
+
+export function AppSidebar({ currentPath, currentRole }: AppSidebarProps) {
+  const allowedGroups = ROLE_NAV_GROUPS[currentRole]
+  const visibleItems = NAV_ITEMS.filter((item) => allowedGroups.includes(item.group))
+
+  return (
+    <div className="flex h-screen w-64 flex-col border-r border-border bg-card">
+      <div className="flex h-16 items-center px-6 border-b border-border">
+        <h1 className="text-lg font-bold tracking-tight">Outcome Dealer OS</h1>
+      </div>
+
+      <nav className="flex-1 space-y-1 p-4">
+        {visibleItems.map((item) => {
+          const Icon = item.icon
+          const isActive = currentPath === item.href || currentPath.startsWith(item.href + '/')
+          
+          return (
+            <a
+              key={item.href}
+              href={item.href}
+              className={cn(
+                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                isActive
+                  ? 'bg-accent text-accent-foreground'
+                  : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+              )}
+            >
+              <Icon className="h-5 w-5" />
+              {item.label}
+            </a>
+          )
+        })}
+      </nav>
+
+      <div className="border-t border-border p-4">
+        <div className="text-xs text-muted-foreground">
+          Logged in as {currentRole}
+        </div>
+      </div>
+    </div>
+  )
+}
