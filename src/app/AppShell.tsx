@@ -1,9 +1,12 @@
 import { useState } from 'react'
 import { useRouter } from '@/app/router'
 import { useAuth } from '@/domains/auth/auth.store'
+import { findMatchingRoute } from '@/app/router/router'
+import { canAccessRoute, isExecutiveRole } from '@/domains/auth/auth.permissions'
 import { AppSidebar } from '@/components/shell/AppSidebar'
 import { Topbar } from '@/components/shell/Topbar'
 import { CommandPalette } from '@/components/shell/CommandPalette'
+import { AccessDenied } from '@/components/core/AccessDenied'
 import { matchRoute } from '@/app/router/router'
 
 // Pages
@@ -65,6 +68,15 @@ export function AppShell() {
 
   const PageComponent = resolvePageComponent(currentPath)
 
+  // Route permission enforcement
+  const matchedRoute = findMatchingRoute(currentPath)
+  const hasAccess = (() => {
+    if (!matchedRoute) return true // unmatched routes fall through to dashboard
+    if (matchedRoute.requireExecutive && user && !isExecutiveRole(user)) return false
+    if (matchedRoute.requiredPermission && !canAccessRoute(user, matchedRoute.requiredPermission)) return false
+    return true
+  })()
+
   return (
     <div className="flex h-screen bg-background">
       <AppSidebar
@@ -81,7 +93,9 @@ export function AppShell() {
         />
 
         <main className="flex-1 overflow-y-auto p-8">
-          {PageComponent ? (
+          {!hasAccess ? (
+            <AccessDenied onGoHome={() => navigate('/app/dashboard')} />
+          ) : PageComponent ? (
             <PageComponent />
           ) : (
             <DashboardPage />
