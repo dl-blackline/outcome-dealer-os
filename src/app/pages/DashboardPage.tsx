@@ -1,73 +1,42 @@
 import { SectionHeader } from '@/components/core/SectionHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
-import { MOCK_LEADS, MOCK_DEALS, MOCK_INVENTORY, MOCK_APPROVALS, MOCK_TASKS } from '@/lib/mockData'
-import { TrendUp, CheckCircle, Clock, Warning } from '@phosphor-icons/react'
+import { MOCK_TASKS } from '@/lib/mockData'
+import { getDashboardSignals, type MetricCard } from '@/domains/dashboard/dashboard.adapters'
+import { useAuth } from '@/domains/auth/auth.store'
+import { TrendUp, TrendDown, Minus } from '@phosphor-icons/react'
+
+function MetricIcon({ trend }: { trend?: MetricCard['trend'] }) {
+  if (trend === 'up') return <TrendUp className="h-4 w-4 text-green-500" />
+  if (trend === 'down') return <TrendDown className="h-4 w-4 text-red-500" />
+  return <Minus className="h-4 w-4 text-muted-foreground" />
+}
 
 export function DashboardPage() {
+  const { user } = useAuth()
+  const role = user?.role ?? 'gm'
+  const signals = getDashboardSignals(role)
+
   return (
     <div className="space-y-8">
       <SectionHeader
         title="Dashboard"
-        description={`Welcome back. Here's what's happening across the operation.`}
+        description={`Welcome back${user?.displayName ? `, ${user.displayName}` : ''}. Here's what's happening across the operation.`}
       />
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Leads</CardTitle>
-            <TrendUp className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{MOCK_LEADS.length}</div>
-            <p className="text-xs text-muted-foreground">
-              +2 from last week
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Deals in Progress</CardTitle>
-            <CheckCircle className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{MOCK_DEALS.length}</div>
-            <p className="text-xs text-muted-foreground">
-              1 funded this week
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Approvals</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {MOCK_APPROVALS.filter(a => a.status === 'pending').length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              Requires manager action
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Aging Inventory</CardTitle>
-            <Warning className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {MOCK_INVENTORY.filter(i => i.status === 'aging').length}
-            </div>
-            <p className="text-xs text-muted-foreground">
-              60+ days in stock
-            </p>
-          </CardContent>
-        </Card>
+        {signals.metrics.map(metric => (
+          <Card key={metric.label}>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{metric.label}</CardTitle>
+              <MetricIcon trend={metric.trend} />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{metric.value}</div>
+              <p className="text-xs text-muted-foreground">{metric.subtext}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -77,7 +46,7 @@ export function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {MOCK_LEADS.map(lead => (
+              {signals.recentLeads.map(lead => (
                 <div key={lead.id} className="flex items-center justify-between border-b border-border pb-3 last:border-0">
                   <div>
                     <p className="font-medium">{lead.customerName}</p>
@@ -102,7 +71,7 @@ export function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {MOCK_DEALS.map(deal => (
+              {signals.activeDeals.map(deal => (
                 <div key={deal.id} className="flex items-center justify-between border-b border-border pb-3 last:border-0">
                   <div>
                     <p className="font-medium">{deal.customerName}</p>

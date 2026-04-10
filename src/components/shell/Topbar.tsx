@@ -12,9 +12,10 @@ interface TopbarProps {
   currentRole: AppRole
   onRoleChange: (role: AppRole) => void
   onCommandPaletteOpen: () => void
+  onNotificationsOpen: () => void
 }
 
-export function Topbar({ currentRole, onRoleChange, onCommandPaletteOpen }: TopbarProps) {
+export function Topbar({ currentRole, onRoleChange, onCommandPaletteOpen, onNotificationsOpen }: TopbarProps) {
   return (
     <div className="flex h-16 items-center justify-between border-b border-border bg-background px-6">
       <div className="flex items-center gap-4">
@@ -56,7 +57,7 @@ export function Topbar({ currentRole, onRoleChange, onCommandPaletteOpen }: Topb
           </DropdownMenuContent>
         </DropdownMenu>
 
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" onClick={onNotificationsOpen}>
           <Bell />
         </Button>
       </div>

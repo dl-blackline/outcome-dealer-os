@@ -1,50 +1,53 @@
-# Reviewer Focus Areas
+# Reviewer Focus Areas — Phase 2 Complete
 
 ## High-Priority Review
 
-### 1. Domain Type Correctness
-- `src/types/canonical.ts` — 30+ business objects. Are fields correct for automotive retail?
-- `src/domains/roles/permissions.ts` — Is the role-permission matrix accurate?
-- `src/domains/events/event.constants.ts` — Do 49 events cover the full lifecycle?
+### 1. Auth Integration Path
+- `App.tsx` → `AuthProvider` → `RouterProvider` → `AppShell`
+- `AppShell.tsx` reads from `useAuth()` — no more local role state
+- Topbar role switcher calls `setRole()` on auth context
+- Route guards enforce `requiredPermission` and `requireExecutive` from route definitions
 
-### 2. Workstation Architecture
-- `src/domains/workstation/workstation.types.ts` — Card model, linked objects, queues
-- `src/domains/workstation/workstation.autoCardRules.ts` — Are the 9 rules correct?
-- `src/components/workstation/WorkstationComponents.tsx` — Board, card, drawer UX
+### 2. Event Bus → Workstation Flow
+- `event.bus.ts`: `emitEvent()` → `publishEvent()` → `generateCardFromEvent()` → `createWorkstationCard()`
+- 9 auto-card rules in `workstation.autoCardRules.ts`
+- Workstation service persists to KV via `workstation.service.ts`
 
-### 3. Router and Navigation
-- `src/app/router/router.tsx` — Hash-based routing implementation
-- `src/app/AppShell.tsx` — Route-to-component mapping
-- `src/components/shell/AppSidebar.tsx` — Role-aware nav, workstation placement
+### 3. Route Permission Enforcement
+- `routes.ts` defines `requiredPermission` and `requireExecutive` for each route
+- `AppShell.tsx` checks against `canAccessRoute()` and `isExecutiveRole()`
+- `AccessDenied` component renders when access is denied
 
-### 4. Auth and Permissions
-- `src/domains/auth/auth.store.tsx` — AuthProvider and role switching
-- `src/domains/auth/auth.permissions.ts` — Permission checks and route access
-- `src/app/routes/guards.tsx` — GuardedRoute component (not yet wired)
+### 4. Workstation Persistence
+- `workstation.service.ts` — full CRUD against KV
+- Auto-seeds from `MOCK_WORKSTATION_CARDS` if KV table is empty
+- `WorkstationPage.tsx` uses async service calls instead of local state
+
+### 5. Command Palette and Notifications
+- `CommandPalette.tsx` — searches pages, leads, deals, inventory with keyboard nav
+- `NotificationCenter.tsx` — event-derived notifications with severity and mark-all-read
+- ⌘K keyboard shortcut wired globally in AppShell
 
 ## Medium-Priority Review
 
-### 5. Page Quality
-- Record list pages: Do tables have the right columns?
-- Record detail pages: Are linked records displayed correctly?
-- Ops pages: Do event/audit/approval surfaces feel real?
+### 6. Dashboard Adapters
+- `dashboard.adapters.ts` — `getDashboardSignals(role)` returns role-specific metrics
+- Sales, service, finance, and executive views are differentiated
 
-### 6. Documentation Alignment
-- `docs/architecture/` — 20+ docs. Do they match implemented code?
-- `docs/product/north_star.md` — Does the implementation honor the north star?
+### 7. Approval Service Integration
+- `ApprovalQueuePage.tsx` calls `approveRequest()`/`denyRequest()` + `emitEvent()`
+- Events flow through bus for potential card generation
 
-### 7. Component Reuse
-- `src/components/core/` — StatusPill, EntityBadge, EmptyState, SectionHeader
-- `src/components/governance/` — ApprovalStatusBadge, EventRow, AuditRow
-- Are components used consistently across pages?
+### 8. Record Not-Found Handling
+- All 4 record detail pages check for null and render `RecordNotFound`
+- No more silent fallback to first mock record
 
 ## Low-Priority / Future
 
-### 8. CSS and Theming
-- `src/styles/theme.css` — Radix UI color imports (large file)
-- `src/index.css` — oklch variables and dark mode
-- Build output size (506KB JS, 368KB CSS) — acceptable for Phase 1
+### 9. Bundle Size
+- 542KB JS (gzip 152KB) — acceptable for Phase 2, needs splitting for production
 
-### 9. Bundle Optimization
-- Single chunk exceeds 500KB — needs code splitting in Phase 2
-- Icon proxy resolves all Phosphor imports — tree-shaking working
+### 10. Mock-to-Real Transition
+- Record pages still read from static mock arrays
+- `useDomainQueries.ts` hooks exist but wrap mock data
+- Service layer (approval, event, workstation) shows the target pattern for all domains

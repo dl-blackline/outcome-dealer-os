@@ -2,6 +2,7 @@ import { SectionHeader } from '@/components/core/SectionHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Button } from '@/components/ui/button'
+import { RecordNotFound } from '@/components/core/RecordNotFound'
 import { useRouter } from '@/app/router'
 import { MOCK_DEALS, MOCK_APPROVALS, MOCK_EVENTS } from '@/lib/mockData'
 import { ArrowLeft, CurrencyDollar, Car, Shield } from '@phosphor-icons/react'
@@ -10,7 +11,8 @@ const STAGES = ['structured', 'quoted', 'signed', 'funded', 'delivered'] as cons
 
 export function DealRecordPage() {
   const { params, navigate } = useRouter()
-  const deal = MOCK_DEALS.find(d => d.id === params.id) ?? MOCK_DEALS[0]
+  const deal = MOCK_DEALS.find(d => d.id === params.id)
+  if (!deal) return <RecordNotFound entityType="Deal" onGoBack={() => navigate('/app/records/deals')} />
   const approvals = MOCK_APPROVALS.filter(a => a.description.toLowerCase().includes(deal.customerName.split(' ')[0].toLowerCase()))
   const events = MOCK_EVENTS.filter(e => e.entityId === deal.id)
   const currentIdx = STAGES.indexOf(deal.status as typeof STAGES[number])

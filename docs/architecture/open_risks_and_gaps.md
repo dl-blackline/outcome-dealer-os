@@ -1,67 +1,47 @@
-# Open Risks and Gaps
+# Open Risks and Gaps — Phase 2 Complete
 
-## Architectural Risks
+## Resolved in Phase 2
 
-### 1. No Route Guards in Practice
-- `GuardedRoute` component exists in `src/app/routes/guards.tsx`
-- Not wired into `AppShell.tsx` — all routes accessible to all roles
-- **Mitigation**: Role-based nav filtering hides unauthorized routes in sidebar
-- **Risk level**: Medium — sidebar hides routes but URL-direct access is not blocked
+| Risk | Resolution |
+|------|-----------|
+| No route guards in practice | Route guards enforced in AppShell with AccessDenied component |
+| Auth not connected | AuthProvider wired as single source of truth |
+| Command palette non-functional | Full search across pages and records with keyboard nav |
+| No notifications | Event-driven notification center |
+| Dashboard not role-aware | Centralized dashboard adapters with role-specific metrics |
+| Workstation local-only | KV-persisted workstation service |
+| Auto-card rules disconnected | Event bus connects events to auto-card generation |
+| Record pages silent fallback | RecordNotFound component for explicit not-found handling |
+| Approval actions local-only | Approve/deny call real services + emit events |
 
-### 2. Single Bundle Size
-- JS bundle is 506KB (gzip: 144KB)
-- Will grow as more domain logic is added
-- **Mitigation**: Code splitting via dynamic imports in Phase 2
-- **Risk level**: Low for Phase 1
+## Remaining Risks
 
-### 3. Mock Data Coupling
-- Some pages still import directly from `mockData.ts` instead of hooks
-- Query hooks exist but aren't consumed by all pages yet
-- **Mitigation**: Hooks are ready; refactoring pages to use them is straightforward
-- **Risk level**: Low — no data integrity risk, just technical debt
+### Architectural
 
-### 4. No Error Boundaries on Pages
-- `ErrorFallback` exists at the app level but individual pages can still crash
-- **Mitigation**: Pages use safe patterns (fallback to first mock item)
-- **Risk level**: Low
+1. **Single Bundle Size** — 542KB JS (gzip 152KB). Needs code splitting for production. (Medium risk)
+2. **Mock Data Coupling** — Some pages still import directly from mockData.ts. Query hooks exist but not all pages use them consistently. (Low risk)
+3. **No Error Boundaries on Pages** — ErrorFallback at app level only, individual pages don't have recovery. (Low risk)
+4. **KV Session Scope** — Spark KV is session-scoped, so workstation cards and events reset on full app reload. (Acceptable for demo)
 
-## Feature Gaps
+### Feature Gaps
 
-### 5. No Mutations
-- All pages are read-only
-- Approval Queue has mock approve/deny (local state only)
-- Workstation has mock card movement (local state only)
-- No create/update/delete operations persist to storage
+5. **No Mutations on Records** — Lead, deal, inventory, household pages are read-only. No create/edit/delete. (Phase 3)
+6. **No Drag-and-Drop** — Workstation uses move buttons, not drag-and-drop. (Phase 3)
+7. **No Real API Integration** — All data is mock. Service layer exists but connects to KV, not real backend. (Phase 3)
+8. **Audit Explorer Reads Events** — No separate audit mock/store. Audit explorer displays MOCK_EVENTS as proxy. (Phase 3)
+9. **Integration Sync Visual-Only** — Sync buttons show animation but don't trigger real syncs. (Phase 3)
+10. **No AI Agent Integration** — AI co-pilot features not implemented. (Phase 3+)
 
-### 6. Command Palette Non-Functional
-- Shell is rendered but search has no backend
-- Needs record search, action shortcuts, and navigation
+### Documentation Gaps
 
-### 7. No Notifications
-- No toast/snackbar system for user feedback
-- No real-time event notifications
+11. **Service Layer Contracts** — `service_layer_contracts.md` describes planned services, some now implemented, doc needs update. (Low risk)
+12. **Phase Migration Notes** — Phase 2/3/4 migration notes may not reflect current state. (Low risk)
 
-### 8. Auth Not Connected
-- AuthProvider exists but demo mode uses `defaultRole` prop
-- Spark auth (`spark.user()`) not called in production flow
-- Role switching is for demo purposes only
+## Recommended Priorities for Phase 3
 
-## Documentation Gaps
-
-### 9. Service Layer Contracts
-- `docs/architecture/service_layer_contracts.md` describes planned services
-- None are implemented yet — only type definitions exist
-- Could mislead reviewers into thinking services are real
-
-### 10. Phase Migration Notes
-- `phase2_migration_notes.md`, `phase3_migration_notes.md`, `phase4_migration_notes.md` exist
-- They describe future plans, not current state
-- Could be confused with implemented features
-
-## Recommended Priorities for Next Phase
-
-1. **Wire route guards** — enforce permission checks on URL-direct access
-2. **Migrate pages to hooks** — remove direct mock imports from page files
-3. **Add mutations** — CRUD operations through Spark KV
-4. **Implement command palette** — record search + action shortcuts
-5. **Code split** — lazy load page components for smaller initial bundle
+1. **Record CRUD** — Add create/edit/delete mutations to lead, deal, inventory pages
+2. **Real Data Flow** — Wire record pages through service layer → KV for full lifecycle
+3. **Code Splitting** — Dynamic imports for page-level chunks
+4. **Audit Store Separation** — Separate audit log storage from event stream
+5. **Drag-and-Drop Workstation** — Use react-beautiful-dnd or similar for card movement
+6. **Integration Webhook Simulation** — Simulate real integration sync with delayed responses

@@ -10,27 +10,29 @@ This is **not** a marketing site or proof-of-concept. It is an enterprise-grade 
 
 ## Current Status
 
-**Phase 1 — Foundation** is complete. The application shell, type system, role model, event taxonomy, and domain structure are implemented. See [`docs/product/current_implementation_status.md`](docs/product/current_implementation_status.md) for a detailed audit.
+**Phase 2 — Integration** is complete. All systems are connected and functional with mock data backing. See [`docs/product/current_implementation_status.md`](docs/product/current_implementation_status.md) for details.
 
 ### What's Working
 
-- **Role model**: 13 roles, 28 permissions, policy engine with route guards
-- **Canonical types**: 30+ business objects defined in `src/types/canonical.ts`
-- **Event taxonomy**: 49 structured event types across all domains
-- **Auth domain**: AuthProvider, useAuth hook, permission checks, route guards
-- **Shell**: AppSidebar with role-aware navigation, Topbar with role switcher, CommandPalette shell
-- **Core components**: StatusPill, EntityBadge, EmptyState, SectionHeader
-- **Mock data layer**: Leads, deals, inventory, approvals, events, tasks
-- **Domain structure**: 21 domains with types, services, queries, and policies
-- **Dashboard**: Live mock data display with role-aware metrics
+- **Auth**: AuthProvider as single source of truth, dev role switcher updates context
+- **Route guards**: Permission-based access enforcement with AccessDenied UI
+- **Role model**: 13 roles, 28 permissions, policy engine — actively enforced
+- **Workstation**: KV-persisted cards via service layer, auto-seeded from mock
+- **Event bus**: `emitEvent()` persists events, triggers auto-card generation, notifies listeners
+- **Auto-card rules**: 9 event-to-card mappings executed at runtime via event bus
+- **Approval actions**: Approve/deny call real services, emit events, write audit logs
+- **Command palette**: Full search across pages and records with keyboard navigation (⌘K)
+- **Notifications**: Event-driven notification center with severity levels
+- **Dashboard**: Role-aware metrics via centralized adapters
+- **Record pages**: Proper not-found handling with RecordNotFound component
+- **Settings**: Auth-aware roles page, interactive integration sync actions
 
-### What's Placeholder
+### What's Mock-Driven
 
-- Navigation uses local `currentPath` state, not a real router
-- Records, Operations, and Settings pages show "coming soon" cards
-- Workstation UI not present
-- Command palette shell exists but has no functionality
-- Services defined in types/contracts but not wired to real data
+- Record data (leads, deals, inventory, households) from static mock arrays
+- Dashboard metrics derived from mock data (role-aware derivation is real)
+- Notifications seeded from mock events
+- Integration sync buttons are visual-only
 
 ## Tech Stack
 
