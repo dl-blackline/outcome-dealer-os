@@ -2,13 +2,15 @@ import { SectionHeader } from '@/components/core/SectionHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Button } from '@/components/ui/button'
+import { RecordNotFound } from '@/components/core/RecordNotFound'
 import { useRouter } from '@/app/router'
 import { MOCK_LEADS, MOCK_EVENTS } from '@/lib/mockData'
 import { ArrowLeft, EnvelopeSimple, Phone, Target, Globe } from '@phosphor-icons/react'
 
 export function LeadRecordPage() {
   const { params, navigate } = useRouter()
-  const lead = MOCK_LEADS.find(l => l.id === params.id) ?? MOCK_LEADS[0]
+  const lead = MOCK_LEADS.find(l => l.id === params.id)
+  if (!lead) return <RecordNotFound entityType="Lead" onGoBack={() => navigate('/app/records/leads')} />
   const events = MOCK_EVENTS.filter(e => e.entityId === lead.id)
   const sv = lead.status === 'converted' ? 'success' as const : lead.status === 'qualified' ? 'info' as const : lead.status === 'contacted' ? 'warning' as const : 'neutral' as const
 

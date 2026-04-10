@@ -2,6 +2,7 @@ import { SectionHeader } from '@/components/core/SectionHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Button } from '@/components/ui/button'
+import { RecordNotFound } from '@/components/core/RecordNotFound'
 import { useRouter } from '@/app/router'
 import { MOCK_LEADS, MOCK_DEALS } from '@/lib/mockData'
 import { ArrowLeft, CurrencyDollar, Star, UsersThree } from '@phosphor-icons/react'
@@ -14,7 +15,8 @@ const MOCK_HOUSEHOLDS = [
 
 export function HouseholdRecordPage() {
   const { params, navigate } = useRouter()
-  const hh = MOCK_HOUSEHOLDS.find(h => h.id === params.id) ?? MOCK_HOUSEHOLDS[0]
+  const hh = MOCK_HOUSEHOLDS.find(h => h.id === params.id)
+  if (!hh) return <RecordNotFound entityType="Household" onGoBack={() => navigate('/app/records/households')} />
   const linkedLeads = MOCK_LEADS.filter(l => l.householdId === hh.id)
   const linkedDeals = MOCK_DEALS.filter(d => linkedLeads.some(l => l.id === d.leadId))
 

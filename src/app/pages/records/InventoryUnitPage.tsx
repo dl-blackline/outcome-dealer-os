@@ -2,13 +2,15 @@ import { SectionHeader } from '@/components/core/SectionHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Button } from '@/components/ui/button'
+import { RecordNotFound } from '@/components/core/RecordNotFound'
 import { useRouter } from '@/app/router'
 import { MOCK_INVENTORY } from '@/lib/mockData'
 import { ArrowLeft, Barcode, Calendar, CurrencyDollar, Wrench } from '@phosphor-icons/react'
 
 export function InventoryUnitPage() {
   const { params, navigate } = useRouter()
-  const unit = MOCK_INVENTORY.find(u => u.id === params.id) ?? MOCK_INVENTORY[0]
+  const unit = MOCK_INVENTORY.find(u => u.id === params.id)
+  if (!unit) return <RecordNotFound entityType="Inventory Unit" onGoBack={() => navigate('/app/records/inventory')} />
   const agingVariant = unit.status === 'aging' ? 'danger' as const : unit.daysInStock > 45 ? 'warning' as const : 'success' as const
   const statusVariant = unit.status === 'frontline' ? 'success' as const : unit.status === 'recon' ? 'warning' as const : unit.status === 'aging' ? 'danger' as const : 'neutral' as const
 
