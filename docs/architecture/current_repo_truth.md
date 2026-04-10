@@ -1,101 +1,92 @@
-# Current Repo Truth — Phase 2 Baseline
+# Current Repo Truth — Phase 2 Complete
 
-> Last updated: Phase 2 start
+> Last updated: Phase 2 completion
 
 ## Routing
 
-- **Status**: Implemented
+- **Status**: Fully implemented with permission enforcement
 - Custom hash-based router (`src/app/router/`) using `#/app/...` format
 - `RouterProvider` context with `useRouter()` hook
-- Route definitions in `routes.ts` with `requiredPermission` and `requireExecutive` fields defined but **not enforced**
+- Route definitions in `routes.ts` with `requiredPermission` and `requireExecutive` fields **actively enforced** in AppShell
 - `matchRoute()` and `findMatchingRoute()` helpers work correctly
-- Fallback: unmatched routes render `DashboardPage`
+- `AccessDenied` component renders when role lacks required permission
+
+## Auth
+
+- **Status**: Fully connected
+- `AuthProvider` wraps the entire app in `App.tsx`
+- `AppShell` reads role from `useAuth()` — single source of truth
+- Topbar role switcher updates auth context via `setRole()`
+- All pages can access auth state via `useAuth()` / `useCurrentUser()`
+- ⌘K keyboard shortcut opens command palette globally
 
 ## Workstation
 
-- **Status**: Implemented (mock-driven, page-local state)
-- Full kanban board UI with 5 columns (inbox, today, in_progress, waiting, done)
-- 8 mock cards in `workstation.mock.ts`
-- Card create, move, filter, search — all page-local `useState`
-- Auto-card rules defined (9 rules) but **not executed at runtime**
-- No persistence — cards reset on page reload
-- `WorkstationComponents.tsx` is a well-built 400-line component set
+- **Status**: Implemented with KV persistence
+- Full kanban board UI with 5 columns
+- Cards persisted via `workstation.service.ts` → Spark KV
+- Mock data auto-seeded on first load if KV table is empty
+- Card create, move, filter, search — all persist through service layer
+- Auto-card rules (9 rules) connected to event bus for runtime execution
+
+## Event Bus
+
+- **Status**: Implemented
+- `event.bus.ts` emits events → persists via publisher → checks auto-card rules → notifies listeners
+- `emitEvent()` is the single entry point for all business events
+- Events can automatically generate workstation cards when auto-card rules match
+
+## Approval Actions
+
+- **Status**: Service-connected
+- Approve/deny buttons call real `approveRequest()` / `denyRequest()` services
+- Each action emits events through the event bus
+- Audit logging via `audit.service.ts` captures before/after state
+- Local state still seeds from `MOCK_APPROVALS` for initial display
 
 ## Records Pages
 
-- **Status**: Implemented (mock-driven, read-only)
-- Household, Lead, Deal, Inventory — all have list + record pages
-- Data comes from `useDomainQueries.ts` hooks backed by `mockData.ts`
-- Record pages silently return `null` for unknown IDs (no explicit not-found handling)
-- List pages have search/filter but no real pagination
-- Navigation from list to record works via `useRouter().navigate()`
-
-## Ops Pages
-
-- **Status**: Implemented (mock-driven, local-only actions)
-- Event Explorer: reads from `MOCK_EVENTS`, filters by entity type and actor type
-- Approval Queue: reads from `MOCK_APPROVALS`, tabs for status, approve/deny buttons exist but mutate local state only
-- Audit Explorer: reads from `MOCK_EVENTS` as proxy for audit, displays in table format
+- **Status**: Mock-driven with proper not-found handling
+- All record detail pages use `RecordNotFound` component for invalid IDs
+- No more silent fallback to first record — explicit not-found UI
+- List pages have search/filter and navigation
 
 ## Dashboard
 
-- **Status**: Implemented (mock-driven, not role-aware)
-- Reads directly from `MOCK_LEADS`, `MOCK_DEALS`, `MOCK_INVENTORY`, `MOCK_APPROVALS`, `MOCK_TASKS`
-- Static metric cards with hardcoded "+2 from last week" text
-- Not connected to domain query hooks or adapters
-- No role-specific behavior (same dashboard for all roles)
-
-## Auth and Role State
-
-- **Status**: Partially implemented
-- `AuthProvider` exists in `src/domains/auth/auth.store.tsx` with full context
-- `useAuth()`, `useCurrentUser()`, `useRequireAuth()` hooks exist
-- `AuthService` fetches from `spark.user()` and maps to `CurrentAppUser`
-- **However**: `AuthProvider` is NOT used in `App.tsx` or `AppShell.tsx`
-- `AppShell` uses local `useState<AppRole>('gm')` for role management
-- Topbar role switcher updates local state, not auth context
-- Result: auth domain is complete but disconnected from the app
+- **Status**: Role-aware with centralized adapters
+- `dashboard.adapters.ts` provides `getDashboardSignals(role)` with role-specific metrics
+- Sales roles see leads/deals/approvals
+- Service roles see inventory/events
+- Finance roles see deals/approvals/leads
+- Executives see everything
+- Personalized greeting with user display name
 
 ## Command Palette
 
-- **Status**: Shell only
-- Opens/closes via dialog, has search input
-- Displays "Command palette functionality coming soon"
-- No route navigation, no record search, no actions
+- **Status**: Fully functional
+- Searches across all pages and all mock records (leads, deals, inventory)
+- Keyboard navigation (↑↓ arrows, Enter to select, Esc to close)
+- ⌘K keyboard shortcut to open
+- Grouped results by category (Pages, Records)
 
 ## Notifications
 
-- **Status**: Shell only
-- `NotificationCenter` component exists with Sheet UI
-- Displays "No new notifications"
-- Bell button in Topbar exists but not connected to NotificationCenter
-- No event-driven notifications
+- **Status**: Event-driven
+- `NotificationCenter` displays events as notifications
+- Events categorized by severity (info, warning, success)
+- "Mark all read" functionality
+- Bell button in Topbar opens notification sheet
+
+## Settings
+
+- **Status**: Enhanced
+- Roles page shows current user's role with auth context integration
+- Integrations page has sync action buttons, health summary, and descriptions
 
 ## Data Persistence
 
-- **Status**: Infrastructure exists, not wired to UI
-- `SupabaseClient` class wraps `window.spark.kv` for CRUD operations
-- `db.helpers.ts` exports `findById`, `findMany`, `insert`, `update`, `deleteById`, `count`
-- DB row types defined for events, audit, approvals, integrations, households, customers, leads, etc.
-- Services (`approval.service.ts`, `event.publisher.ts`, `audit.service.ts`) use these helpers
-- **However**: UI pages read from static mock arrays, not from services/KV
-- No runtime data flows through the persistence layer in normal operation
-
-## Approval and Event Continuity
-
-- **Status**: Service layer complete, UI disconnected
-- `approval.service.ts` has full CRUD with event publishing and audit logging
-- `event.publisher.ts` writes to KV-backed event bus
-- `audit.service.ts` writes structured audit logs
-- **However**: UI pages use `MOCK_APPROVALS` and `MOCK_EVENTS` directly
-- Approve/deny buttons in ApprovalQueuePage mutate local array state
-
-## Permission Model
-
-- **Status**: Fully defined, partially enforced
-- 13 roles × 28 permissions matrix in `permissions.ts`
-- Policy engine with `hasPermission()`, `assertPermission()`, `canApprove()`
-- Auth permission helpers in `auth.permissions.ts`
-- Route definitions have `requiredPermission` fields
-- **However**: No route guards are active — any role can access any page
-- Sidebar visibility is role-filtered (nav groups) but URL access is not restricted
+- **Status**: Workstation and events connected, records still mock
+- Workstation cards: KV-persisted via `workstation.service.ts`
+- Events: KV-persisted via `event.publisher.ts`
+- Approvals: Service layer available, UI seeds from mock
+- Records (leads, deals, inventory, households): Still from static mock arrays
