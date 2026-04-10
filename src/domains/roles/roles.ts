@@ -32,20 +32,20 @@ export const ROLE_LABELS: Record<AppRole, string> = {
   admin: 'Administrator',
 }
 
-export type NavGroup = 'dashboard' | 'records' | 'operations' | 'settings'
+export type NavGroup = 'dashboard' | 'records' | 'operations' | 'settings' | 'workstation'
 
 export const ROLE_NAV_GROUPS: Record<AppRole, NavGroup[]> = {
-  owner: ['dashboard', 'records', 'operations', 'settings'],
-  gm: ['dashboard', 'records', 'operations', 'settings'],
-  gsm: ['dashboard', 'records', 'operations', 'settings'],
-  used_car_manager: ['dashboard', 'records', 'operations'],
-  bdc_manager: ['dashboard', 'records', 'operations'],
-  sales_manager: ['dashboard', 'records', 'operations'],
-  sales_rep: ['dashboard', 'records'],
-  fi_manager: ['dashboard', 'records', 'operations'],
-  service_director: ['dashboard', 'records', 'operations'],
-  service_advisor: ['dashboard', 'records'],
-  recon_manager: ['dashboard', 'records', 'operations'],
-  marketing_manager: ['dashboard', 'records', 'operations'],
-  admin: ['dashboard', 'records', 'operations', 'settings'],
+  owner: ['dashboard', 'workstation', 'records', 'operations', 'settings'],
+  gm: ['dashboard', 'workstation', 'records', 'operations', 'settings'],
+  gsm: ['dashboard', 'workstation', 'records', 'operations', 'settings'],
+  used_car_manager: ['dashboard', 'workstation', 'records', 'operations'],
+  bdc_manager: ['dashboard', 'workstation', 'records', 'operations'],
+  sales_manager: ['dashboard', 'workstation', 'records', 'operations'],
+  sales_rep: ['dashboard', 'workstation', 'records'],
+  fi_manager: ['dashboard', 'workstation', 'records', 'operations'],
+  service_director: ['dashboard', 'workstation', 'records', 'operations'],
+  service_advisor: ['dashboard', 'workstation', 'records'],
+  recon_manager: ['dashboard', 'workstation', 'records', 'operations'],
+  marketing_manager: ['dashboard', 'workstation', 'records', 'operations'],
+  admin: ['dashboard', 'workstation', 'records', 'operations', 'settings'],
 }

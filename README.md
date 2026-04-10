@@ -1,23 +1,94 @@
-# ✨ Welcome to Your Spark Template!
-You've just launched your brand-new Spark Template Codespace — everything’s fired up and ready for you to explore, build, and create with Spark!
+# Outcome Dealer OS
 
-This template is your blank canvas. It comes with a minimal setup to help you get started quickly with Spark development.
+A premium AI-native dealership operating system that unifies the entire dealership value chain under one intelligent command layer.
 
-🚀 What's Inside?
-- A clean, minimal Spark environment
-- Pre-configured for local development
-- Ready to scale with your ideas
-  
-🧠 What Can You Do?
+## What This Is
 
-Right now, this is just a starting point — the perfect place to begin building and testing your Spark applications.
+Outcome Dealer OS is a comprehensive dealership operating system with canonical data models, event-driven architecture, role-based access control, approval workflows, and AI co-pilot features. It handles the complete customer lifecycle from lead generation through vehicle delivery and service retention.
 
-🧹 Just Exploring?
-No problem! If you were just checking things out and don’t need to keep this code:
+This is **not** a marketing site or proof-of-concept. It is an enterprise-grade application shell with real domain modeling, a full role/permission system, and structured architecture documentation.
 
-- Simply delete your Spark.
-- Everything will be cleaned up — no traces left behind.
+## Current Status
 
-📄 License For Spark Template Resources 
+**Phase 1 — Foundation** is complete. The application shell, type system, role model, event taxonomy, and domain structure are implemented. See [`docs/product/current_implementation_status.md`](docs/product/current_implementation_status.md) for a detailed audit.
 
-The Spark Template files and resources from GitHub are licensed under the terms of the MIT license, Copyright GitHub, Inc.
+### What's Working
+
+- **Role model**: 13 roles, 28 permissions, policy engine with route guards
+- **Canonical types**: 30+ business objects defined in `src/types/canonical.ts`
+- **Event taxonomy**: 49 structured event types across all domains
+- **Auth domain**: AuthProvider, useAuth hook, permission checks, route guards
+- **Shell**: AppSidebar with role-aware navigation, Topbar with role switcher, CommandPalette shell
+- **Core components**: StatusPill, EntityBadge, EmptyState, SectionHeader
+- **Mock data layer**: Leads, deals, inventory, approvals, events, tasks
+- **Domain structure**: 21 domains with types, services, queries, and policies
+- **Dashboard**: Live mock data display with role-aware metrics
+
+### What's Placeholder
+
+- Navigation uses local `currentPath` state, not a real router
+- Records, Operations, and Settings pages show "coming soon" cards
+- Workstation UI not present
+- Command palette shell exists but has no functionality
+- Services defined in types/contracts but not wired to real data
+
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| Framework | React 19 + TypeScript |
+| Build | Vite |
+| Styling | Tailwind CSS v4 |
+| Components | Radix UI primitives, Shadcn-style composition |
+| Icons | Lucide React |
+| State | React context + hooks (event-sourced design) |
+| Data | Spark KV adapter with CRUD helpers (mock layer) |
+
+## Architecture
+
+The system follows a **domain-driven, event-sourced, role-aware** architecture:
+
+- **Domains** (`src/domains/`): Each business domain (CRM, inventory, deals, F&I, service, etc.) has its own types, services, queries, and policy files.
+- **Canonical Objects** (`src/types/canonical.ts`): Single source of truth for all entity shapes — households, leads, deals, vehicles, appointments, etc.
+- **Event System** (`src/types/events.ts`): Every meaningful state change produces an immutable event with structured payload.
+- **Role & Permission Engine** (`src/domains/auth/`): Policy-based access control with 13 dealership roles and 28 granular permissions.
+- **Shell** (`src/app/`): Premium dark-first shell with sidebar, topbar, command palette, and notification center — all role-aware.
+
+See the [`docs/architecture/`](docs/architecture/) directory for detailed documentation on auth, events, services, schemas, and integration patterns.
+
+## Project Structure
+
+```
+src/
+├── app/            # Shell layout (sidebar, topbar, command palette)
+├── components/     # Shared UI components
+├── domains/        # Business domains (auth, crm, inventory, deals, ...)
+├── hooks/          # Shared React hooks
+├── lib/            # Utilities
+├── services/       # Data adapters
+├── styles/         # Global styles
+└── types/          # Canonical types, events, contracts
+docs/
+├── architecture/   # Technical architecture docs (14 files)
+├── product/        # Product identity and status
+└── copilot-prompts/# Build prompts
+```
+
+## Running Locally
+
+```bash
+npm install
+npm run dev
+```
+
+The dev server starts on `http://localhost:5000`.
+
+## Building
+
+```bash
+npm run build
+```
+
+## License
+
+MIT

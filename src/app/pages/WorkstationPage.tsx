@@ -1,0 +1,92 @@
+import { useState, useCallback } from 'react'
+import { SectionHeader } from '@/components/core/SectionHeader'
+import { Button } from '@/components/ui/button'
+import {
+  DEFAULT_COLUMNS,
+  MOCK_WORKSTATION_CARDS,
+  type WorkstationCard,
+  type WorkstationColumnId,
+  type QueueType,
+  type CardPriority,
+} from '@/domains/workstation'
+import {
+  WorkstationBoard,
+  WorkstationCardDrawer,
+  WorkstationFilters,
+  WorkstationQuickCreate,
+} from '@/components/workstation/WorkstationComponents'
+import { Plus } from '@phosphor-icons/react'
+
+export function WorkstationPage() {
+  const [cards, setCards] = useState<WorkstationCard[]>(MOCK_WORKSTATION_CARDS)
+  const [selectedCard, setSelectedCard] = useState<WorkstationCard | null>(null)
+  const [drawerOpen, setDrawerOpen] = useState(false)
+  const [quickCreateOpen, setQuickCreateOpen] = useState(false)
+  const [queueFilter, setQueueFilter] = useState<QueueType | 'all'>('all')
+  const [priorityFilter, setPriorityFilter] = useState<CardPriority | 'all'>('all')
+  const [searchTerm, setSearchTerm] = useState('')
+
+  const moveCard = useCallback((cardId: string, toCol: WorkstationColumnId) => {
+    setCards(prev => prev.map(c => c.id === cardId ? { ...c, columnId: toCol, updatedAt: new Date().toISOString() } : c))
+    if (selectedCard?.id === cardId) {
+      setSelectedCard(prev => prev ? { ...prev, columnId: toCol } : null)
+    }
+  }, [selectedCard])
+
+  const handleCreate = useCallback((partial: Omit<WorkstationCard, 'id' | 'createdAt' | 'updatedAt'>) => {
+    const now = new Date().toISOString()
+    const card: WorkstationCard = {
+      ...partial,
+      id: `wc-${Date.now()}`,
+      createdAt: now,
+      updatedAt: now,
+    }
+    setCards(prev => [card, ...prev])
+  }, [])
+
+  const filtered = cards.filter(c => {
+    if (queueFilter !== 'all' && c.queueType !== queueFilter) return false
+    if (priorityFilter !== 'all' && c.priority !== priorityFilter) return false
+    if (searchTerm && !c.title.toLowerCase().includes(searchTerm.toLowerCase())) return false
+    return true
+  })
+
+  return (
+    <div className="space-y-4">
+      <SectionHeader
+        title="Workstation"
+        description="Your cross-department execution board"
+        action={<Button size="sm" className="gap-2" onClick={() => setQuickCreateOpen(true)}><Plus className="h-4 w-4" /> New Card</Button>}
+      />
+
+      <WorkstationFilters
+        queueFilter={queueFilter}
+        priorityFilter={priorityFilter}
+        searchTerm={searchTerm}
+        onQueueChange={setQueueFilter}
+        onPriorityChange={setPriorityFilter}
+        onSearchChange={setSearchTerm}
+      />
+
+      <WorkstationBoard
+        cards={filtered}
+        columns={DEFAULT_COLUMNS}
+        onMoveCard={moveCard}
+        onSelectCard={card => { setSelectedCard(card); setDrawerOpen(true) }}
+      />
+
+      <WorkstationCardDrawer
+        card={selectedCard}
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        onMoveToColumn={moveCard}
+      />
+
+      <WorkstationQuickCreate
+        open={quickCreateOpen}
+        onOpenChange={setQuickCreateOpen}
+        onCreate={handleCreate}
+      />
+    </div>
+  )
+}
