@@ -1,11 +1,14 @@
 import { RouterProvider } from '@/app/router'
+import { AuthProvider } from '@/domains/auth/auth.store'
 import { AppShell } from '@/app/AppShell'
 
 function App() {
   return (
-    <RouterProvider>
-      <AppShell />
-    </RouterProvider>
+    <AuthProvider>
+      <RouterProvider>
+        <AppShell />
+      </RouterProvider>
+    </AuthProvider>
   )
 }
 

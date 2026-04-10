@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useRouter } from '@/app/router'
-import { AppRole } from '@/domains/roles/roles'
+import { useAuth } from '@/domains/auth/auth.store'
 import { AppSidebar } from '@/components/shell/AppSidebar'
 import { Topbar } from '@/components/shell/Topbar'
 import { CommandPalette } from '@/components/shell/CommandPalette'
@@ -49,9 +49,19 @@ function resolvePageComponent(currentPath: string): React.ComponentType | null {
 }
 
 export function AppShell() {
-  const [currentRole, setCurrentRole] = useState<AppRole>('gm')
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
   const { currentPath, navigate } = useRouter()
+  const { user, status, setRole } = useAuth()
+
+  const currentRole = user?.role ?? 'gm'
+
+  if (status === 'loading') {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="text-sm text-muted-foreground">Loading Outcome Dealer OS…</div>
+      </div>
+    )
+  }
 
   const PageComponent = resolvePageComponent(currentPath)
 
@@ -66,7 +76,7 @@ export function AppShell() {
       <div className="flex flex-1 flex-col overflow-hidden">
         <Topbar
           currentRole={currentRole}
-          onRoleChange={setCurrentRole}
+          onRoleChange={setRole}
           onCommandPaletteOpen={() => setCommandPaletteOpen(true)}
         />
 
