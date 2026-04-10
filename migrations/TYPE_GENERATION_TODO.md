@@ -45,10 +45,24 @@ type Customer = Database['public']['Tables']['customers']['Row']
 
 ## Current State
 
-- ✅ Migrations 0001-0005 created
+- ✅ Migrations 0001-0010 created
 - ⏳ Migrations not yet applied to database
 - ⏳ Types not yet generated
 - ⏳ `src/types/database.generated.ts` does not exist yet
+
+## Schema Status After PR 3
+
+**27 tables total** across all domains:
+- Identity & CRM: households, customers, leads, communication_events
+- Activity: appointments, showroom_visits
+- Vehicle: vehicle_catalog_items, inventory_units
+- Sales: trade_appraisals, desk_scenarios, quotes
+- Finance: quick_apps, credit_apps, lender_decisions, fi_menus
+- Deals: deals, deal_document_packages, funding_exceptions
+- Fixed Ops: service_events, declined_work_events, recon_jobs
+- Marketing: campaigns, attribution_touches
+- Workflow: tasks, approvals
+- Infrastructure: audit_logs, integration_sync_states, event_bus
 
 ## TODO for Production Setup
 
