@@ -87,7 +87,9 @@ export function AppSidebar({ currentPath, currentRole }: AppSidebarProps) {
   return (
     <div className="flex h-screen w-64 flex-col border-r border-border bg-card">
       <div className="flex h-16 items-center px-6 border-b border-border">
-        <h1 className="text-lg font-bold tracking-tight">Outcome Dealer OS</h1>
+        <h1 className="text-xl font-bold tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+          Outcome Dealer OS
+        </h1>
       </div>
 
       <nav className="flex-1 space-y-1 p-4">
@@ -100,13 +102,13 @@ export function AppSidebar({ currentPath, currentRole }: AppSidebarProps) {
               key={item.href}
               href={item.href}
               className={cn(
-                'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
                 isActive
-                  ? 'bg-accent text-accent-foreground'
+                  ? 'bg-primary/10 text-primary ring-1 ring-primary/20'
                   : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
               )}
             >
-              <Icon className="h-5 w-5" />
+              <Icon className="h-5 w-5 flex-shrink-0" />
               {item.label}
             </a>
           )

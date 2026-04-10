@@ -3,7 +3,22 @@
 
 @layer base {
   * {
-    @apply border-border
+    @apply border-border;
+  }
+  
+  body {
+    font-family: 'Inter', sans-serif;
+    font-feature-settings: 'cv11', 'ss01';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  h1, h2, h3 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  
+  code, pre, [data-monospace] {
+    font-family: 'JetBrains Mono', monospace;
   }
 }
 
@@ -26,8 +41,8 @@
   --muted: oklch(0.20 0.01 240);
   --muted-foreground: oklch(0.62 0.01 240);
   
-  --accent: oklch(0.25 0.02 240);
-  --accent-foreground: oklch(0.96 0.01 240);
+  --accent: oklch(0.75 0.15 220);
+  --accent-foreground: oklch(0.08 0.01 240);
   
   --destructive: oklch(0.60 0.24 20);
   --destructive-foreground: oklch(0.96 0.01 240);
@@ -36,7 +51,7 @@
   --input: oklch(0.24 0.01 240);
   --ring: oklch(0.68 0.19 264);
   
-  --radius: 0.5rem;
+  --radius: 0.625rem;
 }
 
 @theme {
@@ -66,4 +81,8 @@
   --radius-xl: calc(var(--radius) * 2);
   --radius-2xl: calc(var(--radius) * 3);
   --radius-full: 9999px;
+  
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Courier New', monospace;
 }
