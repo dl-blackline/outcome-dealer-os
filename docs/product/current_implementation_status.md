@@ -2,7 +2,7 @@
 
 Honest audit of what is implemented, what is placeholder, and what scaffold remnants exist.
 
-Last updated: Phase 1 completion.
+Last updated: Phase 3, Prompt 20.
 
 ---
 
@@ -81,45 +81,57 @@ Last updated: Phase 1 completion.
 
 ## Placeholder
 
-### Navigation
-- Uses local `currentPath` state instead of a real client-side router
-- Page transitions are component swaps, not URL-driven routes
-- No browser history support (back/forward buttons don't work as expected)
+### Navigation (Updated Phase 2)
+- Custom hash-based router implemented (`src/app/router/`)
+- 15 routes defined with route-to-component mapping in AppShell
+- URL-driven navigation works (`#/app/...` format)
 
-### Records Pages
-- Leads, Deals, Inventory, Contacts pages show "coming soon" placeholder cards
-- List views exist but are not connected to filterable/sortable data grids
-- Detail views not implemented
+### Records Pages (Updated Phase 2)
+- Lead, Deal, Inventory, Household list and detail pages all implemented
+- All pages read directly from MOCK_* arrays — no runtime connection
+- Detail pages show linked records, activity timelines
 
-### Operations Pages
-- Appointments, Service, Approvals, Tasks pages show "coming soon" placeholder cards
-- No workflow UI implemented
+### Operations Pages (Updated Phase 2)
+- Event Explorer, Approval Queue, Audit Explorer all implemented
+- All read from MOCK_* arrays or inline mock data
+- Approval actions update local state only — deceptive runtime appearance
 
-### Settings Pages
-- Users, Roles, Integrations, System settings show "coming soon" placeholder cards
-- No settings persistence
+### Settings Pages (Updated Phase 2)
+- Roles page shows all 13 roles with expandable permission lists (read-only, from code)
+- Integrations page shows mock integration status cards
 
-### Workstation
-- Workstation concept defined in architecture but no UI present
-- No role-specific workstation views
+### Workstation (Updated Phase 2)
+- Full kanban board with 5 columns (Inbox, Today, In Progress, Waiting, Done)
+- HTML5 drag-and-drop between columns
+- Card creation, filtering by queue/priority, card detail drawer
+- **Gap**: Page uses local `useState` with mock seed data, does not call workstation.service.ts
 
-### Command Palette
-- Shell component exists with keyboard shortcut trigger
-- No search, no command execution, no navigation
-- Visual container only
+### Command Palette (Updated Phase 2)
+- Search across navigation items and records (leads, deals, inventory)
+- Keyboard navigation (↑↓ Enter Esc)
+- **Gap**: Reads MOCK_* arrays directly; no contextual actions
 
-### Data Flow
-- Service interfaces defined in `src/types/contracts.ts` but not wired
-- No real API calls or data persistence beyond Spark KV mock layer
-- Event emission is typed but events are not persisted or replayed
+### Data Flow (Updated Phase 2)
+- Runtime services exist for: workstation, approvals, events, audit, integrations
+- All use KV-backed `db` layer (`lib/db/supabase.ts`) with real CRUD
+- **Critical gap**: UI pages do NOT use these services; they read mock arrays directly
+- Domain query hooks (`useDomainQueries.ts`) exist but also just wrap mock arrays
+- `dashboard.adapters.ts` provides role-aware metrics but DashboardPage doesn't use it
+
+### Notification Center (Updated Phase 2)
+- Shows notifications derived from MOCK_EVENTS at mount time
+- Mark-all-read functionality (local state only)
+- **Gap**: No connection to runtime event bus; notifications are static after mount
 
 ---
 
-## Scaffold Remnants (Fixed)
+## Phase 3 Hybrid State Summary
 
-| Item | Was | Fixed To |
-|------|-----|----------|
-| `package.json` name | `spark-template` | `outcome-dealer-os` |
-| `README.md` | Spark Template welcome page | Outcome Dealer OS project README |
-| `index.html` title | Already correct | `Outcome Dealer OS` |
-| `spark.meta.json` | `{"dbType": null}` | Kept as-is (runtime config, not identity) |
+See also: `docs/architecture/hybrid_state_inventory.md` and `docs/architecture/mock_vs_runtime_matrix.md`
+
+The primary gap is a **disconnected UI↔Service layer**:
+- Runtime services (workstation, approvals, events, audit) are real and use KV persistence
+- UI pages bypass these services entirely and read static mock arrays
+- This creates a deceptive experience where the app appears runtime-backed but isn't
+
+Phase 3 goals: bridge this gap by routing pages through domain adapters/services.

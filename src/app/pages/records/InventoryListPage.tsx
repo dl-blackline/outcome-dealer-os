@@ -4,16 +4,21 @@ import { Card, CardContent } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Badge } from '@/components/ui/badge'
 import { useRouter } from '@/app/router'
-import { MOCK_INVENTORY } from '@/lib/mockData'
-import { Calendar, CurrencyDollar } from '@phosphor-icons/react'
+import { useInventory } from '@/hooks/useDomainQueries'
+import { Calendar, CurrencyDollar, SpinnerGap } from '@phosphor-icons/react'
 
 export function InventoryListPage() {
   const { navigate } = useRouter()
+  const inventory = useInventory()
   const [search, setSearch] = useState('')
-  const filtered = MOCK_INVENTORY.filter(u => {
+  const filtered = inventory.data.filter(u => {
     const desc = `${u.year} ${u.make} ${u.model} ${u.trim} ${u.vin}`.toLowerCase()
     return !search || desc.includes(search.toLowerCase())
   })
+
+  if (inventory.loading) {
+    return <div className="flex items-center justify-center py-24"><SpinnerGap className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+  }
 
   return (
     <div className="space-y-6">

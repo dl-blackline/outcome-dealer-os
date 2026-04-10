@@ -3,16 +3,26 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Button } from '@/components/ui/button'
 import { useRouter } from '@/app/router'
-import { MOCK_DEALS, MOCK_APPROVALS, MOCK_EVENTS } from '@/lib/mockData'
-import { ArrowLeft, CurrencyDollar, Car, Shield } from '@phosphor-icons/react'
+import { useDeal, useApprovals, useEntityEvents } from '@/hooks/useDomainQueries'
+import { ArrowLeft, CurrencyDollar, Car, Shield, SpinnerGap } from '@phosphor-icons/react'
 
 const STAGES = ['structured', 'quoted', 'signed', 'funded', 'delivered'] as const
 
 export function DealRecordPage() {
   const { params, navigate } = useRouter()
-  const deal = MOCK_DEALS.find(d => d.id === params.id) ?? MOCK_DEALS[0]
-  const approvals = MOCK_APPROVALS.filter(a => a.description.toLowerCase().includes(deal.customerName.split(' ')[0].toLowerCase()))
-  const events = MOCK_EVENTS.filter(e => e.entityId === deal.id)
+  const dealQuery = useDeal(params.id ?? '')
+  const approvalsQuery = useApprovals()
+  const eventsQuery = useEntityEvents(params.id ?? '')
+
+  if (dealQuery.loading) {
+    return <div className="flex items-center justify-center py-24"><SpinnerGap className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+  }
+
+  const deal = dealQuery.data
+  if (!deal) return <div className="py-24 text-center text-muted-foreground">Deal not found.</div>
+
+  const approvals = approvalsQuery.data.filter(a => a.description.toLowerCase().includes(deal.customerName.split(' ')[0].toLowerCase()))
+  const events = eventsQuery.data
   const currentIdx = STAGES.indexOf(deal.status as typeof STAGES[number])
 
   return (

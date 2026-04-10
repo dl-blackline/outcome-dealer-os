@@ -3,13 +3,22 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Button } from '@/components/ui/button'
 import { useRouter } from '@/app/router'
-import { MOCK_LEADS, MOCK_EVENTS } from '@/lib/mockData'
-import { ArrowLeft, EnvelopeSimple, Phone, Target, Globe } from '@phosphor-icons/react'
+import { useLead, useEntityEvents } from '@/hooks/useDomainQueries'
+import { ArrowLeft, EnvelopeSimple, Phone, Target, Globe, SpinnerGap } from '@phosphor-icons/react'
 
 export function LeadRecordPage() {
   const { params, navigate } = useRouter()
-  const lead = MOCK_LEADS.find(l => l.id === params.id) ?? MOCK_LEADS[0]
-  const events = MOCK_EVENTS.filter(e => e.entityId === lead.id)
+  const leadQuery = useLead(params.id ?? '')
+  const eventsQuery = useEntityEvents(params.id ?? '')
+
+  if (leadQuery.loading) {
+    return <div className="flex items-center justify-center py-24"><SpinnerGap className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+  }
+
+  const lead = leadQuery.data
+  if (!lead) return <div className="py-24 text-center text-muted-foreground">Lead not found.</div>
+
+  const events = eventsQuery.data
   const sv = lead.status === 'converted' ? 'success' as const : lead.status === 'qualified' ? 'info' as const : lead.status === 'contacted' ? 'warning' as const : 'neutral' as const
 
   return (

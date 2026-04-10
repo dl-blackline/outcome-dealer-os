@@ -2,23 +2,23 @@ import { SectionHeader } from '@/components/core/SectionHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Badge } from '@/components/ui/badge'
-import { PlugsConnected, ArrowClockwise, Warning } from '@phosphor-icons/react'
-
-const MOCK_INTEGRATIONS = [
-  { id: 'int-001', name: 'Dealer Management System', type: 'dms', status: 'healthy' as const, lastSync: '2025-01-16T13:00:00Z', errorCount: 0 },
-  { id: 'int-002', name: 'Credit Bureau API', type: 'credit_bureau', status: 'healthy' as const, lastSync: '2025-01-16T12:45:00Z', errorCount: 0 },
-  { id: 'int-003', name: 'Lender Portal', type: 'lender_portal', status: 'degraded' as const, lastSync: '2025-01-16T10:00:00Z', errorCount: 3 },
-  { id: 'int-004', name: 'Marketing Platform', type: 'marketing', status: 'healthy' as const, lastSync: '2025-01-16T08:00:00Z', errorCount: 0 },
-]
+import { useIntegrations } from '@/hooks/useDomainQueries'
+import { PlugsConnected, ArrowClockwise, Warning, SpinnerGap } from '@phosphor-icons/react'
 
 const STATUS_VARIANT = { healthy: 'success' as const, degraded: 'warning' as const, failed: 'danger' as const, recovering: 'info' as const }
 
 export function IntegrationsSettingsPage() {
+  const integrations = useIntegrations()
+
+  if (integrations.loading) {
+    return <div className="flex items-center justify-center py-24"><SpinnerGap className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+  }
+
   return (
     <div className="space-y-6">
       <SectionHeader title="Integrations" description="External system connections and sync status" />
       <div className="grid gap-4 md:grid-cols-2">
-        {MOCK_INTEGRATIONS.map(int => (
+        {integrations.data.map(int => (
           <Card key={int.id}>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">

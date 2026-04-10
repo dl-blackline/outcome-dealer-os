@@ -3,19 +3,18 @@ import { SectionHeader } from '@/components/core/SectionHeader'
 import { Card, CardContent } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { useRouter } from '@/app/router'
-import { UsersThree, CurrencyDollar, Star } from '@phosphor-icons/react'
-
-const MOCK_HOUSEHOLDS = [
-  { id: 'hh-001', name: 'Mitchell Family', primaryContact: 'Sarah Mitchell', lifetimeValue: 38900, loyaltyScore: 72, members: 2, createdAt: '2024-11-01T10:00:00Z' },
-  { id: 'hh-002', name: 'Johnson Family', primaryContact: 'Marcus Johnson', lifetimeValue: 105200, loyaltyScore: 91, members: 3, createdAt: '2024-06-15T14:00:00Z' },
-  { id: 'hh-003', name: 'Rodriguez Family', primaryContact: 'Elena Rodriguez', lifetimeValue: 0, loyaltyScore: 15, members: 1, createdAt: '2025-01-16T09:15:00Z' },
-  { id: 'hh-004', name: 'Thompson Family', primaryContact: 'David Thompson', lifetimeValue: 67800, loyaltyScore: 85, members: 2, createdAt: '2023-03-20T08:30:00Z' },
-]
+import { useHouseholds } from '@/hooks/useDomainQueries'
+import { UsersThree, CurrencyDollar, Star, SpinnerGap } from '@phosphor-icons/react'
 
 export function HouseholdListPage() {
   const { navigate } = useRouter()
+  const households = useHouseholds()
   const [search, setSearch] = useState('')
-  const filtered = MOCK_HOUSEHOLDS.filter(h => h.name.toLowerCase().includes(search.toLowerCase()) || h.primaryContact.toLowerCase().includes(search.toLowerCase()))
+  const filtered = households.data.filter(h => h.name.toLowerCase().includes(search.toLowerCase()) || h.primaryContact.toLowerCase().includes(search.toLowerCase()))
+
+  if (households.loading) {
+    return <div className="flex items-center justify-center py-24"><SpinnerGap className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+  }
 
   return (
     <div className="space-y-6">

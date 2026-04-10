@@ -42,6 +42,9 @@ export interface MockApproval {
   requestedBy: string
   description: string
   status: 'pending' | 'granted' | 'denied'
+  resolvedBy?: string
+  resolvedAt?: string
+  resolutionNotes?: string
   createdAt: string
 }
 

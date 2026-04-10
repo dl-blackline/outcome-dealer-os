@@ -7,7 +7,7 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { MagnifyingGlass, House, Kanban, UsersThree, ClipboardText, CurrencyDollar, Gauge, ChartLine, Gear } from '@phosphor-icons/react'
-import { MOCK_LEADS, MOCK_DEALS, MOCK_INVENTORY } from '@/lib/mockData'
+import { useLeads, useDeals, useInventory } from '@/hooks/useDomainQueries'
 import { useRouter } from '@/app/router'
 
 interface CommandItem {
@@ -28,6 +28,9 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const [search, setSearch] = useState('')
   const { navigate } = useRouter()
   const [selectedIndex, setSelectedIndex] = useState(0)
+  const leads = useLeads()
+  const deals = useDeals()
+  const inventory = useInventory()
 
   const go = useCallback((path: string) => {
     navigate(path)
@@ -49,7 +52,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     ]
 
     const recordItems: CommandItem[] = [
-      ...MOCK_LEADS.map(l => ({
+      ...leads.data.map(l => ({
         id: `lead-${l.id}`,
         label: l.customerName,
         description: `Lead • ${l.source} • Score: ${l.score}`,
@@ -57,7 +60,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         action: () => go(`/app/records/leads/${l.id}`),
         category: 'record' as const,
       })),
-      ...MOCK_DEALS.map(d => ({
+      ...deals.data.map(d => ({
         id: `deal-${d.id}`,
         label: d.customerName,
         description: `Deal • ${d.vehicleDescription} • $${d.amount.toLocaleString()}`,
@@ -65,7 +68,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         action: () => go(`/app/records/deals/${d.id}`),
         category: 'record' as const,
       })),
-      ...MOCK_INVENTORY.map(u => ({
+      ...inventory.data.map(u => ({
         id: `inv-${u.id}`,
         label: `${u.year} ${u.make} ${u.model} ${u.trim}`,
         description: `Inventory • ${u.vin} • $${u.askingPrice.toLocaleString()}`,
@@ -76,7 +79,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     ]
 
     return [...navItems, ...recordItems]
-  }, [go])
+  }, [go, leads.data, deals.data, inventory.data])
 
   const filtered = useMemo(() => {
     if (!search.trim()) return items.slice(0, 12)

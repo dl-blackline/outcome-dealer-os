@@ -2,15 +2,21 @@ import { useState } from 'react'
 import { SectionHeader } from '@/components/core/SectionHeader'
 import { StatusPill } from '@/components/core/StatusPill'
 import { useRouter } from '@/app/router'
-import { MOCK_LEADS } from '@/lib/mockData'
+import { useLeads } from '@/hooks/useDomainQueries'
+import { SpinnerGap } from '@phosphor-icons/react'
 
 const STATUSES = ['all', 'new', 'contacted', 'qualified', 'converted'] as const
 
 export function LeadListPage() {
   const { navigate } = useRouter()
+  const leads = useLeads()
   const [tab, setTab] = useState<string>('all')
   const [search, setSearch] = useState('')
-  const filtered = MOCK_LEADS.filter(l => (tab === 'all' || l.status === tab) && (!search || l.customerName.toLowerCase().includes(search.toLowerCase())))
+  const filtered = leads.data.filter(l => (tab === 'all' || l.status === tab) && (!search || l.customerName.toLowerCase().includes(search.toLowerCase())))
+
+  if (leads.loading) {
+    return <div className="flex items-center justify-center py-24"><SpinnerGap className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+  }
 
   return (
     <div className="space-y-6">

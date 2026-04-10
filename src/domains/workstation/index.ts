@@ -5,6 +5,7 @@ export type {
   WorkstationColumnId,
   LinkedObjectType,
   CardPriority,
+  CardStatus,
   QueueType,
 } from './workstation.types'
 

@@ -1,10 +1,24 @@
 import { SectionHeader } from '@/components/core/SectionHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
-import { MOCK_LEADS, MOCK_DEALS, MOCK_INVENTORY, MOCK_APPROVALS, MOCK_TASKS } from '@/lib/mockData'
-import { TrendUp, CheckCircle, Clock, Warning } from '@phosphor-icons/react'
+import { useLeads, useDeals, useApprovals, useInventory, useTasks } from '@/hooks/useDomainQueries'
+import { TrendUp, CheckCircle, Clock, Warning, SpinnerGap } from '@phosphor-icons/react'
 
 export function DashboardPage() {
+  const leads = useLeads()
+  const deals = useDeals()
+  const approvals = useApprovals()
+  const inventory = useInventory()
+  const tasks = useTasks()
+
+  if (leads.loading || deals.loading || approvals.loading || inventory.loading || tasks.loading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <SpinnerGap className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
+
   return (
     <div className="space-y-8">
       <SectionHeader
@@ -19,7 +33,7 @@ export function DashboardPage() {
             <TrendUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{MOCK_LEADS.length}</div>
+            <div className="text-2xl font-bold">{leads.data.length}</div>
             <p className="text-xs text-muted-foreground">
               +2 from last week
             </p>
@@ -32,7 +46,7 @@ export function DashboardPage() {
             <CheckCircle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{MOCK_DEALS.length}</div>
+            <div className="text-2xl font-bold">{deals.data.length}</div>
             <p className="text-xs text-muted-foreground">
               1 funded this week
             </p>
@@ -46,7 +60,7 @@ export function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {MOCK_APPROVALS.filter(a => a.status === 'pending').length}
+              {approvals.data.filter(a => a.status === 'pending').length}
             </div>
             <p className="text-xs text-muted-foreground">
               Requires manager action
@@ -61,7 +75,7 @@ export function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {MOCK_INVENTORY.filter(i => i.status === 'aging').length}
+              {inventory.data.filter(i => i.status === 'aging').length}
             </div>
             <p className="text-xs text-muted-foreground">
               60+ days in stock
@@ -77,7 +91,7 @@ export function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {MOCK_LEADS.map(lead => (
+              {leads.data.map(lead => (
                 <div key={lead.id} className="flex items-center justify-between border-b border-border pb-3 last:border-0">
                   <div>
                     <p className="font-medium">{lead.customerName}</p>
@@ -102,7 +116,7 @@ export function DashboardPage() {
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
-              {MOCK_DEALS.map(deal => (
+              {deals.data.map(deal => (
                 <div key={deal.id} className="flex items-center justify-between border-b border-border pb-3 last:border-0">
                   <div>
                     <p className="font-medium">{deal.customerName}</p>
@@ -131,7 +145,7 @@ export function DashboardPage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
-            {MOCK_TASKS.map(task => (
+            {tasks.data.map(task => (
               <div key={task.id} className="flex items-center justify-between p-3 rounded-lg border border-border">
                 <div className="flex items-center gap-3">
                   <input type="checkbox" checked={task.status === 'completed'} readOnly className="h-4 w-4" />

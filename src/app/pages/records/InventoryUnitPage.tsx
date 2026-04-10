@@ -3,12 +3,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Button } from '@/components/ui/button'
 import { useRouter } from '@/app/router'
-import { MOCK_INVENTORY } from '@/lib/mockData'
-import { ArrowLeft, Barcode, Calendar, CurrencyDollar, Wrench } from '@phosphor-icons/react'
+import { useInventoryUnit } from '@/hooks/useDomainQueries'
+import { ArrowLeft, Barcode, Calendar, CurrencyDollar, Wrench, SpinnerGap } from '@phosphor-icons/react'
 
 export function InventoryUnitPage() {
   const { params, navigate } = useRouter()
-  const unit = MOCK_INVENTORY.find(u => u.id === params.id) ?? MOCK_INVENTORY[0]
+  const unitQuery = useInventoryUnit(params.id ?? '')
+
+  if (unitQuery.loading) {
+    return <div className="flex items-center justify-center py-24"><SpinnerGap className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+  }
+
+  const unit = unitQuery.data
+  if (!unit) return <div className="py-24 text-center text-muted-foreground">Unit not found.</div>
+
   const agingVariant = unit.status === 'aging' ? 'danger' as const : unit.daysInStock > 45 ? 'warning' as const : 'success' as const
   const statusVariant = unit.status === 'frontline' ? 'success' as const : unit.status === 'recon' ? 'warning' as const : unit.status === 'aging' ? 'danger' as const : 'neutral' as const
 
