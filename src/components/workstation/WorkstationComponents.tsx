@@ -68,10 +68,24 @@ export function WorkstationCardItem({
   canMoveRight: boolean
 }) {
   const isOverdue = card.dueAt && new Date(card.dueAt) < new Date()
+  const [isDragging, setIsDragging] = useState(false)
+
+  const handleDragStart = (e: React.DragEvent) => {
+    e.dataTransfer.effectAllowed = 'move'
+    e.dataTransfer.setData('text/plain', card.id)
+    setIsDragging(true)
+  }
+
+  const handleDragEnd = () => {
+    setIsDragging(false)
+  }
 
   return (
     <Card
-      className={`border-l-4 ${PRIORITY_BORDER[card.priority]} cursor-pointer transition-all hover:ring-1 hover:ring-primary/30`}
+      draggable
+      onDragStart={handleDragStart}
+      onDragEnd={handleDragEnd}
+      className={`border-l-4 ${PRIORITY_BORDER[card.priority]} cursor-move transition-all hover:ring-1 hover:ring-primary/30 ${isDragging ? 'opacity-50' : ''}`}
       onClick={onSelect}
     >
       <CardContent className="p-3 space-y-2">
@@ -289,20 +303,49 @@ export function WorkstationBoard({
   onSelectCard: (card: WorkstationCard) => void
 }) {
   const colOrder = columns.map(c => c.id)
+  const [dragOverColumn, setDragOverColumn] = useState<WorkstationColumnId | null>(null)
+
+  const handleDragOver = (e: React.DragEvent, columnId: WorkstationColumnId) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    setDragOverColumn(columnId)
+  }
+
+  const handleDragLeave = () => {
+    setDragOverColumn(null)
+  }
+
+  const handleDrop = (e: React.DragEvent, columnId: WorkstationColumnId) => {
+    e.preventDefault()
+    const cardId = e.dataTransfer.getData('text/plain')
+    if (cardId) {
+      onMoveCard(cardId, columnId)
+    }
+    setDragOverColumn(null)
+  }
 
   return (
     <div className="flex gap-4 overflow-x-auto pb-4" style={{ minHeight: 400 }}>
       {columns.map((col, colIdx) => {
         const colCards = cards.filter(c => c.columnId === col.id)
+        const isDropTarget = dragOverColumn === col.id
         return (
-          <div key={col.id} className="flex w-72 flex-shrink-0 flex-col rounded-lg border border-border bg-card/50">
+          <div 
+            key={col.id} 
+            className={`flex w-72 flex-shrink-0 flex-col rounded-lg border border-border bg-card/50 transition-colors ${isDropTarget ? 'ring-2 ring-primary bg-primary/5' : ''}`}
+            onDragOver={(e) => handleDragOver(e, col.id)}
+            onDragLeave={handleDragLeave}
+            onDrop={(e) => handleDrop(e, col.id)}
+          >
             <div className="flex items-center justify-between border-b border-border px-4 py-3">
               <h3 className="text-sm font-semibold">{col.label}</h3>
               <Badge variant="secondary" className="text-xs">{colCards.length}</Badge>
             </div>
-            <div className="flex-1 space-y-2 overflow-y-auto p-3">
+            <div className="flex-1 space-y-2 overflow-y-auto p-3 min-h-[200px]">
               {colCards.length === 0 ? (
-                <p className="py-8 text-center text-xs text-muted-foreground">No cards</p>
+                <p className="py-8 text-center text-xs text-muted-foreground">
+                  {isDropTarget ? 'Drop here' : 'No cards'}
+                </p>
               ) : (
                 colCards.map(card => (
                   <WorkstationCardItem
