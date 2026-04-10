@@ -63,6 +63,78 @@ export interface IntegrationSyncStateRow extends DbRow {
   status: 'pending' | 'syncing' | 'success' | 'failed' | 'recovering'
 }
 
+export interface HouseholdRow extends DbRow {
+  primary_customer_id?: UUID
+  household_name?: string
+  household_type: string
+  notes?: string
+  preferred_store_id?: UUID
+}
+
+export interface CustomerRow extends DbRow {
+  household_id?: UUID
+  first_name?: string
+  last_name?: string
+  full_name?: string
+  email?: string
+  phone?: string
+  address?: string
+  city?: string
+  state?: string
+  zip?: string
+  source?: string
+  lifecycle_stage: string
+  current_vehicle_summary?: string
+  preferred_contact_method?: string
+  opt_in_sms: boolean
+  opt_in_email: boolean
+}
+
+export interface LeadRow extends DbRow {
+  customer_id: UUID
+  household_id?: UUID
+  lead_source?: string
+  source_campaign_id?: string
+  source_medium?: string
+  source_detail?: string
+  intent_type?: string
+  assigned_to_user_id?: UUID
+  assigned_team?: string
+  status: string
+  lead_score: number
+  appointment_status: string
+  showroom_status: string
+  sold_lost_status: string
+  lost_reason?: string
+}
+
+export interface CommunicationEventRow extends DbRow {
+  lead_id?: UUID
+  customer_id: UUID
+  channel?: string
+  direction?: string
+  subject?: string
+  body?: string
+  transcript?: string
+  summary?: string
+  ai_generated: boolean
+  ai_confidence?: number
+  consent_checked: boolean
+  sent_by_user_id?: UUID
+  sent_by_agent?: string
+}
+
+export interface AppointmentRow extends DbRow {
+  lead_id?: UUID
+  customer_id: UUID
+  appointment_type?: string
+  scheduled_for?: string
+  status: string
+  assigned_user_id?: UUID
+  notes?: string
+  show_result?: string
+}
+
 class SupabaseClient {
   private store = window.spark.kv
 
