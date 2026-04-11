@@ -295,15 +295,18 @@ export function WorkstationBoard({
   cards,
   columns,
   onMoveCard,
+  onReorderCards,
   onSelectCard,
 }: {
   cards: WorkstationCard[]
   columns: { id: WorkstationColumnId; label: string }[]
   onMoveCard: (cardId: string, to: WorkstationColumnId) => void
+  onReorderCards: (cardId: string, targetCardId: string, columnId: WorkstationColumnId) => void
   onSelectCard: (card: WorkstationCard) => void
 }) {
   const colOrder = columns.map(c => c.id)
   const [dragOverColumn, setDragOverColumn] = useState<WorkstationColumnId | null>(null)
+  const [dragOverCard, setDragOverCard] = useState<string | null>(null)
 
   const handleDragOver = (e: React.DragEvent, columnId: WorkstationColumnId) => {
     e.preventDefault()
@@ -322,6 +325,29 @@ export function WorkstationBoard({
       onMoveCard(cardId, columnId)
     }
     setDragOverColumn(null)
+    setDragOverCard(null)
+  }
+
+  const handleCardDragOver = (e: React.DragEvent, targetCardId: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    e.dataTransfer.dropEffect = 'move'
+    setDragOverCard(targetCardId)
+  }
+
+  const handleCardDragLeave = (e: React.DragEvent) => {
+    e.stopPropagation()
+    setDragOverCard(null)
+  }
+
+  const handleCardDrop = (e: React.DragEvent, targetCardId: string, columnId: WorkstationColumnId) => {
+    e.preventDefault()
+    e.stopPropagation()
+    const draggedCardId = e.dataTransfer.getData('text/plain')
+    if (draggedCardId && draggedCardId !== targetCardId) {
+      onReorderCards(draggedCardId, targetCardId, columnId)
+    }
+    setDragOverCard(null)
   }
 
   return (
@@ -348,15 +374,22 @@ export function WorkstationBoard({
                 </p>
               ) : (
                 colCards.map(card => (
-                  <WorkstationCardItem
+                  <div
                     key={card.id}
-                    card={card}
-                    canMoveLeft={colIdx > 0}
-                    canMoveRight={colIdx < colOrder.length - 1}
-                    onMoveLeft={() => colIdx > 0 && onMoveCard(card.id, colOrder[colIdx - 1])}
-                    onMoveRight={() => colIdx < colOrder.length - 1 && onMoveCard(card.id, colOrder[colIdx + 1])}
-                    onSelect={() => onSelectCard(card)}
-                  />
+                    className={`transition-all ${dragOverCard === card.id ? 'mb-4 border-b-2 border-primary' : ''}`}
+                    onDragOver={(e) => handleCardDragOver(e, card.id)}
+                    onDragLeave={handleCardDragLeave}
+                    onDrop={(e) => handleCardDrop(e, card.id, col.id)}
+                  >
+                    <WorkstationCardItem
+                      card={card}
+                      canMoveLeft={colIdx > 0}
+                      canMoveRight={colIdx < colOrder.length - 1}
+                      onMoveLeft={() => colIdx > 0 && onMoveCard(card.id, colOrder[colIdx - 1])}
+                      onMoveRight={() => colIdx < colOrder.length - 1 && onMoveCard(card.id, colOrder[colIdx + 1])}
+                      onSelect={() => onSelectCard(card)}
+                    />
+                  </div>
                 ))
               )}
             </div>

@@ -33,6 +33,28 @@ export function WorkstationPage() {
     }
   }, [selectedCard])
 
+  const reorderCards = useCallback((draggedCardId: string, targetCardId: string, columnId: WorkstationColumnId) => {
+    setCards(prev => {
+      const draggedCard = prev.find(c => c.id === draggedCardId)
+      if (!draggedCard) return prev
+
+      const otherCards = prev.filter(c => c.id !== draggedCardId)
+      const columnCards = otherCards.filter(c => c.columnId === columnId)
+      const targetIndex = columnCards.findIndex(c => c.id === targetCardId)
+
+      if (targetIndex === -1) return prev
+
+      const updatedCard = { ...draggedCard, columnId, updatedAt: new Date().toISOString() }
+      const beforeTarget = columnCards.slice(0, targetIndex + 1)
+      const afterTarget = columnCards.slice(targetIndex + 1)
+
+      const reorderedColumnCards = [...beforeTarget, updatedCard, ...afterTarget]
+      const otherColumnCards = otherCards.filter(c => c.columnId !== columnId)
+
+      return [...otherColumnCards, ...reorderedColumnCards]
+    })
+  }, [])
+
   const handleCreate = useCallback((partial: Omit<WorkstationCard, 'id' | 'createdAt' | 'updatedAt'>) => {
     const now = new Date().toISOString()
     const card: WorkstationCard = {
@@ -72,6 +94,7 @@ export function WorkstationPage() {
         cards={filtered}
         columns={DEFAULT_COLUMNS}
         onMoveCard={moveCard}
+        onReorderCards={reorderCards}
         onSelectCard={card => { setSelectedCard(card); setDrawerOpen(true) }}
       />
 
