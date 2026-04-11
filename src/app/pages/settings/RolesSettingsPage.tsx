@@ -2,19 +2,50 @@ import { useState } from 'react'
 import { SectionHeader } from '@/components/core/SectionHeader'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { APP_ROLES, ROLE_LABELS } from '@/domains/roles/roles'
+import { APP_ROLES, ROLE_LABELS, ROLE_NAV_GROUPS } from '@/domains/roles/roles'
 import { ROLE_PERMISSIONS } from '@/domains/roles/permissions'
-import { CaretRight, CaretDown, ShieldCheck } from '@phosphor-icons/react'
+import { CaretRight, CaretDown, ShieldCheck, Info } from '@phosphor-icons/react'
+
+const ROLE_DESCRIPTIONS: Record<string, string> = {
+  owner: 'Full operational visibility and control. Access to all settings, approvals, and business intelligence.',
+  gm: 'Manages all departments. Full access to records, operations, and settings.',
+  gsm: 'Oversees sales floor operations. Manages sales team, deal approvals, and pipeline.',
+  used_car_manager: 'Manages pre-owned inventory, trade appraisals, and aging strategy.',
+  bdc_manager: 'Manages business development center. Lead routing and appointment scheduling.',
+  sales_manager: 'Desk deals, approve trade values and pricing. Manages sales team workflow.',
+  sales_rep: 'Works leads and deals. Limited to own records and workstation.',
+  fi_manager: 'Manages F&I products, lending submissions, and financial approvals.',
+  service_director: 'Oversees service department. Access to service records and recon management.',
+  service_advisor: 'Customer-facing service role. Manages service appointments and work orders.',
+  recon_manager: 'Manages vehicle reconditioning workflow and vendor coordination.',
+  marketing_manager: 'Manages marketing campaigns, lead source attribution, and prospect engagement.',
+  admin: 'System administrator. Full access to settings, roles, and integrations.',
+}
 
 export function RolesSettingsPage() {
   const [expandedRole, setExpandedRole] = useState<string | null>(null)
 
   return (
     <div className="space-y-6">
-      <SectionHeader title="Roles & Permissions" description="View role definitions and permission assignments (read-only)" />
+      <SectionHeader title="Roles & Permissions" description="View role definitions and permission assignments" />
+
+      <Card className="border-blue-500/20 bg-blue-500/5">
+        <CardContent className="flex items-start gap-3 py-4">
+          <Info className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+          <div className="text-sm">
+            <p className="font-medium">Role-Based Access Control</p>
+            <p className="text-muted-foreground mt-1">
+              {APP_ROLES.length} roles defined with separation of duties. Roles determine navigation access, record permissions, and approval authority.
+              Permission assignments are enforced at the routing and service layers.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       <div className="space-y-2">
         {APP_ROLES.map(role => {
           const perms = ROLE_PERMISSIONS[role]
+          const navGroups = ROLE_NAV_GROUPS[role]
           const expanded = expandedRole === role
           return (
             <Card key={role} className={expanded ? 'ring-1 ring-primary/30' : ''}>
@@ -22,7 +53,10 @@ export function RolesSettingsPage() {
                 <button onClick={() => setExpandedRole(expanded ? null : role)} className="flex w-full items-center justify-between p-4 text-left hover:bg-accent/20 transition-colors">
                   <div className="flex items-center gap-3">
                     <ShieldCheck className="h-5 w-5 text-muted-foreground" />
-                    <div><p className="font-medium">{ROLE_LABELS[role]}</p><p className="text-xs text-muted-foreground">{role}</p></div>
+                    <div>
+                      <p className="font-medium">{ROLE_LABELS[role]}</p>
+                      <p className="text-xs text-muted-foreground">{ROLE_DESCRIPTIONS[role] ?? role}</p>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     <Badge variant="secondary">{perms.length} permissions</Badge>
@@ -30,10 +64,21 @@ export function RolesSettingsPage() {
                   </div>
                 </button>
                 {expanded && (
-                  <div className="border-t border-border px-4 py-3">
-                    <div className="flex flex-wrap gap-1.5">{perms.map(p => (
-                      <Badge key={p} variant="outline" className="text-xs">{p.replace(/_/g, ' ')}</Badge>
-                    ))}</div>
+                  <div className="border-t border-border px-4 py-3 space-y-3">
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground mb-1.5">Navigation Access</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {navGroups.map(g => (
+                          <Badge key={g} variant="outline" className="text-xs capitalize">{g}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground mb-1.5">Permissions</p>
+                      <div className="flex flex-wrap gap-1.5">{perms.map(p => (
+                        <Badge key={p} variant="outline" className="text-xs">{p.replace(/_/g, ' ')}</Badge>
+                      ))}</div>
+                    </div>
                   </div>
                 )}
               </CardContent>

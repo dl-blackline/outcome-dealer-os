@@ -4,6 +4,7 @@ import { AppRole } from '@/domains/roles/roles'
 import { AppSidebar } from '@/components/shell/AppSidebar'
 import { Topbar } from '@/components/shell/Topbar'
 import { CommandPalette } from '@/components/shell/CommandPalette'
+import { NotificationCenter } from '@/components/shell/NotificationCenter'
 import { matchRoute } from '@/app/router/router'
 
 // Pages
@@ -51,6 +52,7 @@ function resolvePageComponent(currentPath: string): React.ComponentType | null {
 export function AppShell() {
   const [currentRole, setCurrentRole] = useState<AppRole>('gm')
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
+  const [notificationsOpen, setNotificationsOpen] = useState(false)
   const { currentPath, navigate } = useRouter()
 
   const PageComponent = resolvePageComponent(currentPath)
@@ -68,6 +70,7 @@ export function AppShell() {
           currentRole={currentRole}
           onRoleChange={setCurrentRole}
           onCommandPaletteOpen={() => setCommandPaletteOpen(true)}
+          onNotificationsOpen={() => setNotificationsOpen(true)}
         />
 
         <main className="flex-1 overflow-y-auto p-8">
@@ -82,6 +85,11 @@ export function AppShell() {
       <CommandPalette
         open={commandPaletteOpen}
         onOpenChange={setCommandPaletteOpen}
+      />
+
+      <NotificationCenter
+        open={notificationsOpen}
+        onOpenChange={setNotificationsOpen}
       />
     </div>
   )
