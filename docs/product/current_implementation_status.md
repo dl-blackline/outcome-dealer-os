@@ -2,17 +2,18 @@
 
 Honest audit of what is implemented, what is placeholder, and what scaffold remnants exist.
 
-Last updated: Phase 3, Prompt 20.
+Last updated: Phase 3, Prompt 30 (final).
 
 ---
 
 ## Implemented
 
 ### Role & Permission Model
-- 13 dealership roles with display names and descriptions
+- 14 dealership roles with display names, descriptions, and nav group assignments
 - 28 granular permissions (e.g., `leads:create`, `deals:approve`, `inventory:transfer`)
 - Policy engine (`src/domains/auth/policies/`) with route guards and permission checks
 - Role hierarchy awareness for approval chains
+- Roles page shows descriptions, permissions, and navigation access per role
 
 ### Canonical Type System
 - 30+ business objects in `src/types/canonical.ts`
@@ -33,105 +34,113 @@ Last updated: Phase 3, Prompt 20.
 - Role switcher in the topbar for development/demo purposes
 
 ### Application Shell
-- `AppSidebar` with role-aware navigation sections (Dashboard, Records, Operations, Settings)
-- `Topbar` with role switcher, notifications icon, and user menu
-- `CommandPalette` shell (keyboard shortcut trigger present)
+- `AppSidebar` with role-aware navigation sections (Dashboard, Workstation, Records, Operations, Settings)
+- `Topbar` with role switcher, notifications button, command palette trigger
+- `NotificationCenter` with severity-coded operating signals and read tracking
+- `CommandPalette` with full navigation, entity search (leads/deals/inventory/households), and context actions
 - Dark-first premium visual design with Space Grotesk / Inter / JetBrains Mono typography
-- Responsive layout with collapsible sidebar
 
 ### Core UI Components
 - `StatusPill` — color-coded status indicators for deals, leads, tasks
-- `EntityBadge` — compact entity reference display
+- `EntityBadge` — compact entity reference display with type-specific colors
 - `EmptyState` — structured empty state with icon, title, description, and action
 - `SectionHeader` — consistent section headers with optional actions
 
-### Mock Data Layer
-- Realistic mock data for leads, deals, inventory, approvals, events, and tasks
-- Mock data shapes match canonical type definitions
-- Used by dashboard and list views for demonstration
+### Domain Query Hooks (`useDomainQueries.ts`)
+- All 15 pages consume data through `QueryResult<T>` hooks with loading states
+- No page imports `MOCK_*` arrays directly
+- Mutation hooks: `useApprovalMutations()`, `useWorkstationMutations()`
+- Entity hooks: `useLeads()`, `useDeals()`, `useInventory()`, `useHouseholds()`, `useApprovals()`, `useEvents()`, `useAuditLogs()`, `useIntegrations()`, `useOperatingSignals()`
 
 ### Domain Module Structure
 - 21 domains under `src/domains/` with consistent internal structure
 - Each domain has: types, services (interfaces), queries, and policies
-- Domains: auth, crm, deals, fi, inventory, service, parts, accounting, compliance, marketing, analytics, appointments, approvals, communications, documents, hr, integrations, notifications, reporting, settings, tasks
+- Runtime services implemented with KV persistence for: workstation, approvals, events, audit, integrations, leads, deals
 
 ### Database Adapter
 - Spark KV-based adapter in `src/services/`
 - CRUD helper functions for standard entity operations
-- Designed for future replacement with real persistence layer
 
-### Architecture Documentation
-- 14 documents in `docs/architecture/` covering:
-  - Auth and access model
-  - Canonical objects
-  - Event taxonomy
-  - Domain service pattern
-  - Service layer contracts
-  - Schema overview and phase migration notes
-  - Audit and approval rules
-  - Integration sync model
-  - Permissions matrix
+### Workstation
+- Full kanban board with 5 columns (Inbox, Today, In Progress, Waiting, Done)
+- HTML5 drag-and-drop between columns with visual drop targets
+- Card creation via Quick Create dialog
+- Filtering by queue type, priority, and text search
+- Card detail drawer with metadata, linked records, and lifecycle actions
+- Card lifecycle: active → completed → reopened
+- Complete/Reopen buttons in drawer
+- Auto-card rules (9 event-to-card mappings)
+
+### Approval Queue
+- Tab filtering: pending / granted / denied / all
+- Two-click resolution with optional notes
+- Resolution metadata display (resolved-by, timestamp, notes)
+- `useApprovalMutations()` with optimistic local state updates
+
+### Event/Audit/Notification
+- OperatingSignal unified type for events, audit, and notifications
+- Severity classification: critical / warning / success / info
+- Event Explorer with entity and actor filtering, severity badges
+- Audit Explorer with role/entity/timestamp filtering
+- Notification Center with unread count and mark-all-read
+
+### Record Pages (All Hook-Backed)
+- Lead list + detail with linked household and deals (EntityBadge navigation)
+- Deal list + detail with linked lead/household/inventory, deal stage progress, approvals
+- Inventory list + detail with status/aging/pricing
+- Household list + detail with linked leads and deals
 
 ### Dashboard
-- Live mock data display with summary metrics
-- Role-aware content (different metrics by role)
-- Recent activity feed from event stream
+- Clickable metric cards (Active Leads, Deals, Pending Approvals, Aging Inventory)
+- Urgency indicators (yellow/red borders on cards needing attention)
+- Workstation summary with column breakdown
+- Recent leads and active deals tables with clickable rows
+- Tasks section with priority badges
+
+### Settings
+- Roles page with descriptions, permission lists, and navigation access display
+- Integrations page with status, sync architecture notes, and per-integration documentation
+
+### Architecture Documentation
+- 24 documents across `docs/architecture/`, `docs/product/`, and `docs/ux/`
 
 ---
 
-## Placeholder
+## Remaining Gaps
 
-### Navigation (Updated Phase 2)
-- Custom hash-based router implemented (`src/app/router/`)
-- 15 routes defined with route-to-component mapping in AppShell
-- URL-driven navigation works (`#/app/...` format)
+### Hook-to-Service Wiring
+- Domain query hooks read from static seed data, not from KV-backed runtime services
+- Services are fully implemented but not wired to the hook layer
+- See `docs/architecture/mock_elimination_plan.md` for transition path
 
-### Records Pages (Updated Phase 2)
-- Lead, Deal, Inventory, Household list and detail pages all implemented
-- All pages read directly from MOCK_* arrays — no runtime connection
-- Detail pages show linked records, activity timelines
+### Household Deduplication
+- Household data defined in useDomainQueries.ts inline, not from a shared source
+- Need dedicated household.service.ts with seed-on-boot
 
-### Operations Pages (Updated Phase 2)
-- Event Explorer, Approval Queue, Audit Explorer all implemented
-- All read from MOCK_* arrays or inline mock data
-- Approval actions update local state only — deceptive runtime appearance
+### Task Domain
+- No dedicated task service — tasks are inline mock data only
+- Low priority but needed for full runtime coverage
 
-### Settings Pages (Updated Phase 2)
-- Roles page shows all 13 roles with expandable permission lists (read-only, from code)
-- Integrations page shows mock integration status cards
+### Dashboard Role Filtering
+- Metrics are universal across all roles
+- Should filter/prioritize based on current user's role
+- Role-specific adapter exists in `dashboard.adapters.ts` but not connected
 
-### Workstation (Updated Phase 2)
-- Full kanban board with 5 columns (Inbox, Today, In Progress, Waiting, Done)
-- HTML5 drag-and-drop between columns
-- Card creation, filtering by queue/priority, card detail drawer
-- **Gap**: Page uses local `useState` with mock seed data, does not call workstation.service.ts
-
-### Command Palette (Updated Phase 2)
-- Search across navigation items and records (leads, deals, inventory)
-- Keyboard navigation (↑↓ Enter Esc)
-- **Gap**: Reads MOCK_* arrays directly; no contextual actions
-
-### Data Flow (Updated Phase 2)
-- Runtime services exist for: workstation, approvals, events, audit, integrations
-- All use KV-backed `db` layer (`lib/db/supabase.ts`) with real CRUD
-- **Critical gap**: UI pages do NOT use these services; they read mock arrays directly
-- Domain query hooks (`useDomainQueries.ts`) exist but also just wrap mock arrays
-- `dashboard.adapters.ts` provides role-aware metrics but DashboardPage doesn't use it
-
-### Notification Center (Updated Phase 2)
-- Shows notifications derived from MOCK_EVENTS at mount time
-- Mark-all-read functionality (local state only)
-- **Gap**: No connection to runtime event bus; notifications are static after mount
+### Integration Manual Controls
+- No manual sync trigger from UI
+- No credential management or configuration editing
 
 ---
 
-## Phase 3 Hybrid State Summary
+## Phase 3 Summary
 
-See also: `docs/architecture/hybrid_state_inventory.md` and `docs/architecture/mock_vs_runtime_matrix.md`
-
-The primary gap is a **disconnected UI↔Service layer**:
-- Runtime services (workstation, approvals, events, audit) are real and use KV persistence
-- UI pages bypass these services entirely and read static mock arrays
-- This creates a deceptive experience where the app appears runtime-backed but isn't
-
-Phase 3 goals: bridge this gap by routing pages through domain adapters/services.
+Phase 3 (Prompts 20–30) completed the integration layer:
+- All pages consume data through hooks with loading states
+- Workstation has full card lifecycle with drag-and-drop
+- Approval queue has resolution flow with notes
+- Events, audit, and notifications unified through OperatingSignal
+- All record pages have cross-surface EntityBadge navigation
+- Dashboard has clickable metrics and workstation summary
+- Command palette indexes 4 entity types and provides context actions
+- Settings pages document role and integration architecture
+- 14 new documentation files created
