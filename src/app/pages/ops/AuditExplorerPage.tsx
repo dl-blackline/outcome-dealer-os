@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { EntityBadge } from '@/components/core/EntityBadge'
 import { Badge } from '@/components/ui/badge'
 import { useAuditLogs } from '@/hooks/useDomainQueries'
-import { ScrollText, SpinnerGap } from '@phosphor-icons/react'
+import { Scroll, SpinnerGap } from '@phosphor-icons/react'
 
 const ENTITY_VARIANT: Record<string, 'lead' | 'deal' | 'approval'> = { lead: 'lead', deal: 'deal', approval: 'approval' }
 
@@ -20,7 +20,7 @@ export function AuditExplorerPage() {
 
   return (
     <div className="space-y-6">
-      <SectionHeader title="Audit Log" description="Immutable record of system actions" action={<div className="flex items-center gap-2"><ScrollText className="h-5 w-5 text-muted-foreground" /><span className="text-sm text-muted-foreground">{auditLogs.data.length} entries</span></div>} />
+      <SectionHeader title="Audit Log" description="Immutable record of system actions" action={<div className="flex items-center gap-2"><Scroll className="h-5 w-5 text-muted-foreground" /><span className="text-sm text-muted-foreground">{auditLogs.data.length} entries</span></div>} />
       <select value={entityFilter} onChange={e => setEntityFilter(e.target.value)} className="h-8 rounded-md border border-input bg-background px-2 text-sm capitalize">
         {entities.map(e => <option key={e} value={e}>{e === 'all' ? 'All entities' : e}</option>)}
       </select>
