@@ -15,7 +15,7 @@
 | `src/domains/inventory/inventory.hooks.ts` | `MOCK_INVENTORY`, `MockInventoryUnit` | Feeds `useInventory()` / `useInventoryUnit()` |
 | `src/domains/approvals/approval.hooks.ts` | `MOCK_APPROVALS`, `MockApproval` | Feeds `useApprovals()` / `useApprovalMutations()` |
 | `src/domains/events/event.hooks.ts` | `MOCK_EVENTS`, `MOCK_SERVICE_EVENTS`, `MockEvent`, `MockServiceEvent` | Feeds `useEvents()` / `useEntityEvents()` / `useServiceEvents()` / `useOperatingSignals()` |
-| `src/hooks/useTasks.ts` | `MOCK_TASKS`, `MockTask` | Feeds `useTasks()` |
+| `src/domains/tasks/task.hooks.ts` | `MOCK_TASKS`, `MockTask` | Seeds in-memory store + feeds `useTasks()` |
 | `src/domains/dashboard/dashboard.adapters.ts` | `MOCK_LEADS`, `MOCK_DEALS`, `MOCK_INVENTORY`, `MOCK_APPROVALS`, `MOCK_EVENTS` + `MockLead`, `MockDeal`, `MockEvent` types | Computes role-specific dashboard metrics directly from mock arrays |
 
 > **Note:** `src/hooks/useDomainQueries.ts` is now a compatibility re-export barrel and no longer imports from `mockData.ts` directly.
@@ -34,7 +34,7 @@ These datasets were previously inside `useDomainQueries.ts` and have been moved 
 
 | Constant | File | Records | Type | Content |
 |----------|------|---------|------|---------|
-| `HOUSEHOLD_DATA` | `src/domains/households/household.hooks.ts` | 4 | `HouseholdSummary[]` | Mitchell, Johnson, Rodriguez, Thompson families with member counts, loyalty tiers, lifetime values |
+| `HOUSEHOLD_SEED` | `src/domains/households/household.hooks.ts` | 4 | `HouseholdSummary[]` | Mitchell, Johnson, Rodriguez, Thompson families with member counts, loyalty tiers, lifetime values |
 | `AUDIT_LOG_DATA` | `src/domains/audit/audit.hooks.ts` | 6 | `AuditLogEntry[]` | Hardcoded audit entries: lead creation, deal stage update, approval request, login, inventory price change, lead assignment |
 | `INTEGRATION_DATA` | `src/domains/integrations/integration.hooks.ts` | 4 | `IntegrationStatus[]` | DMS Sync (healthy), Credit Bureau (warning), Lender Portal (healthy), Marketing Platform (error) |
 | `WARNING_EVENTS` | `src/domains/events/event.hooks.ts` | varies | `string[]` | Event names classified as warning severity |
