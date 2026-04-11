@@ -15,7 +15,7 @@
  * @see src/domains/audit/audit.hooks.ts
  * @see src/domains/integrations/integration.hooks.ts
  * @see src/domains/workstation/workstation.hooks.ts
- * @see src/hooks/useTasks.ts
+ * @see src/domains/tasks/task.hooks.ts
  */
 
 export { type QueryResult, useSimulatedQuery } from '@/hooks/useQueryResult'
@@ -23,7 +23,7 @@ export { type HouseholdSummary, useHouseholds, useHousehold } from '@/domains/ho
 export { useLeads, useLead } from '@/domains/leads/lead.hooks'
 export { useDeals, useDeal } from '@/domains/deals/deal.hooks'
 export { useInventory, useInventoryUnit } from '@/domains/inventory/inventory.hooks'
-export { useTasks } from '@/hooks/useTasks'
+export { useTasks } from '@/domains/tasks/task.hooks'
 export { useApprovals, type ApprovalMutations, useApprovalMutations } from '@/domains/approvals/approval.hooks'
 export { useEvents, useEntityEvents, useServiceEvents, useOperatingSignals } from '@/domains/events/event.hooks'
 export { type AuditLogEntry, useAuditLogs } from '@/domains/audit/audit.hooks'

@@ -1,7 +1,5 @@
 /**
- * Tasks runtime hook (no domain folder yet).
+ * Compatibility re-export — task hooks now live in the domain folder.
+ * @see src/domains/tasks/task.hooks.ts
  */
-import { useSimulatedQuery, type QueryResult } from '@/hooks/useQueryResult'
-import { MOCK_TASKS, type MockTask } from '@/lib/mockData'
-
-export function useTasks(): QueryResult<MockTask[]> { return useSimulatedQuery(() => MOCK_TASKS) }
+export { useTasks } from '@/domains/tasks/task.hooks'
