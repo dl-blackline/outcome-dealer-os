@@ -1,12 +1,95 @@
 /**
  * Event domain runtime hooks.
+ *
+ * Seeds MOCK_EVENTS into the in-memory event_bus store on first load,
+ * then queries through the event service layer.
  */
-import { useSimulatedQuery, type QueryResult } from '@/hooks/useQueryResult'
+import { useState, useEffect } from 'react'
+import type { QueryResult } from '@/hooks/useQueryResult'
+import { useSimulatedQuery } from '@/hooks/useQueryResult'
 import { MOCK_EVENTS, MOCK_SERVICE_EVENTS, type MockEvent, type MockServiceEvent } from '@/lib/mockData'
+import { EventBusRow } from '@/lib/db/supabase'
+import { insert, findMany } from '@/lib/db/helpers'
 import type { OperatingSignal } from '@/domains/events/operatingSignal'
 
-export function useEvents(): QueryResult<MockEvent[]> { return useSimulatedQuery(() => MOCK_EVENTS) }
-export function useEntityEvents(entityId: string): QueryResult<MockEvent[]> { return useSimulatedQuery(() => MOCK_EVENTS.filter(e => e.entityId === entityId)) }
+/* ── Seed ── */
+
+let seeded = false
+
+async function seedEventsIfNeeded(): Promise<void> {
+  if (seeded) return
+  seeded = true
+  const existing = await findMany<EventBusRow>('event_bus')
+  if (existing.length > 0) return
+  for (const e of MOCK_EVENTS) {
+    await insert<EventBusRow>('event_bus', {
+      event_name: e.eventName,
+      event_id: e.id,
+      timestamp: e.timestamp,
+      actor_type: e.actorType,
+      entity_type: e.entityType,
+      entity_id: e.entityId,
+      payload: {},
+      status: 'pending',
+    } as Omit<EventBusRow, 'id' | 'created_at' | 'updated_at'>)
+  }
+}
+
+void seedEventsIfNeeded()
+
+/* ── Row → MockEvent mapping ── */
+
+function rowToMockEvent(row: EventBusRow): MockEvent {
+  return {
+    id: row.id,
+    eventName: row.event_name as MockEvent['eventName'],
+    entityType: row.entity_type ?? '',
+    entityId: row.entity_id ?? '',
+    actorType: row.actor_type,
+    timestamp: row.timestamp,
+  }
+}
+
+/* ── Hooks ── */
+
+export function useEvents(): QueryResult<MockEvent[]> {
+  const [data, setData] = useState<MockEvent[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    seedEventsIfNeeded().then(async () => {
+      const rows = await findMany<EventBusRow>('event_bus')
+      if (!cancelled) {
+        setData(rows.map(rowToMockEvent))
+        setLoading(false)
+      }
+    })
+    return () => { cancelled = true }
+  }, [])
+
+  return { data, loading, error: null }
+}
+
+export function useEntityEvents(entityId: string): QueryResult<MockEvent[]> {
+  const [data, setData] = useState<MockEvent[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    seedEventsIfNeeded().then(async () => {
+      const rows = await findMany<EventBusRow>('event_bus', r => r.entity_id === entityId)
+      if (!cancelled) {
+        setData(rows.map(rowToMockEvent))
+        setLoading(false)
+      }
+    })
+    return () => { cancelled = true }
+  }, [entityId])
+
+  return { data, loading, error: null }
+}
+
 export function useServiceEvents(): QueryResult<MockServiceEvent[]> { return useSimulatedQuery(() => MOCK_SERVICE_EVENTS) }
 
 /* ─── Operating Signals ─── */
@@ -22,17 +105,30 @@ function classifySeverity(eventName: string): OperatingSignal['severity'] {
 }
 
 export function useOperatingSignals(): QueryResult<OperatingSignal[]> {
-  return useSimulatedQuery(() =>
-    MOCK_EVENTS.map(e => ({
-      id: e.id,
-      type: 'event' as const,
-      severity: classifySeverity(e.eventName),
-      title: e.eventName.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase()),
-      description: `${e.actorType} action on ${e.entityType ?? 'system'}${e.entityId ? ` (${e.entityId})` : ''}`,
-      entityType: e.entityType,
-      entityId: e.entityId,
-      timestamp: e.timestamp,
-      read: false,
-    }))
-  )
+  const [data, setData] = useState<OperatingSignal[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let cancelled = false
+    seedEventsIfNeeded().then(async () => {
+      const rows = await findMany<EventBusRow>('event_bus')
+      if (!cancelled) {
+        setData(rows.map(r => ({
+          id: r.id,
+          type: 'event' as const,
+          severity: classifySeverity(r.event_name),
+          title: r.event_name.replace(/_/g, ' ').replace(/^\w/, c => c.toUpperCase()),
+          description: `${r.actor_type} action on ${r.entity_type ?? 'system'}${r.entity_id ? ` (${r.entity_id})` : ''}`,
+          entityType: r.entity_type,
+          entityId: r.entity_id,
+          timestamp: r.timestamp,
+          read: false,
+        })))
+        setLoading(false)
+      }
+    })
+    return () => { cancelled = true }
+  }, [])
+
+  return { data, loading, error: null }
 }
