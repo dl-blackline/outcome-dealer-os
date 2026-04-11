@@ -56,7 +56,7 @@ export function LeadRecordPage() {
               </Button>
             </div>
           ))}
-          {linkedDeals.length === 0 && <p className="text-xs text-muted-foreground">No linked deals yet.</p>}
+          {linkedDeals.length === 0 && <p className="text-xs text-muted-foreground">No linked deals yet</p>}
         </CardContent></Card>
         <Card><CardHeader><CardTitle>Activity Timeline</CardTitle></CardHeader><CardContent>{events.length === 0 ? <p className="text-sm text-muted-foreground">No events.</p> : (
           <div className="space-y-3">{events.map(e => (
