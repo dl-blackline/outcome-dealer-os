@@ -2,14 +2,20 @@ import { useState } from 'react'
 import { SectionHeader } from '@/components/core/SectionHeader'
 import { StatusPill } from '@/components/core/StatusPill'
 import { useRouter } from '@/app/router'
-import { MOCK_DEALS } from '@/lib/mockData'
+import { useDeals } from '@/hooks/useDomainQueries'
+import { SpinnerGap } from '@phosphor-icons/react'
 
 const STATUSES = ['all', 'structured', 'quoted', 'signed', 'funded'] as const
 
 export function DealListPage() {
   const { navigate } = useRouter()
+  const deals = useDeals()
   const [tab, setTab] = useState<string>('all')
-  const filtered = MOCK_DEALS.filter(d => tab === 'all' || d.status === tab)
+  const filtered = deals.data.filter(d => tab === 'all' || d.status === tab)
+
+  if (deals.loading) {
+    return <div className="flex items-center justify-center py-24"><SpinnerGap className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+  }
 
   return (
     <div className="space-y-6">

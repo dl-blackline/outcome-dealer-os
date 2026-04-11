@@ -25,6 +25,8 @@ export type QueueType =
   | 'management'
   | 'general'
 
+export type CardStatus = 'active' | 'completed' | 'reopened'
+
 export interface WorkstationCard {
   id: UUID
   title: string
@@ -34,6 +36,7 @@ export interface WorkstationCard {
   linkedObjectId?: UUID
   priority: CardPriority
   queueType: QueueType
+  status?: CardStatus
   dueAt?: string
   assigneeId?: UUID
   assigneeName?: string

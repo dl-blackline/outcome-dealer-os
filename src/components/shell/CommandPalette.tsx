@@ -6,8 +6,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { MagnifyingGlass, House, Kanban, UsersThree, ClipboardText, CurrencyDollar, Gauge, ChartLine, Gear } from '@phosphor-icons/react'
-import { MOCK_LEADS, MOCK_DEALS, MOCK_INVENTORY } from '@/lib/mockData'
+import { MagnifyingGlass, House, Kanban, UsersThree, ClipboardText, CurrencyDollar, Gauge, ChartLine, Gear, Shield, Lightning, Scroll } from '@phosphor-icons/react'
+import { useLeads, useDeals, useInventory, useHouseholds } from '@/hooks/useDomainQueries'
 import { useRouter } from '@/app/router'
 
 interface CommandItem {
@@ -28,6 +28,10 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
   const [search, setSearch] = useState('')
   const { navigate } = useRouter()
   const [selectedIndex, setSelectedIndex] = useState(0)
+  const leads = useLeads()
+  const deals = useDeals()
+  const inventory = useInventory()
+  const households = useHouseholds()
 
   const go = useCallback((path: string) => {
     navigate(path)
@@ -43,13 +47,20 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       { id: 'nav-leads', label: 'Leads', icon: ClipboardText, action: () => go('/app/records/leads'), category: 'navigation' },
       { id: 'nav-deals', label: 'Deals', icon: CurrencyDollar, action: () => go('/app/records/deals'), category: 'navigation' },
       { id: 'nav-inventory', label: 'Inventory', icon: Gauge, action: () => go('/app/records/inventory'), category: 'navigation' },
-      { id: 'nav-events', label: 'Events', icon: ChartLine, action: () => go('/app/ops/events'), category: 'navigation' },
-      { id: 'nav-approvals', label: 'Approvals', icon: ClipboardText, action: () => go('/app/ops/approvals'), category: 'navigation' },
-      { id: 'nav-settings', label: 'Settings', icon: Gear, action: () => go('/app/settings/roles'), category: 'navigation' },
+      { id: 'nav-events', label: 'Event Stream', icon: Lightning, action: () => go('/app/ops/events'), category: 'navigation' },
+      { id: 'nav-approvals', label: 'Approval Queue', icon: Shield, action: () => go('/app/ops/approvals'), category: 'navigation' },
+      { id: 'nav-audit', label: 'Audit Log', icon: Scroll, action: () => go('/app/ops/audit'), category: 'navigation' },
+      { id: 'nav-roles', label: 'Roles & Permissions', icon: Gear, action: () => go('/app/settings/roles'), category: 'navigation' },
+      { id: 'nav-integrations', label: 'Integrations', icon: Gear, action: () => go('/app/settings/integrations'), category: 'navigation' },
+    ]
+
+    const actionItems: CommandItem[] = [
+      { id: 'action-pending-approvals', label: 'Review Pending Approvals', description: 'Jump to approval queue', icon: Shield, action: () => go('/app/ops/approvals'), category: 'action' },
+      { id: 'action-new-card', label: 'Open Workstation', description: 'Go to your execution board', icon: Kanban, action: () => go('/app/workstation'), category: 'action' },
     ]
 
     const recordItems: CommandItem[] = [
-      ...MOCK_LEADS.map(l => ({
+      ...leads.data.map(l => ({
         id: `lead-${l.id}`,
         label: l.customerName,
         description: `Lead • ${l.source} • Score: ${l.score}`,
@@ -57,7 +68,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         action: () => go(`/app/records/leads/${l.id}`),
         category: 'record' as const,
       })),
-      ...MOCK_DEALS.map(d => ({
+      ...deals.data.map(d => ({
         id: `deal-${d.id}`,
         label: d.customerName,
         description: `Deal • ${d.vehicleDescription} • $${d.amount.toLocaleString()}`,
@@ -65,7 +76,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         action: () => go(`/app/records/deals/${d.id}`),
         category: 'record' as const,
       })),
-      ...MOCK_INVENTORY.map(u => ({
+      ...inventory.data.map(u => ({
         id: `inv-${u.id}`,
         label: `${u.year} ${u.make} ${u.model} ${u.trim}`,
         description: `Inventory • ${u.vin} • $${u.askingPrice.toLocaleString()}`,
@@ -73,10 +84,18 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
         action: () => go(`/app/records/inventory/${u.id}`),
         category: 'record' as const,
       })),
+      ...households.data.map(h => ({
+        id: `hh-${h.id}`,
+        label: h.name,
+        description: `Household • ${h.primaryContact} • $${h.lifetimeValue.toLocaleString()} LTV`,
+        icon: UsersThree,
+        action: () => go(`/app/records/households/${h.id}`),
+        category: 'record' as const,
+      })),
     ]
 
-    return [...navItems, ...recordItems]
-  }, [go])
+    return [...navItems, ...actionItems, ...recordItems]
+  }, [go, leads.data, deals.data, inventory.data, households.data])
 
   const filtered = useMemo(() => {
     if (!search.trim()) return items.slice(0, 12)

@@ -1,22 +1,31 @@
 import { useState } from 'react'
 import { SectionHeader } from '@/components/core/SectionHeader'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { MOCK_APPROVALS, type MockApproval } from '@/lib/mockData'
-import { Shield, CheckCircle, XCircle } from '@phosphor-icons/react'
+import { useApprovalMutations } from '@/hooks/useDomainQueries'
+import { Shield, CheckCircle, XCircle, SpinnerGap, User } from '@phosphor-icons/react'
 
 const TABS = ['pending', 'granted', 'denied', 'all'] as const
 
 export function ApprovalQueuePage() {
   const [tab, setTab] = useState<string>('pending')
-  const [approvals, setApprovals] = useState<MockApproval[]>(MOCK_APPROVALS)
+  const { approvals, approveItem, denyItem } = useApprovalMutations()
+  const [notesMap, setNotesMap] = useState<Record<string, string>>({})
+  const [showNotesFor, setShowNotesFor] = useState<string | null>(null)
   const filtered = approvals.filter(a => tab === 'all' || a.status === tab)
   const pendingCount = approvals.filter(a => a.status === 'pending').length
 
-  const handleAction = (id: string, action: 'granted' | 'denied') => {
-    setApprovals(prev => prev.map(a => a.id === id ? { ...a, status: action } : a))
+  const handleAction = (id: string, action: 'approve' | 'deny') => {
+    const notes = notesMap[id]?.trim() || undefined
+    if (action === 'approve') {
+      approveItem(id, notes)
+    } else {
+      denyItem(id, notes)
+    }
+    setShowNotesFor(null)
+    setNotesMap(prev => { const next = { ...prev }; delete next[id]; return next })
   }
 
   return (
@@ -41,11 +50,37 @@ export function ApprovalQueuePage() {
                     </div>
                     <p className="text-sm">{a.description}</p>
                     <p className="text-xs text-muted-foreground">Requested by {a.requestedBy} • {new Date(a.createdAt).toLocaleString()}</p>
+                    {a.resolvedBy && (
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground mt-1">
+                        <User className="h-3 w-3" />
+                        <span>Resolved by {a.resolvedBy}{a.resolvedAt ? ` • ${new Date(a.resolvedAt).toLocaleString()}` : ''}</span>
+                      </div>
+                    )}
+                    {a.resolutionNotes && (
+                      <p className="text-xs text-muted-foreground italic mt-1">"{a.resolutionNotes}"</p>
+                    )}
                   </div>
                   {a.status === 'pending' && (
-                    <div className="flex gap-2">
-                      <Button size="sm" variant="outline" className="gap-1 text-green-600" onClick={() => handleAction(a.id, 'granted')}><CheckCircle className="h-4 w-4" /> Approve</Button>
-                      <Button size="sm" variant="outline" className="gap-1 text-red-600" onClick={() => handleAction(a.id, 'denied')}><XCircle className="h-4 w-4" /> Deny</Button>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex gap-2">
+                        <Button size="sm" variant="outline" className="gap-1 text-green-600" onClick={() => showNotesFor === a.id ? handleAction(a.id, 'approve') : setShowNotesFor(a.id)}>
+                          <CheckCircle className="h-4 w-4" /> Approve
+                        </Button>
+                        <Button size="sm" variant="outline" className="gap-1 text-red-600" onClick={() => showNotesFor === a.id ? handleAction(a.id, 'deny') : setShowNotesFor(a.id)}>
+                          <XCircle className="h-4 w-4" /> Deny
+                        </Button>
+                      </div>
+                      {showNotesFor === a.id && (
+                        <input
+                          autoFocus
+                          type="text"
+                          placeholder="Resolution notes (optional)…"
+                          value={notesMap[a.id] ?? ''}
+                          onChange={e => setNotesMap(prev => ({ ...prev, [a.id]: e.target.value }))}
+                          onKeyDown={e => { if (e.key === 'Escape') setShowNotesFor(null) }}
+                          className="h-8 rounded-md border border-input bg-background px-2 text-xs placeholder:text-muted-foreground"
+                        />
+                      )}
                     </div>
                   )}
                 </div>

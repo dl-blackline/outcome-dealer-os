@@ -3,12 +3,12 @@ import { SectionHeader } from '@/components/core/SectionHeader'
 import { Button } from '@/components/ui/button'
 import {
   DEFAULT_COLUMNS,
-  MOCK_WORKSTATION_CARDS,
   type WorkstationCard,
   type WorkstationColumnId,
   type QueueType,
   type CardPriority,
 } from '@/domains/workstation'
+import { useWorkstationMutations } from '@/hooks/useDomainQueries'
 import {
   WorkstationBoard,
   WorkstationCardDrawer,
@@ -18,7 +18,7 @@ import {
 import { Plus } from '@phosphor-icons/react'
 
 export function WorkstationPage() {
-  const [cards, setCards] = useState<WorkstationCard[]>(MOCK_WORKSTATION_CARDS)
+  const { cards, moveCard, createCard, completeCard, reopenCard } = useWorkstationMutations()
   const [selectedCard, setSelectedCard] = useState<WorkstationCard | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [quickCreateOpen, setQuickCreateOpen] = useState(false)
@@ -26,10 +26,10 @@ export function WorkstationPage() {
   const [priorityFilter, setPriorityFilter] = useState<CardPriority | 'all'>('all')
   const [searchTerm, setSearchTerm] = useState('')
 
-  const moveCard = useCallback((cardId: string, toCol: WorkstationColumnId) => {
-    setCards(prev => prev.map(c => c.id === cardId ? { ...c, columnId: toCol, updatedAt: new Date().toISOString() } : c))
+  const handleMoveCard = useCallback((cardId: string, toCol: WorkstationColumnId) => {
+    moveCard(cardId, toCol)
     if (selectedCard?.id === cardId) {
-      setSelectedCard(prev => prev ? { ...prev, columnId: toCol } : null)
+      setSelectedCard(prev => prev ? { ...prev, columnId: toCol, status: toCol === 'done' ? 'completed' : prev.status === 'completed' ? 'reopened' : prev.status ?? 'active' } : null)
     }
   }, [selectedCard])
 
@@ -102,13 +102,15 @@ export function WorkstationPage() {
         card={selectedCard}
         open={drawerOpen}
         onOpenChange={setDrawerOpen}
-        onMoveToColumn={moveCard}
+        onMoveToColumn={handleMoveCard}
+        onComplete={completeCard}
+        onReopen={reopenCard}
       />
 
       <WorkstationQuickCreate
         open={quickCreateOpen}
         onOpenChange={setQuickCreateOpen}
-        onCreate={handleCreate}
+        onCreate={createCard}
       />
     </div>
   )

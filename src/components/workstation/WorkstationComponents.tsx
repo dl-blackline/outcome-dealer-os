@@ -13,6 +13,7 @@ import {
   Shield,
   Clock,
   CaretRight,
+  CheckCircle,
 } from '@phosphor-icons/react'
 
 /* ─── Priority colors ──────────────────────── */
@@ -68,6 +69,7 @@ export function WorkstationCardItem({
   canMoveRight: boolean
 }) {
   const isOverdue = card.dueAt && new Date(card.dueAt) < new Date()
+  const isCompleted = card.status === 'completed'
   const [isDragging, setIsDragging] = useState(false)
 
   const handleDragStart = (e: React.DragEvent) => {
@@ -85,7 +87,7 @@ export function WorkstationCardItem({
       draggable
       onDragStart={handleDragStart}
       onDragEnd={handleDragEnd}
-      className={`border-l-4 ${PRIORITY_BORDER[card.priority]} cursor-move transition-all hover:ring-1 hover:ring-primary/30 ${isDragging ? 'opacity-50' : ''}`}
+      className={`border-l-4 ${PRIORITY_BORDER[card.priority]} cursor-move transition-all hover:ring-1 hover:ring-primary/30 ${isDragging ? 'opacity-50' : ''} ${isCompleted ? 'opacity-60' : ''}`}
       onClick={onSelect}
     >
       <CardContent className="p-3 space-y-2">
@@ -138,17 +140,23 @@ export function WorkstationCardDrawer({
   open,
   onOpenChange,
   onMoveToColumn,
+  onComplete,
+  onReopen,
 }: {
   card: WorkstationCard | null
   open: boolean
   onOpenChange: (v: boolean) => void
   onMoveToColumn: (cardId: string, col: WorkstationColumnId) => void
+  onComplete?: (cardId: string) => void
+  onReopen?: (cardId: string) => void
 }) {
   const { navigate } = useRouter()
   if (!card) return null
 
   const linkedRoute = card.linkedObjectType && LINKED_ROUTE[card.linkedObjectType]
   const canNavigate = linkedRoute && card.linkedObjectId
+  const isCompleted = card.status === 'completed'
+  const isReopened = card.status === 'reopened'
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -168,6 +176,13 @@ export function WorkstationCardDrawer({
             </div>
             <div><span className="text-muted-foreground">Column</span>
               <div className="mt-1 capitalize">{card.columnId.replace(/_/g, ' ')}</div>
+            </div>
+            <div><span className="text-muted-foreground">Status</span>
+              <div className="mt-1">
+                <StatusPill variant={isCompleted ? 'success' : isReopened ? 'purple' : 'neutral'}>
+                  {card.status ?? 'active'}
+                </StatusPill>
+              </div>
             </div>
             {card.assigneeName && (
               <div><span className="text-muted-foreground">Assignee</span>
@@ -215,6 +230,20 @@ export function WorkstationCardDrawer({
               {card.tags.map(t => <Badge key={t} variant="secondary" className="text-xs">{t}</Badge>)}
             </div>
           )}
+
+          {/* Lifecycle actions */}
+          <div className="flex gap-2 pt-2">
+            {!isCompleted && onComplete && (
+              <Button size="sm" className="gap-1" onClick={() => { onComplete(card.id); onOpenChange(false) }}>
+                <CheckCircle className="h-4 w-4" /> Complete
+              </Button>
+            )}
+            {isCompleted && onReopen && (
+              <Button size="sm" variant="outline" className="gap-1" onClick={() => { onReopen(card.id); onOpenChange(false) }}>
+                <ArrowLeft className="h-4 w-4" /> Reopen
+              </Button>
+            )}
+          </div>
 
           <div className="space-y-2 pt-2">
             <p className="text-xs font-medium text-muted-foreground">Move to column</p>

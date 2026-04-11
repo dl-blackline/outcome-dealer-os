@@ -3,32 +3,36 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Button } from '@/components/ui/button'
 import { useRouter } from '@/app/router'
-import { MOCK_LEADS, MOCK_DEALS } from '@/lib/mockData'
-import { ArrowLeft, CurrencyDollar, Star, UsersThree } from '@phosphor-icons/react'
-
-const MOCK_HOUSEHOLDS = [
-  { id: 'hh-001', name: 'Mitchell Family', lifetimeValue: 38900, loyaltyScore: 72, preferredContact: 'email', members: 2, createdAt: '2024-11-01' },
-  { id: 'hh-002', name: 'Johnson Family', lifetimeValue: 105200, loyaltyScore: 91, preferredContact: 'phone', members: 3, createdAt: '2024-06-15' },
-  { id: 'hh-003', name: 'Rodriguez Family', lifetimeValue: 0, loyaltyScore: 15, preferredContact: 'sms', members: 1, createdAt: '2025-01-16' },
-]
+import { useHousehold, useLeads, useDeals } from '@/hooks/useDomainQueries'
+import { ArrowLeft, CurrencyDollar, Star, UsersThree, SpinnerGap } from '@phosphor-icons/react'
 
 export function HouseholdRecordPage() {
   const { params, navigate } = useRouter()
-  const hh = MOCK_HOUSEHOLDS.find(h => h.id === params.id) ?? MOCK_HOUSEHOLDS[0]
-  const linkedLeads = MOCK_LEADS.filter(l => l.householdId === hh.id)
-  const linkedDeals = MOCK_DEALS.filter(d => linkedLeads.some(l => l.id === d.leadId))
+  const hhQuery = useHousehold(params.id ?? '')
+  const leadsQuery = useLeads()
+  const dealsQuery = useDeals()
+
+  if (hhQuery.loading) {
+    return <div className="flex items-center justify-center py-24"><SpinnerGap className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+  }
+
+  const hh = hhQuery.data
+  if (!hh) return <div className="py-24 text-center text-muted-foreground">Household not found.</div>
+
+  const linkedLeads = leadsQuery.data.filter(l => l.householdId === hh.id)
+  const linkedDeals = dealsQuery.data.filter(d => linkedLeads.some(l => l.id === d.leadId))
 
   return (
     <div className="space-y-6">
       <Button variant="ghost" size="sm" onClick={() => navigate('/app/records/households')} className="gap-2"><ArrowLeft className="h-4 w-4" /> Households</Button>
-      <SectionHeader title={hh.name} description={`Household record • Created ${hh.createdAt}`} />
+      <SectionHeader title={hh.name} description={`Household record • Created ${new Date(hh.createdAt).toLocaleDateString()}`} />
       <div className="grid gap-4 md:grid-cols-4">
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Lifetime Value</CardTitle></CardHeader>
           <CardContent><div className="flex items-center gap-2"><CurrencyDollar className="h-5 w-5 text-primary" /><span className="text-2xl font-bold">${hh.lifetimeValue.toLocaleString()}</span></div></CardContent></Card>
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Loyalty Score</CardTitle></CardHeader>
           <CardContent><div className="flex items-center gap-2"><Star className="h-5 w-5 text-yellow-500" /><span className="text-2xl font-bold">{hh.loyaltyScore}</span></div></CardContent></Card>
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Preferred Contact</CardTitle></CardHeader>
-          <CardContent><span className="text-lg capitalize">{hh.preferredContact}</span></CardContent></Card>
+          <CardContent><span className="text-lg capitalize">{hh.preferredContact ?? 'email'}</span></CardContent></Card>
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Members</CardTitle></CardHeader>
           <CardContent><div className="flex items-center gap-2"><UsersThree className="h-5 w-5" /><span className="text-2xl font-bold">{hh.members}</span></div></CardContent></Card>
       </div>
