@@ -8,7 +8,7 @@ import {
   type QueueType,
   type CardPriority,
 } from '@/domains/workstation'
-import { useWorkstationMutations } from '@/hooks/useDomainQueries'
+import { useWorkstationMutations } from '@/domains/workstation/workstation.hooks'
 import {
   WorkstationBoard,
   WorkstationCardDrawer,

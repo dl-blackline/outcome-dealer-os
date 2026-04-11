@@ -4,7 +4,9 @@ import { StatusPill } from '@/components/core/StatusPill'
 import { EntityBadge } from '@/components/core/EntityBadge'
 import { Button } from '@/components/ui/button'
 import { useRouter } from '@/app/router'
-import { useLead, useEntityEvents, useDeals } from '@/hooks/useDomainQueries'
+import { useLead } from '@/domains/leads/lead.hooks'
+import { useEntityEvents } from '@/domains/events/event.hooks'
+import { useDeals } from '@/domains/deals/deal.hooks'
 import { ArrowLeft, EnvelopeSimple, Phone, Target, Globe, SpinnerGap, CaretRight } from '@phosphor-icons/react'
 
 export function LeadRecordPage() {

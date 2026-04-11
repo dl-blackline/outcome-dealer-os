@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Badge } from '@/components/ui/badge'
 import { useRouter } from '@/app/router'
-import { useInventory } from '@/hooks/useDomainQueries'
+import { useInventory } from '@/domains/inventory/inventory.hooks'
 import { Calendar, CurrencyDollar, SpinnerGap } from '@phosphor-icons/react'
 
 export function InventoryListPage() {

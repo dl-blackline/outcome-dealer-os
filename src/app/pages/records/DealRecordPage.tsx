@@ -4,7 +4,11 @@ import { StatusPill } from '@/components/core/StatusPill'
 import { EntityBadge } from '@/components/core/EntityBadge'
 import { Button } from '@/components/ui/button'
 import { useRouter } from '@/app/router'
-import { useDeal, useApprovals, useEntityEvents, useLeads, useInventory } from '@/hooks/useDomainQueries'
+import { useDeal } from '@/domains/deals/deal.hooks'
+import { useApprovals } from '@/domains/approvals/approval.hooks'
+import { useEntityEvents } from '@/domains/events/event.hooks'
+import { useLeads } from '@/domains/leads/lead.hooks'
+import { useInventory } from '@/domains/inventory/inventory.hooks'
 import { ArrowLeft, CurrencyDollar, Car, Shield, SpinnerGap, CaretRight } from '@phosphor-icons/react'
 
 const STAGES = ['structured', 'quoted', 'signed', 'funded', 'delivered'] as const

@@ -3,7 +3,7 @@ import { SectionHeader } from '@/components/core/SectionHeader'
 import { Card, CardContent } from '@/components/ui/card'
 import { EntityBadge } from '@/components/core/EntityBadge'
 import { Badge } from '@/components/ui/badge'
-import { useAuditLogs } from '@/hooks/useDomainQueries'
+import { useAuditLogs } from '@/domains/audit/audit.hooks'
 import { Scroll, SpinnerGap } from '@phosphor-icons/react'
 
 const ENTITY_VARIANT: Record<string, 'lead' | 'deal' | 'approval'> = { lead: 'lead', deal: 'deal', approval: 'approval' }

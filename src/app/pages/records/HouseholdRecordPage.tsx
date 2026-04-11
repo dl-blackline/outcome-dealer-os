@@ -3,7 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Button } from '@/components/ui/button'
 import { useRouter } from '@/app/router'
-import { useHousehold, useLeads, useDeals } from '@/hooks/useDomainQueries'
+import { useHousehold } from '@/domains/households/household.hooks'
+import { useLeads } from '@/domains/leads/lead.hooks'
+import { useDeals } from '@/domains/deals/deal.hooks'
 import { ArrowLeft, CurrencyDollar, Star, UsersThree, SpinnerGap } from '@phosphor-icons/react'
 
 export function HouseholdRecordPage() {

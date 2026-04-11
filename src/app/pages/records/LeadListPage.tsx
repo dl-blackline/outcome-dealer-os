@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { SectionHeader } from '@/components/core/SectionHeader'
 import { StatusPill } from '@/components/core/StatusPill'
 import { useRouter } from '@/app/router'
-import { useLeads } from '@/hooks/useDomainQueries'
+import { useLeads } from '@/domains/leads/lead.hooks'
 import { SpinnerGap } from '@phosphor-icons/react'
 
 const STATUSES = ['all', 'new', 'contacted', 'qualified', 'converted'] as const

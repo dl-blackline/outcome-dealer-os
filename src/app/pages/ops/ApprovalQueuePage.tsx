@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { useApprovalMutations } from '@/hooks/useDomainQueries'
+import { useApprovalMutations } from '@/domains/approvals/approval.hooks'
 import { Shield, CheckCircle, XCircle, SpinnerGap, User } from '@phosphor-icons/react'
 
 const TABS = ['pending', 'granted', 'denied', 'all'] as const
