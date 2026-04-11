@@ -10,35 +10,42 @@
 
 | File | Imported Symbols | Purpose |
 |------|-----------------|---------|
-| `src/hooks/useDomainQueries.ts` | `MOCK_LEADS`, `MOCK_DEALS`, `MOCK_INVENTORY`, `MOCK_APPROVALS`, `MOCK_EVENTS`, `MOCK_SERVICE_EVENTS`, `MOCK_TASKS` + all `Mock*` type interfaces | Feeds every `useSimulatedQuery()` hook with static data |
+| `src/domains/leads/lead.hooks.ts` | `MOCK_LEADS`, `MockLead` | Feeds `useLeads()` / `useLead()` |
+| `src/domains/deals/deal.hooks.ts` | `MOCK_DEALS`, `MockDeal` | Feeds `useDeals()` / `useDeal()` |
+| `src/domains/inventory/inventory.hooks.ts` | `MOCK_INVENTORY`, `MockInventoryUnit` | Feeds `useInventory()` / `useInventoryUnit()` |
+| `src/domains/approvals/approval.hooks.ts` | `MOCK_APPROVALS`, `MockApproval` | Feeds `useApprovals()` / `useApprovalMutations()` |
+| `src/domains/events/event.hooks.ts` | `MOCK_EVENTS`, `MOCK_SERVICE_EVENTS`, `MockEvent`, `MockServiceEvent` | Feeds `useEvents()` / `useEntityEvents()` / `useServiceEvents()` / `useOperatingSignals()` |
+| `src/hooks/useTasks.ts` | `MOCK_TASKS`, `MockTask` | Feeds `useTasks()` |
 | `src/domains/dashboard/dashboard.adapters.ts` | `MOCK_LEADS`, `MOCK_DEALS`, `MOCK_INVENTORY`, `MOCK_APPROVALS`, `MOCK_EVENTS` + `MockLead`, `MockDeal`, `MockEvent` types | Computes role-specific dashboard metrics directly from mock arrays |
+
+> **Note:** `src/hooks/useDomainQueries.ts` is now a compatibility re-export barrel and no longer imports from `mockData.ts` directly.
 
 ### Separate Mock Files
 
 | File | Imported By | Symbols |
 |------|------------|---------|
-| `src/domains/workstation/workstation.mock.ts` | `workstation.service.ts`, `dashboard.adapters.ts` (via barrel), `useDomainQueries.ts` (via barrel) | `MOCK_WORKSTATION_CARDS` |
+| `src/domains/workstation/workstation.mock.ts` | `workstation.service.ts`, `dashboard.adapters.ts` (via barrel), `workstation.hooks.ts` (via barrel) | `MOCK_WORKSTATION_CARDS` |
 
 ---
 
-## 2. Inline Static Datasets in `useDomainQueries.ts`
+## 2. Inline Static Datasets (now in domain hook files)
 
-These datasets are defined directly inside `src/hooks/useDomainQueries.ts` — not imported from `mockData.ts`.
+These datasets were previously inside `useDomainQueries.ts` and have been moved to their respective domain hook files.
 
-| Constant | Approx. Line | Records | Type | Content |
-|----------|-------------|---------|------|---------|
-| `HOUSEHOLD_DATA` | ~39–44 | 4 | `HouseholdSummary[]` | Mitchell, Johnson, Rodriguez, Thompson families with member counts, loyalty tiers, lifetime values |
-| `AUDIT_LOG_DATA` | ~115–122 | 6 | `AuditLogEntry[]` | Hardcoded audit entries: lead creation, deal stage update, approval request, login, inventory price change, lead assignment |
-| `INTEGRATION_DATA` | ~136–141 | 4 | `IntegrationStatus[]` | DMS Sync (healthy), Credit Bureau (warning), Lender Portal (healthy), Marketing Platform (error) |
-| `WARNING_EVENTS` | ~190 | varies | `string[]` | Event names classified as warning severity |
-| `SUCCESS_EVENTS` | ~191 | varies | `string[]` | Event names classified as success severity |
-| `CRITICAL_EVENTS` | ~192 | varies | `string[]` | Event names classified as critical severity |
+| Constant | File | Records | Type | Content |
+|----------|------|---------|------|---------|
+| `HOUSEHOLD_DATA` | `src/domains/households/household.hooks.ts` | 4 | `HouseholdSummary[]` | Mitchell, Johnson, Rodriguez, Thompson families with member counts, loyalty tiers, lifetime values |
+| `AUDIT_LOG_DATA` | `src/domains/audit/audit.hooks.ts` | 6 | `AuditLogEntry[]` | Hardcoded audit entries: lead creation, deal stage update, approval request, login, inventory price change, lead assignment |
+| `INTEGRATION_DATA` | `src/domains/integrations/integration.hooks.ts` | 4 | `IntegrationStatus[]` | DMS Sync (healthy), Credit Bureau (warning), Lender Portal (healthy), Marketing Platform (error) |
+| `WARNING_EVENTS` | `src/domains/events/event.hooks.ts` | varies | `string[]` | Event names classified as warning severity |
+| `SUCCESS_EVENTS` | `src/domains/events/event.hooks.ts` | varies | `string[]` | Event names classified as success severity |
+| `CRITICAL_EVENTS` | `src/domains/events/event.hooks.ts` | varies | `string[]` | Event names classified as critical severity |
 
 ---
 
 ## 3. Hooks That Use `useSimulatedQuery()`
 
-Every hook below calls `useSimulatedQuery<T>(resolver)` which wraps the resolver in a `useState` + `useEffect` with an 80ms simulated delay. Returns `QueryResult<T>` with `{ data, isLoading, error }`.
+Every hook below calls `useSimulatedQuery<T>(resolver)` (defined in `src/hooks/useQueryResult.ts`) which wraps the resolver in a `useMemo` + `useEffect` with an 80ms simulated delay. Returns `QueryResult<T>` with `{ data, loading, error }`. Each hook now lives in its respective domain hook file (see `docs/architecture/domain_runtime_hook_model.md`).
 
 ### Read-Only Query Hooks
 
@@ -76,10 +83,10 @@ Every hook below calls `useSimulatedQuery<T>(resolver)` which wraps the resolver
 ### Pattern A: Hook-backed via mock array (most entities)
 
 ```
-mockData.ts                useDomainQueries.ts              Page Component
+mockData.ts                domain hook file                     Page Component
 ─────────────             ──────────────────────           ─────────────────
 MOCK_LEADS ──import──→  useLeads()                    ──→  LeadListPage
-                           └─ useSimulatedQuery(          { data, isLoading }
+                           └─ useSimulatedQuery(          { data, loading }
                                 () => MOCK_LEADS          renders table
                               )
 ```
@@ -87,7 +94,7 @@ MOCK_LEADS ──import──→  useLeads()                    ──→  LeadL
 ### Pattern B: Inline dataset (households, audit, integrations)
 
 ```
-useDomainQueries.ts                              Page Component
+domain hook file                                 Page Component
 ───────────────────────────                     ─────────────────
 const HOUSEHOLD_DATA = [...]  ──→  useHouseholds()  ──→  HouseholdListPage
                                      └─ useSimulatedQuery(
@@ -98,7 +105,7 @@ const HOUSEHOLD_DATA = [...]  ──→  useHouseholds()  ──→  HouseholdLi
 ### Pattern C: Local state mutations (approvals, workstation)
 
 ```
-mockData.ts              useDomainQueries.ts                    Page Component
+mockData.ts              domain hook file                      Page Component
 ─────────────           ──────────────────────                 ─────────────────
 MOCK_APPROVALS ─────→  useApprovalMutations()              ──→  ApprovalQueuePage
                           └─ const [items, setItems]             calls approveItem(id)
@@ -160,4 +167,4 @@ Use this checklist to track progress as each entity is wired to its runtime serv
 - [ ] **Operating Signals** — Derive from runtime events instead of `MOCK_EVENTS`
 - [ ] **Notifications** — Wire to event bus for real-time signals
 - [ ] **Delete `mockData.ts`** — Final cleanup after all consumers migrated
-- [ ] **Decompose `useDomainQueries.ts`** — Split into domain-specific hook files
+- [x] **Decompose `useDomainQueries.ts`** — Split into domain-specific hook files (done — see `domain_runtime_hook_model.md`)
