@@ -1,7 +1,12 @@
 import { SectionHeader } from '@/components/core/SectionHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
-import { useLeads, useDeals, useApprovals, useInventory, useTasks, useWorkstationCards } from '@/hooks/useDomainQueries'
+import { useLeads } from '@/domains/leads/lead.hooks'
+import { useDeals } from '@/domains/deals/deal.hooks'
+import { useApprovals } from '@/domains/approvals/approval.hooks'
+import { useInventory } from '@/domains/inventory/inventory.hooks'
+import { useTasks } from '@/hooks/useTasks'
+import { useWorkstationCards } from '@/domains/workstation/workstation.hooks'
 import { TrendUp, CheckCircle, Clock, Warning, SpinnerGap, Kanban } from '@phosphor-icons/react'
 import { useRouter } from '@/app/router'
 

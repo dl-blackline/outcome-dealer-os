@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Button } from '@/components/ui/button'
 import { useRouter } from '@/app/router'
-import { useInventoryUnit } from '@/hooks/useDomainQueries'
+import { useInventoryUnit } from '@/domains/inventory/inventory.hooks'
 import { ArrowLeft, Barcode, Calendar, CurrencyDollar, Wrench, SpinnerGap } from '@phosphor-icons/react'
 
 export function InventoryUnitPage() {

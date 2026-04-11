@@ -2,7 +2,7 @@ import { SectionHeader } from '@/components/core/SectionHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Badge } from '@/components/ui/badge'
-import { useIntegrations } from '@/hooks/useDomainQueries'
+import { useIntegrations } from '@/domains/integrations/integration.hooks'
 import { PlugsConnected, ArrowClockwise, Warning, SpinnerGap, Info } from '@phosphor-icons/react'
 
 const STATUS_VARIANT = { healthy: 'success' as const, degraded: 'warning' as const, failed: 'danger' as const, recovering: 'info' as const }

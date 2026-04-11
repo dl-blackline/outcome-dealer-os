@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { SectionHeader } from '@/components/core/SectionHeader'
 import { StatusPill } from '@/components/core/StatusPill'
 import { useRouter } from '@/app/router'
-import { useDeals } from '@/hooks/useDomainQueries'
+import { useDeals } from '@/domains/deals/deal.hooks'
 import { SpinnerGap } from '@phosphor-icons/react'
 
 const STATUSES = ['all', 'structured', 'quoted', 'signed', 'funded'] as const

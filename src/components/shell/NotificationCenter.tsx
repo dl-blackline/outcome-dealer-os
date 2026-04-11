@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/sheet'
 import { Button } from '@/components/ui/button'
 import { StatusPill } from '@/components/core/StatusPill'
-import { useOperatingSignals } from '@/hooks/useDomainQueries'
+import { useOperatingSignals } from '@/domains/events/event.hooks'
 import type { OperatingSignal } from '@/domains/events/operatingSignal'
 
 interface NotificationCenterProps {

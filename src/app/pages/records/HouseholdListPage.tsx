@@ -3,7 +3,7 @@ import { SectionHeader } from '@/components/core/SectionHeader'
 import { Card, CardContent } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { useRouter } from '@/app/router'
-import { useHouseholds } from '@/hooks/useDomainQueries'
+import { useHouseholds } from '@/domains/households/household.hooks'
 import { UsersThree, CurrencyDollar, Star, SpinnerGap } from '@phosphor-icons/react'
 
 export function HouseholdListPage() {

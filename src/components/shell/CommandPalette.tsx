@@ -7,7 +7,10 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { MagnifyingGlass, House, Kanban, UsersThree, ClipboardText, CurrencyDollar, Gauge, ChartLine, Gear, Shield, Lightning, Scroll } from '@phosphor-icons/react'
-import { useLeads, useDeals, useInventory, useHouseholds } from '@/hooks/useDomainQueries'
+import { useLeads } from '@/domains/leads/lead.hooks'
+import { useDeals } from '@/domains/deals/deal.hooks'
+import { useInventory } from '@/domains/inventory/inventory.hooks'
+import { useHouseholds } from '@/domains/households/household.hooks'
 import { useRouter } from '@/app/router'
 
 interface CommandItem {

@@ -3,7 +3,7 @@ import { SectionHeader } from '@/components/core/SectionHeader'
 import { StatusPill } from '@/components/core/StatusPill'
 import { EntityBadge } from '@/components/core/EntityBadge'
 import { Card, CardContent } from '@/components/ui/card'
-import { useEvents } from '@/hooks/useDomainQueries'
+import { useEvents } from '@/domains/events/event.hooks'
 import { Lightning, User, Robot, Gear, SpinnerGap } from '@phosphor-icons/react'
 
 const ACTOR_ICON = { user: User, agent: Robot, system: Gear }
