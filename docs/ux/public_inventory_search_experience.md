@@ -2,7 +2,7 @@
 
 ## Overview
 
-The public inventory browse page (`/shop`) is the primary entry point for buyers exploring available vehicles. It prioritises fast scanning, intuitive filtering, and clear calls-to-action to drive engagement with individual vehicle listings.
+The public inventory browse page (`/shop`) is the primary entry point for buyers exploring available vehicles. It prioritizes fast scanning, intuitive filtering, and clear calls-to-action to drive engagement with individual vehicle listings.
 
 ## Search
 

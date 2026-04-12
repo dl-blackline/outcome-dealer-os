@@ -62,4 +62,4 @@ Each vehicle card links to `/shop/:unitId` via the hash-based router. The `Vehic
 - Replace mock data with API calls to a real inventory service.
 - Server-side search/filter for large inventories.
 - Image CDN integration for `imageUrl`.
-- Favourites persisted to `localStorage` or user account.
+- Favorites persisted to `localStorage` or user account.
