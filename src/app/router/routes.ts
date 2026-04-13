@@ -4,7 +4,7 @@ export interface RouteDefinition {
   path: string
   label: string
   component: string
-  group: 'dashboard' | 'records' | 'operations' | 'settings' | 'workstation'
+  group: 'dashboard' | 'records' | 'operations' | 'settings' | 'workstation' | 'buyer_hub'
   requiredPermission?: Permission
   requireExecutive?: boolean
 }
@@ -25,4 +25,14 @@ export const APP_ROUTES: RouteDefinition[] = [
   { path: '/app/ops/audit', label: 'Audit', component: 'AuditExplorerPage', group: 'operations' },
   { path: '/app/settings/roles', label: 'Roles', component: 'RolesSettingsPage', group: 'settings' },
   { path: '/app/settings/integrations', label: 'Integrations', component: 'IntegrationsSettingsPage', group: 'settings' },
+  // Buyer Hub (customer-facing)
+  { path: '/shop', label: 'Shop Inventory', component: 'ShopInventoryPage', group: 'buyer_hub' },
+  { path: '/shop/:unitId', label: 'Vehicle Detail', component: 'VehicleDetailPage', group: 'buyer_hub' },
+  { path: '/compare', label: 'Compare', component: 'ComparePage', group: 'buyer_hub' },
+  { path: '/favorites', label: 'Favorites', component: 'FavoritesPage', group: 'buyer_hub' },
+  { path: '/finance', label: 'Finance', component: 'FinanceHubPage', group: 'buyer_hub' },
+  { path: '/finance/apply', label: 'Apply', component: 'QuickAppPage', group: 'buyer_hub' },
+  { path: '/trade', label: 'Trade-In', component: 'TradeInPage', group: 'buyer_hub' },
+  { path: '/schedule', label: 'Schedule', component: 'SchedulePage', group: 'buyer_hub' },
+  { path: '/my-next-steps', label: 'My Next Steps', component: 'NextStepsPage', group: 'buyer_hub' },
 ]

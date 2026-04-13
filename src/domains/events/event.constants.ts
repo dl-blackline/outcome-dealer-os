@@ -46,6 +46,18 @@ export const EVENT_NAMES = [
   'approval_denied',
   'integration_sync_failed',
   'integration_sync_recovered',
+  // Buyer hub customer events
+  'listing_viewed',
+  'unit_detail_viewed',
+  'unit_saved',
+  'inquiry_started',
+  'inquiry_submitted',
+  'payment_scenario_viewed',
+  'finance_products_viewed',
+  'appointment_requested',
+  'appointment_confirmed',
+  'trade_in_started',
+  'trade_in_submitted',
 ] as const
 
 export type EventName = typeof EVENT_NAMES[number]
