@@ -8,6 +8,7 @@ import {
   Wrench,
   CurrencyDollar,
   Kanban,
+  UploadSimple,
 } from '@phosphor-icons/react'
 import { AppRole, ROLE_NAV_GROUPS, type NavGroup } from '@/domains/roles/roles'
 import { cn } from '@/lib/utils'
@@ -78,6 +79,12 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Settings',
     href: '/app/settings/roles',
     icon: Gear,
+    group: 'settings',
+  },
+  {
+    label: 'Inventory Import',
+    href: '/app/settings/inventory-import',
+    icon: UploadSimple,
     group: 'settings',
   },
 ]

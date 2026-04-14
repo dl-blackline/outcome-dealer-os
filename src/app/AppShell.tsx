@@ -23,6 +23,7 @@ import { ApprovalQueuePage } from '@/app/pages/ops/ApprovalQueuePage'
 import { AuditExplorerPage } from '@/app/pages/ops/AuditExplorerPage'
 import { RolesSettingsPage } from '@/app/pages/settings/RolesSettingsPage'
 import { IntegrationsSettingsPage } from '@/app/pages/settings/IntegrationsSettingsPage'
+import { InventoryImportPage } from '@/app/pages/settings/InventoryImportPage'
 
 const ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/app/dashboard': DashboardPage,
@@ -40,6 +41,7 @@ const ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/app/ops/audit': AuditExplorerPage,
   '/app/settings/roles': RolesSettingsPage,
   '/app/settings/integrations': IntegrationsSettingsPage,
+  '/app/settings/inventory-import': InventoryImportPage,
 }
 
 function resolvePageComponent(currentPath: string): React.ComponentType | null {

@@ -2,7 +2,7 @@ import { RouterProvider, useRouter } from '@/app/router'
 import { AppShell } from '@/app/AppShell'
 import { BuyerHubShell } from '@/app/BuyerHubShell'
 
-const BUYER_HUB_PREFIXES = ['/shop', '/compare', '/favorites', '/finance', '/trade', '/schedule', '/my-next-steps']
+const BUYER_HUB_PREFIXES = ['/shop', '/compare', '/favorites', '/finance', '/trade', '/schedule', '/my-next-steps', '/inquiry']
 
 function ShellRouter() {
   const { currentPath } = useRouter()

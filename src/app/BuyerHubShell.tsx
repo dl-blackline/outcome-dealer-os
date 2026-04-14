@@ -11,10 +11,12 @@ import { QuickAppPage } from '@/app/pages/shop/QuickAppPage'
 import { TradeInPage } from '@/app/pages/shop/TradeInPage'
 import { SchedulePage } from '@/app/pages/shop/SchedulePage'
 import { NextStepsPage } from '@/app/pages/shop/NextStepsPage'
+import { InquiryPage } from '@/app/pages/shop/InquiryPage'
 
 const BUYER_ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/shop': ShopInventoryPage,
   '/shop/:unitId': VehicleDetailPage,
+  '/inquiry/:unitId': InquiryPage,
   '/compare': ComparePage,
   '/favorites': FavoritesPage,
   '/finance': FinanceHubPage,
