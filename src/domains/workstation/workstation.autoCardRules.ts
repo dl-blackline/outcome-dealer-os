@@ -135,6 +135,48 @@ export const AUTO_CARD_RULES: AutoCardRule[] = [
     requiresApproval: false,
     tags: ['aging', 'inventory'],
   },
+
+  // ─── Buyer Hub (customer-generated) ───
+  {
+    eventName: 'inquiry_submitted',
+    titleTemplate: 'Buyer inquiry — qualify and assign',
+    descriptionTemplate: 'A customer submitted an inquiry from the buyer hub. Triage and assign to BDC.',
+    linkedObjectType: 'lead',
+    queueType: 'bdc',
+    defaultPriority: 'high',
+    requiresApproval: false,
+    tags: ['inquiry', 'buyer-hub', 'new-lead'],
+  },
+  {
+    eventName: 'quick_app_completed',
+    titleTemplate: 'Quick app submitted — pull credit',
+    descriptionTemplate: 'A customer completed the quick credit application. Pull credit and prepare finance options.',
+    linkedObjectType: 'lead',
+    queueType: 'finance',
+    defaultPriority: 'high',
+    requiresApproval: false,
+    tags: ['quick-app', 'credit', 'buyer-hub'],
+  },
+  {
+    eventName: 'trade_in_submitted',
+    titleTemplate: 'Trade-in submitted — book value and appraise',
+    descriptionTemplate: 'A customer submitted trade-in information from the buyer hub. Book value, assign appraiser.',
+    linkedObjectType: 'lead',
+    queueType: 'sales',
+    defaultPriority: 'medium',
+    requiresApproval: false,
+    tags: ['trade-in', 'appraisal', 'buyer-hub'],
+  },
+  {
+    eventName: 'appointment_requested',
+    titleTemplate: 'Appointment requested — confirm and schedule',
+    descriptionTemplate: 'A customer requested an appointment from the buyer hub. Confirm availability and book.',
+    linkedObjectType: 'lead',
+    queueType: 'sales',
+    defaultPriority: 'medium',
+    requiresApproval: false,
+    tags: ['appointment', 'buyer-hub'],
+  },
 ]
 
 /**

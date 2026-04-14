@@ -4,6 +4,7 @@ import {
   BUYER_HUB_INVENTORY,
   type PublicInventoryUnit,
 } from '@/domains/buyer-hub/buyerHub.mock'
+import { useShoppingState } from '@/domains/buyer-hub/useShoppingState'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -84,12 +85,14 @@ function formatMileage(mileage: number): string {
 function InventoryCard({
   unit,
   onView,
+  isSaved,
+  onToggleSaved,
 }: {
   unit: PublicInventoryUnit
   onView: () => void
+  isSaved: boolean
+  onToggleSaved: () => void
 }) {
-  const [saved, setSaved] = useState(false)
-
   return (
     <Card className="group relative flex flex-col overflow-hidden transition-shadow hover:shadow-lg">
       {/* Image placeholder */}
@@ -97,13 +100,13 @@ function InventoryCard({
         <Car className="h-16 w-16 text-muted-foreground/40" weight="thin" />
         <button
           type="button"
-          aria-label={saved ? 'Remove from favorites' : 'Save to favorites'}
-          onClick={() => setSaved((p) => !p)}
+          aria-label={isSaved ? 'Remove from favorites' : 'Save to favorites'}
+          onClick={onToggleSaved}
           className="absolute right-3 top-3 rounded-full bg-white/80 p-1.5 backdrop-blur transition-colors hover:bg-white"
         >
           <Heart
-            className={saved ? 'text-red-500' : 'text-neutral-400'}
-            weight={saved ? 'fill' : 'regular'}
+            className={isSaved ? 'text-red-500' : 'text-neutral-400'}
+            weight={isSaved ? 'fill' : 'regular'}
             size={20}
           />
         </button>
@@ -155,6 +158,7 @@ function InventoryCard({
 
 export function ShopInventoryPage() {
   const { navigate } = useRouter()
+  const { isSaved, toggleSaved } = useShoppingState()
 
   const [search, setSearch] = useState('')
   const [bodyFilter, setBodyFilter] = useState<BodyFilter>('All')
@@ -308,6 +312,8 @@ export function ShopInventoryPage() {
               key={unit.id}
               unit={unit}
               onView={() => navigate(`/shop/${unit.id}`)}
+              isSaved={isSaved(unit.id)}
+              onToggleSaved={() => toggleSaved(unit.id)}
             />
           ))}
         </div>

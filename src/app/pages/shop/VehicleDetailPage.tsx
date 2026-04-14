@@ -1,7 +1,8 @@
-import { useState, useMemo } from 'react'
+import { useMemo } from 'react'
 import { useRouter } from '@/app/router'
 import { BUYER_HUB_INVENTORY } from '@/domains/buyer-hub/buyerHub.mock'
 import { computePaymentEstimate } from '@/domains/buyer-hub/buyerHub.types'
+import { useShoppingState } from '@/domains/buyer-hub/useShoppingState'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -29,12 +30,14 @@ function formatMileage(value: number): string {
 
 export function VehicleDetailPage() {
   const { params, navigate } = useRouter()
-  const [isFavorited, setIsFavorited] = useState(false)
+  const { isSaved, toggleSaved } = useShoppingState()
 
   const vehicle = useMemo(
     () => BUYER_HUB_INVENTORY.find((u) => u.id === params.unitId),
     [params.unitId],
   )
+
+  const isFavorited = vehicle ? isSaved(vehicle.id) : false
 
   const paymentEstimate = useMemo(() => {
     if (!vehicle) return null
@@ -101,7 +104,7 @@ export function VehicleDetailPage() {
               </div>
               {/* Favorite toggle */}
               <button
-                onClick={() => setIsFavorited(!isFavorited)}
+                onClick={() => vehicle && toggleSaved(vehicle.id)}
                 className="absolute top-4 right-4 rounded-full p-2 transition-colors hover:bg-background/80"
                 aria-label={isFavorited ? 'Remove from favorites' : 'Save to favorites'}
               >
@@ -224,7 +227,7 @@ export function VehicleDetailPage() {
               <CardTitle className="text-base">Interested?</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button className="w-full" onClick={() => navigate('/shop')}>
+              <Button className="w-full" onClick={() => navigate(`/inquiry/${vehicle.id}`)}>
                 <ChatCircle size={18} className="mr-2" />
                 Inquire About This Vehicle
               </Button>
@@ -244,7 +247,7 @@ export function VehicleDetailPage() {
               <Button
                 variant="ghost"
                 className="w-full"
-                onClick={() => setIsFavorited(!isFavorited)}
+                onClick={() => vehicle && toggleSaved(vehicle.id)}
               >
                 <Heart
                   size={18}
