@@ -20,10 +20,11 @@ import {
   Scales,
   Trash,
   ArrowRight,
-  Car,
   CurrencyDollar,
   Speedometer,
 } from '@phosphor-icons/react'
+
+const IMAGE_FALLBACK = '/inventory/national-car-mart/placeholder.jpg'
 
 function formatPrice(price: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -98,8 +99,16 @@ export function ComparePage() {
                 {compareUnits.map((unit) => (
                   <TableHead key={unit.id} className="min-w-[200px] text-center">
                     <div className="flex flex-col items-center gap-2 py-2">
-                      <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-muted">
-                        <Car size={28} className="text-muted-foreground/40" weight="thin" />
+                      <div className="h-16 w-24 overflow-hidden rounded-lg bg-muted">
+                        <img
+                          src={unit.imageUrl || IMAGE_FALLBACK}
+                          alt={`${unit.year} ${unit.make} ${unit.model}`}
+                          className="h-full w-full object-cover"
+                          loading="lazy"
+                          onError={(e) => {
+                            e.currentTarget.src = IMAGE_FALLBACK
+                          }}
+                        />
                       </div>
                       <span className="text-sm font-semibold">
                         {unit.year} {unit.make} {unit.model}

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useRouter } from '@/app/router'
 import {
   BUYER_HUB_INVENTORY,
@@ -16,14 +16,14 @@ import {
   SortAscending,
   Speedometer,
   CurrencyDollar,
-  Car,
 } from '@phosphor-icons/react'
 
-type BodyFilter = 'All' | 'Sedan' | 'Truck' | 'SUV'
+const IMAGE_FALLBACK = '/inventory/national-car-mart/placeholder.jpg'
+
+type BodyFilter = 'All' | string
 type PriceRange = 'All' | 'Under $30k' | '$30k–$50k' | 'Over $50k'
 type SortOption = 'Newest' | 'Price Low-High' | 'Price High-Low' | 'Mileage'
 
-const BODY_OPTIONS: BodyFilter[] = ['All', 'Sedan', 'Truck', 'SUV']
 const PRICE_OPTIONS: PriceRange[] = ['All', 'Under $30k', '$30k–$50k', 'Over $50k']
 const SORT_OPTIONS: SortOption[] = ['Newest', 'Price Low-High', 'Price High-Low', 'Mileage']
 
@@ -95,9 +95,16 @@ function InventoryCard({
 }) {
   return (
     <Card className="group relative flex flex-col overflow-hidden transition-shadow hover:shadow-lg">
-      {/* Image placeholder */}
-      <div className="relative flex h-48 items-center justify-center bg-muted">
-        <Car className="h-16 w-16 text-muted-foreground/40" weight="thin" />
+      <div className="relative h-48 bg-muted">
+        <img
+          src={unit.imageUrl || IMAGE_FALLBACK}
+          alt={`${unit.year} ${unit.make} ${unit.model} ${unit.trim}`}
+          className="h-full w-full object-cover"
+          loading="lazy"
+          onError={(e) => {
+            e.currentTarget.src = IMAGE_FALLBACK
+          }}
+        />
         <button
           type="button"
           aria-label={isSaved ? 'Remove from favorites' : 'Save to favorites'}
@@ -165,6 +172,19 @@ export function ShopInventoryPage() {
   const [priceRange, setPriceRange] = useState<PriceRange>('All')
   const [sort, setSort] = useState<SortOption>('Newest')
   const [showFilters, setShowFilters] = useState(false)
+  const bodyOptions = useMemo<BodyFilter[]>(
+    () => [
+      'All',
+      ...Array.from(
+        new Set(
+          BUYER_HUB_INVENTORY.filter((unit) => unit.available)
+            .map((unit) => unit.bodyStyle)
+            .filter(Boolean),
+        ),
+      ).sort((a, b) => a.localeCompare(b)),
+    ],
+    [],
+  )
 
   const results = useMemo(() => {
     const filtered = BUYER_HUB_INVENTORY.filter(
@@ -237,7 +257,7 @@ export function ShopInventoryPage() {
           <div>
             <p className="mb-2 text-sm font-medium">Body Style</p>
             <div className="flex flex-wrap gap-2">
-              {BODY_OPTIONS.map((opt) => (
+              {bodyOptions.map((opt) => (
                 <button
                   key={opt}
                   type="button"
