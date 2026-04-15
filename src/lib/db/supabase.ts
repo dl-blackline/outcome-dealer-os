@@ -135,6 +135,28 @@ export interface AppointmentRow extends DbRow {
   show_result?: string
 }
 
+export interface AssistantWorklogRow extends DbRow {
+  action_id: string
+  issue_summary: string
+  symptoms: string
+  likely_cause: string
+  files_inspected: string[]
+  changes_proposed: string[]
+  validation_steps: string[]
+  open_questions: string[]
+  confidence: number
+  worklog_summary: string
+}
+
+export interface AssistantFixProposalRow extends DbRow {
+  action_id: string
+  issue_summary: string
+  /** JSON-serialised CodePatchProposal[] */
+  patch_proposals: Record<string, unknown>[]
+  approval_id?: string
+  status: 'draft' | 'pending_approval' | 'approved' | 'denied'
+}
+
 class SupabaseClient {
   private store = window.spark.kv
 
