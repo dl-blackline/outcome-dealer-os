@@ -14,10 +14,11 @@ import {
   Scales,
   Trash,
   ArrowRight,
-  Car,
   CurrencyDollar,
   Speedometer,
 } from '@phosphor-icons/react'
+
+const IMAGE_FALLBACK = '/inventory/national-car-mart/placeholder.jpg'
 
 function formatPrice(price: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -46,9 +47,16 @@ function FavoriteCard({
 }) {
   return (
     <Card className="group relative flex flex-col overflow-hidden transition-shadow hover:shadow-lg">
-      {/* Image placeholder */}
-      <div className="relative flex h-48 items-center justify-center bg-muted">
-        <Car className="h-16 w-16 text-muted-foreground/40" weight="thin" />
+      <div className="relative h-48 bg-muted">
+        <img
+          src={unit.imageUrl || IMAGE_FALLBACK}
+          alt={`${unit.year} ${unit.make} ${unit.model} ${unit.trim}`}
+          className="h-full w-full object-cover"
+          loading="lazy"
+          onError={(e) => {
+            e.currentTarget.src = IMAGE_FALLBACK
+          }}
+        />
         <button
           type="button"
           aria-label="Remove from favorites"

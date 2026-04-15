@@ -13,12 +13,13 @@ import {
   CurrencyDollar,
   CalendarPlus,
   Speedometer,
-  Car,
   ChatCircle,
   Scales,
   CarProfile,
   Star,
 } from '@phosphor-icons/react'
+
+const IMAGE_FALLBACK = '/inventory/national-car-mart/placeholder.jpg'
 
 function formatPrice(value: number): string {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value)
@@ -87,11 +88,18 @@ export function VehicleDetailPage() {
         <div className="lg:col-span-3 space-y-6">
           {/* Hero section */}
           <Card className="overflow-hidden">
-            <div className="relative flex items-center justify-center bg-muted/40 py-20">
-              <div className="text-center space-y-3">
-                <Car size={80} weight="thin" className="mx-auto text-muted-foreground/50" />
+            <div className="relative h-80 bg-muted/40">
+              <img
+                src={vehicle.imageUrl || IMAGE_FALLBACK}
+                alt={title}
+                className="h-full w-full object-cover"
+                onError={(e) => {
+                  e.currentTarget.src = IMAGE_FALLBACK
+                }}
+              />
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-background/95 via-background/50 to-transparent p-5">
                 <h1 className="text-2xl font-bold sm:text-3xl">{title}</h1>
-                <div className="flex items-center justify-center gap-2">
+                <div className="mt-2 flex items-center gap-2">
                   {vehicle.available ? (
                     <Badge variant="default" className="bg-emerald-600 hover:bg-emerald-700">
                       <Star size={12} weight="fill" className="mr-1" /> Available
@@ -166,11 +174,23 @@ export function VehicleDetailPage() {
           )}
 
           {/* VIN */}
-          <div className="text-center">
-            <span className="text-xs text-muted-foreground">VIN</span>
-            <p className="font-mono text-sm tracking-wider text-muted-foreground">
-              {vehicle.vin}
-            </p>
+          <div className="grid gap-3 text-center sm:grid-cols-3">
+            <div>
+              <span className="text-xs text-muted-foreground">Stock #</span>
+              <p className="font-mono text-sm tracking-wider text-muted-foreground">
+                {vehicle.stockNumber || 'N/A'}
+              </p>
+            </div>
+            <div>
+              <span className="text-xs text-muted-foreground">Transmission</span>
+              <p className="text-sm tracking-wide text-muted-foreground">
+                {vehicle.transmission || 'N/A'}
+              </p>
+            </div>
+            <div>
+              <span className="text-xs text-muted-foreground">VIN</span>
+              <p className="font-mono text-sm tracking-wider text-muted-foreground">{vehicle.vin}</p>
+            </div>
           </div>
         </div>
 
