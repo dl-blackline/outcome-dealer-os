@@ -113,7 +113,7 @@ export function AssistantOpsPage() {
           <Textarea
             value={prompt}
             onChange={event => setPrompt(event.target.value)}
-            className="min-h-32"
+            className="min-h-[8rem]"
             placeholder="Describe the bug, workflow issue, deploy/config failure, or improvement request."
           />
           <div className="flex gap-2">

@@ -8,6 +8,16 @@ import type {
   AssistantReport,
 } from './assistant.types'
 
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function hasKeyword(text: string, keyword: string): boolean {
+  const escaped = escapeRegExp(keyword.toLowerCase())
+  const matcher = new RegExp(`\\b${escaped}\\b`, 'i')
+  return matcher.test(text)
+}
+
 function roundConfidence(value: number): number {
   return Math.max(0.3, Math.min(0.95, Math.round(value * 100) / 100))
 }
@@ -15,18 +25,18 @@ function roundConfidence(value: number): number {
 function inferLayers(input: string): AssistantLayer[] {
   const text = input.toLowerCase()
   const layers = new Set<AssistantLayer>()
-  if (text.includes('click') || text.includes('page') || text.includes('ui')) layers.add('ui')
-  if (text.includes('stale') || text.includes('sync') || text.includes('state')) layers.add('state_data_flow')
-  if (text.includes('save') || text.includes('submit') || text.includes('update')) layers.add('form_action_logic')
-  if (text.includes('lead') || text.includes('customer')) layers.add('lead_workflow_logic')
-  if (text.includes('task') || text.includes('appointment') || text.includes('reminder')) layers.add('task_appointment_logic')
-  if (text.includes('status') || text.includes('transition') || text.includes('stage')) layers.add('crm_status_logic')
-  if (text.includes('service') || text.includes('api')) layers.add('api_service_layer')
-  if (text.includes('auth') || text.includes('permission') || text.includes('session')) layers.add('auth_session')
-  if (text.includes('db') || text.includes('schema') || text.includes('query')) layers.add('db_schema_query')
-  if (text.includes('build') || text.includes('deploy')) layers.add('deployment_build')
-  if (text.includes('env') || text.includes('config')) layers.add('env_config')
-  if (text.includes('integration') || text.includes('webhook') || text.includes('crm')) layers.add('integration')
+  if (hasKeyword(text, 'click') || hasKeyword(text, 'page') || hasKeyword(text, 'ui')) layers.add('ui')
+  if (hasKeyword(text, 'stale') || hasKeyword(text, 'sync') || hasKeyword(text, 'state')) layers.add('state_data_flow')
+  if (hasKeyword(text, 'save') || hasKeyword(text, 'submit') || hasKeyword(text, 'update')) layers.add('form_action_logic')
+  if (hasKeyword(text, 'lead') || hasKeyword(text, 'customer')) layers.add('lead_workflow_logic')
+  if (hasKeyword(text, 'task') || hasKeyword(text, 'appointment') || hasKeyword(text, 'reminder')) layers.add('task_appointment_logic')
+  if (hasKeyword(text, 'status') || hasKeyword(text, 'transition') || hasKeyword(text, 'stage')) layers.add('crm_status_logic')
+  if (hasKeyword(text, 'service') || hasKeyword(text, 'api')) layers.add('api_service_layer')
+  if (hasKeyword(text, 'auth') || hasKeyword(text, 'permission') || hasKeyword(text, 'session')) layers.add('auth_session')
+  if (hasKeyword(text, 'db') || hasKeyword(text, 'schema') || hasKeyword(text, 'query')) layers.add('db_schema_query')
+  if (hasKeyword(text, 'build') || hasKeyword(text, 'deploy')) layers.add('deployment_build')
+  if (hasKeyword(text, 'env') || hasKeyword(text, 'config')) layers.add('env_config')
+  if (hasKeyword(text, 'integration') || hasKeyword(text, 'webhook') || hasKeyword(text, 'crm')) layers.add('integration')
   return layers.size ? [...layers] : ['ui', 'state_data_flow']
 }
 
@@ -35,7 +45,7 @@ function deriveRootCause(input: string, layers: AssistantLayer[], mode: Assistan
   if (text.includes('not showing') || text.includes('missing')) {
     return 'Most likely a data propagation gap: event/task/state is created or updated in one layer but not surfaced in the consuming view or filtered out.'
   }
-  if (text.includes('didn') && (text.includes('save') || text.includes('update'))) {
+  if (text.includes("didn't") && (text.includes('save') || text.includes('update'))) {
     return 'Most likely a broken save/update path caused by action validation, incomplete payload mapping, or missing persistence/update handling.'
   }
   if (layers.includes('crm_status_logic')) {
@@ -105,7 +115,7 @@ export function buildAssistantReport(
   const normalized = issue.trim() || action.description
   const detectedLayers = inferLayers(normalized)
   const surfaceMatches = ASSISTANT_REPO_SURFACES.filter(surface =>
-    surface.keywords.some(keyword => normalized.toLowerCase().includes(keyword))
+    surface.keywords.some(keyword => hasKeyword(normalized.toLowerCase(), keyword))
   )
   const matchedFiles = surfaceMatches.flatMap(surface => surface.files)
   const impactedFiles = [...new Set(matchedFiles)].slice(0, 10)
