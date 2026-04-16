@@ -1,11 +1,14 @@
 import { findAssistantAction } from './assistant.actions'
 import { ASSISTANT_REPO_SURFACES } from './assistant.repoMap'
+import { deriveCodePatchProposals } from './assistant.patch'
+import { runDeployDiagnostics } from './assistant.deploy'
 import type {
   AssistantActionId,
   AssistantInputContext,
   AssistantLayer,
   AssistantMode,
   AssistantReport,
+  DeployDiagnosticResult,
 } from './assistant.types'
 
 function escapeRegExp(value: string): string {
@@ -134,13 +137,27 @@ export function buildAssistantReport(
     ? `Related tasks: ${context.relatedTaskTitles.join(' | ')}.`
     : 'No directly related task titles matched from current hint.'
 
+  const finalFiles = impactedFiles.length
+    ? impactedFiles
+    : ['src/app/AppShell.tsx', 'src/domains/events/event.hooks.ts', 'src/domains/leads/lead.service.ts']
+
+  const codePatchProposals = deriveCodePatchProposals({
+    impactedFiles: finalFiles,
+    layers: detectedLayers,
+    mode: action.mode,
+    rootCause,
+  })
+
+  const deployDiagnostics: DeployDiagnosticResult[] =
+    action.mode === 'diagnose_deploy' ? runDeployDiagnostics() : []
+
   return {
     objective: `${action.label}: ${normalized}`,
     diagnosis: `${contextLine} ${relatedEvents} ${relatedTasks}`,
     rootCause,
     confidence,
     impactedLayers: detectedLayers,
-    impactedFiles: impactedFiles.length ? impactedFiles : ['src/app/AppShell.tsx', 'src/domains/events/event.hooks.ts', 'src/domains/leads/lead.service.ts'],
+    impactedFiles: finalFiles,
     fixOrImprovementPath: deriveFixPath(action.mode),
     changesMade: ['No code changes executed from this panel yet; this output is the recommended internal fix path and file targeting map.'],
     validationSteps: deriveValidation(action.mode),
@@ -156,6 +173,8 @@ export function buildAssistantReport(
       'Confirm deployment/runtime assumptions remain explicit and safe.',
     ],
     worklogSummary: `${action.label} completed with ${Math.round(confidence * 100)}% confidence across ${detectedLayers.length} impacted layer(s).`,
+    codePatchProposals,
+    deployDiagnostics,
   }
 }
 
@@ -165,6 +184,6 @@ export function getAssistantArchitectureSummary(): string[] {
     'Domain logic is organized under src/domains/* with hook/service/type separation.',
     'Runtime data currently relies on in-memory/mock-backed hooks plus DB helper abstractions.',
     'Event, audit, approvals, integrations, and workstation layers provide cross-workflow operational visibility.',
-    'Assistant layer now adds a modular action registry, repo surface map, diagnostics engine, and worklog persistence.',
+    'Assistant layer provides: modular action registry, repo surface map, diagnostics engine, patch proposals, deploy diagnostics, timeline correlation, approval-gated fix proposals, and DB-backed worklog persistence.',
   ]
 }
