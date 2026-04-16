@@ -35,7 +35,7 @@ export async function submitFixProposal(
   const rowPayload: Omit<AssistantFixProposalRow, 'id' | 'created_at' | 'updated_at'> = {
     action_id: actionId,
     issue_summary: issueSummary,
-    patch_proposals: patchProposals as unknown as Record<string, unknown>[],
+    patch_proposals: patchProposals as Record<string, unknown>[],
     status: 'draft',
   }
   const row = await insert<AssistantFixProposalRow>('assistant_fix_proposals', rowPayload)

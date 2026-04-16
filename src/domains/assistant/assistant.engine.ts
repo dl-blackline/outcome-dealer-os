@@ -21,6 +21,10 @@ function hasKeyword(text: string, keyword: string): boolean {
   return matcher.test(text)
 }
 
+// Confidence is bounded to avoid conveying false certainty (≥100%) or being
+// so low it renders the output unusable. 30% is the floor for a near-zero
+// keyword match; 95% caps results because this is deterministic heuristics,
+// not a calibrated probabilistic model.
 const MIN_CONFIDENCE = 0.3
 const MAX_CONFIDENCE = 0.95
 

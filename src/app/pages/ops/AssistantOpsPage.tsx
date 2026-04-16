@@ -241,12 +241,26 @@ export function AssistantOpsPage() {
   const architectureSummary = useMemo(() => getAssistantArchitectureSummary(), [])
 
   const selectedLead = leads.data.find(lead => lead.id === leadHint)
-  const relatedEventNames = selectedLead
-    ? events.data.filter(evt => evt.entityType === 'lead' && evt.entityId === selectedLead.id).map(evt => evt.eventName)
-    : []
-  const relatedTaskTitles = selectedLead
-    ? tasks.data.filter(task => task.title.toLowerCase().includes(selectedLead.customerName.toLowerCase())).map(task => task.title)
-    : []
+
+  // Memoize derived arrays so runAnalysis's useCallback only re-creates when
+  // the correlated subset actually changes, not on every data frame.
+  const relatedEventNames = useMemo(
+    () => selectedLead
+      ? events.data
+          .filter(evt => evt.entityType === 'lead' && evt.entityId === selectedLead.id)
+          .map(evt => evt.eventName)
+      : [],
+    [selectedLead, events.data],
+  )
+
+  const relatedTaskTitles = useMemo(
+    () => selectedLead
+      ? tasks.data
+          .filter(task => task.title.toLowerCase().includes(selectedLead.customerName.toLowerCase()))
+          .map(task => task.title)
+      : [],
+    [selectedLead, tasks.data],
+  )
 
   const timeline = useMemo(
     () => buildLeadTimeline(leadHint, selectedLead, events.data, tasks.data),
@@ -267,7 +281,19 @@ export function AssistantOpsPage() {
     setReport(nextReport)
     await saveAssistantWorklog(actionId, prompt || action.description, nextReport)
     setWorklogKey(k => k + 1)
-  }, [actionId, prompt, leads.data, events.data, tasks.data, approvals.data, integrations.data, selectedLead, relatedEventNames, relatedTaskTitles, action.description])
+  }, [
+    actionId,
+    prompt,
+    leads.data.length,
+    events.data.length,
+    tasks.data.length,
+    approvals.data,
+    integrations.data,
+    selectedLead,
+    relatedEventNames,
+    relatedTaskTitles,
+    action.description,
+  ])
 
   const handleProposalSubmitted = useCallback((_proposal: AssistantFixProposal) => {
     // Proposal is already persisted; the FixProposalsPanel reloads itself

@@ -89,17 +89,17 @@ export async function saveAssistantWorklog(
     openQuestions: report.risksAndFollowUps,
   }
 
-  // 1. Write to DB (server-side KV)
+  // 1. Write to DB (server-side KV) — derive payload from the domain entry to avoid duplication
   try {
     const worklogPayload: Omit<AssistantWorklogRow, 'id' | 'created_at' | 'updated_at'> = {
-      action_id: actionId,
-      issue_summary: issueSummary,
-      symptoms: report.diagnosis,
-      likely_cause: report.rootCause,
-      files_inspected: report.impactedFiles,
-      changes_proposed: report.fixOrImprovementPath,
-      validation_steps: report.validationSteps,
-      open_questions: report.risksAndFollowUps,
+      action_id: entry.actionId,
+      issue_summary: entry.issueSummary,
+      symptoms: entry.symptoms,
+      likely_cause: entry.likelyCause,
+      files_inspected: entry.filesInspected,
+      changes_proposed: entry.changesProposed,
+      validation_steps: entry.validationSteps,
+      open_questions: entry.openQuestions,
       confidence: report.confidence,
       worklog_summary: report.worklogSummary,
     }

@@ -1,6 +1,9 @@
 import type { LeadTimelineEvent } from './assistant.types'
 import type { MockLead, MockEvent, MockTask } from '@/lib/mockData'
 
+/** Matches bare date strings like "2025-01-17" (no time component). */
+const ISO_DATE_ONLY_PATTERN = /^\d{4}-\d{2}-\d{2}$/
+
 /** Map event names to human-friendly labels */
 const EVENT_LABEL_MAP: Record<string, string> = {
   lead_created: 'Lead Created',
@@ -106,7 +109,7 @@ export function buildLeadTimeline(
     for (const task of leadTasks) {
       // Normalise dueDate: if it looks like YYYY-MM-DD add the time component,
       // otherwise use as-is to avoid producing an invalid ISO string.
-      const isoTimestamp = /^\d{4}-\d{2}-\d{2}$/.test(task.dueDate)
+      const isoTimestamp = ISO_DATE_ONLY_PATTERN.test(task.dueDate)
         ? `${task.dueDate}T00:00:00Z`
         : task.dueDate
       items.push({
