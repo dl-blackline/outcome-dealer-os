@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react'
-import { v4 as uuidv4 } from 'uuid'
 import type { AssistantFixProposal, CodePatchProposal, AssistantActionId } from './assistant.types'
 import { AssistantFixProposalRow } from '@/lib/db/supabase'
 import { insert, update, findMany } from '@/lib/db/helpers'
@@ -32,17 +31,14 @@ export async function submitFixProposal(
   patchProposals: CodePatchProposal[],
   ctx: ServiceContext,
 ): Promise<AssistantFixProposal> {
-  const proposalId = uuidv4()
-
-  // Save to DB
-  const row = await insert<AssistantFixProposalRow>('assistant_fix_proposals', {
-    id: proposalId,
+  // Save to DB — let the store auto-generate id/created_at/updated_at
+  const rowPayload: Omit<AssistantFixProposalRow, 'id' | 'created_at' | 'updated_at'> = {
     action_id: actionId,
     issue_summary: issueSummary,
     patch_proposals: patchProposals as unknown as Record<string, unknown>[],
     status: 'draft',
-    approval_id: undefined,
-  } as unknown as Omit<AssistantFixProposalRow, 'id' | 'created_at' | 'updated_at'>)
+  }
+  const row = await insert<AssistantFixProposalRow>('assistant_fix_proposals', rowPayload)
 
   let approvalId: string | undefined
 

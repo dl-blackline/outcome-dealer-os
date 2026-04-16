@@ -91,7 +91,7 @@ export async function saveAssistantWorklog(
 
   // 1. Write to DB (server-side KV)
   try {
-    await insert<AssistantWorklogRow>('assistant_worklogs', {
+    const worklogPayload: Omit<AssistantWorklogRow, 'id' | 'created_at' | 'updated_at'> = {
       action_id: actionId,
       issue_summary: issueSummary,
       symptoms: report.diagnosis,
@@ -102,7 +102,8 @@ export async function saveAssistantWorklog(
       open_questions: report.risksAndFollowUps,
       confidence: report.confidence,
       worklog_summary: report.worklogSummary,
-    } as Omit<AssistantWorklogRow, 'id' | 'created_at' | 'updated_at'>)
+    }
+    await insert<AssistantWorklogRow>('assistant_worklogs', worklogPayload)
   } catch {
     // DB write failures are non-fatal; localStorage still persists the entry
   }

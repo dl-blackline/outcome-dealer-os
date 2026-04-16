@@ -104,9 +104,14 @@ export function buildLeadTimeline(
     const nameLower = lead.customerName.toLowerCase()
     const leadTasks = tasks.filter(task => task.title.toLowerCase().includes(nameLower))
     for (const task of leadTasks) {
+      // Normalise dueDate: if it looks like YYYY-MM-DD add the time component,
+      // otherwise use as-is to avoid producing an invalid ISO string.
+      const isoTimestamp = /^\d{4}-\d{2}-\d{2}$/.test(task.dueDate)
+        ? `${task.dueDate}T00:00:00Z`
+        : task.dueDate
       items.push({
         id: `task-${task.id}`,
-        timestamp: task.dueDate + 'T00:00:00Z',
+        timestamp: isoTimestamp,
         type: 'task',
         label: task.title,
         detail: `Task (${task.priority} priority) assigned to ${task.assignedTo}. Status: ${task.status}.`,

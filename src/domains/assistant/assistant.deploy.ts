@@ -84,11 +84,14 @@ function checkViteBase(): DeployDiagnosticResult {
 function checkHashRouter(): DeployDiagnosticResult {
   const isHashBased = isBrowser() && window.location.href.includes('#')
   const isHashExpected = true // This app uses hash-based routing by design
+  const routingMatch = !isBrowser() || isHashBased === isHashExpected
   return {
     item: 'Hash-based routing compatibility',
-    status: isHashExpected ? 'ok' : 'warning',
-    detail: 'Outcome Dealer OS uses a custom hash router (#/app/...). This means the server only needs to serve index.html for all paths — no server-side route config required.',
-    remediation: isHashExpected ? undefined : 'If moving to path-based routing, add redirect rules in netlify.toml: [[redirects]] from = "/*" to = "/index.html" status = 200.',
+    status: routingMatch ? 'ok' : 'warning',
+    detail: isHashBased
+      ? 'Current URL is hash-based (#/app/...) — matches expected routing strategy. Server only needs to serve index.html.'
+      : 'Current URL is not hash-based. Outcome Dealer OS expects hash routing (#/app/...). Verify the hash router is initialised correctly.',
+    remediation: routingMatch ? undefined : 'If moving to path-based routing, add redirect rules in netlify.toml: [[redirects]] from = "/*" to = "/index.html" status = 200.',
   }
 }
 

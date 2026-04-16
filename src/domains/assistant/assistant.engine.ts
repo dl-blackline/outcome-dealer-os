@@ -21,8 +21,11 @@ function hasKeyword(text: string, keyword: string): boolean {
   return matcher.test(text)
 }
 
+const MIN_CONFIDENCE = 0.3
+const MAX_CONFIDENCE = 0.95
+
 function roundConfidence(value: number): number {
-  return Math.max(0.3, Math.min(0.95, Math.round(value * 100) / 100))
+  return Math.max(MIN_CONFIDENCE, Math.min(MAX_CONFIDENCE, Math.round(value * 100) / 100))
 }
 
 function inferLayers(input: string): AssistantLayer[] {
