@@ -21,6 +21,7 @@ import { InventoryUnitPage } from '@/app/pages/records/InventoryUnitPage'
 import { EventExplorerPage } from '@/app/pages/ops/EventExplorerPage'
 import { ApprovalQueuePage } from '@/app/pages/ops/ApprovalQueuePage'
 import { AuditExplorerPage } from '@/app/pages/ops/AuditExplorerPage'
+import { AssistantOpsPage } from '@/app/pages/ops/AssistantOpsPage'
 import { RolesSettingsPage } from '@/app/pages/settings/RolesSettingsPage'
 import { IntegrationsSettingsPage } from '@/app/pages/settings/IntegrationsSettingsPage'
 import { InventoryImportPage } from '@/app/pages/settings/InventoryImportPage'
@@ -39,6 +40,7 @@ const ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/app/ops/events': EventExplorerPage,
   '/app/ops/approvals': ApprovalQueuePage,
   '/app/ops/audit': AuditExplorerPage,
+  '/app/ops/assistant': AssistantOpsPage,
   '/app/settings/roles': RolesSettingsPage,
   '/app/settings/integrations': IntegrationsSettingsPage,
   '/app/settings/inventory-import': InventoryImportPage,

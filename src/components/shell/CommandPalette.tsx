@@ -6,7 +6,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
-import { MagnifyingGlass, House, Kanban, UsersThree, ClipboardText, CurrencyDollar, Gauge, ChartLine, Gear, Shield, Lightning, Scroll } from '@phosphor-icons/react'
+import { MagnifyingGlass, House, Kanban, UsersThree, ClipboardText, CurrencyDollar, Gauge, ChartLine, Gear, Shield, Lightning, Scroll, Robot } from '@phosphor-icons/react'
 import { useLeads } from '@/domains/leads/lead.hooks'
 import { useDeals } from '@/domains/deals/deal.hooks'
 import { useInventory } from '@/domains/inventory/inventory.hooks'
@@ -53,6 +53,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
       { id: 'nav-events', label: 'Event Stream', icon: Lightning, action: () => go('/app/ops/events'), category: 'navigation' },
       { id: 'nav-approvals', label: 'Approval Queue', icon: Shield, action: () => go('/app/ops/approvals'), category: 'navigation' },
       { id: 'nav-audit', label: 'Audit Log', icon: Scroll, action: () => go('/app/ops/audit'), category: 'navigation' },
+      { id: 'nav-assistant', label: 'Assistant Ops', icon: Robot, action: () => go('/app/ops/assistant'), category: 'navigation' },
       { id: 'nav-roles', label: 'Roles & Permissions', icon: Gear, action: () => go('/app/settings/roles'), category: 'navigation' },
       { id: 'nav-integrations', label: 'Integrations', icon: Gear, action: () => go('/app/settings/integrations'), category: 'navigation' },
     ]
@@ -60,6 +61,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     const actionItems: CommandItem[] = [
       { id: 'action-pending-approvals', label: 'Review Pending Approvals', description: 'Jump to approval queue', icon: Shield, action: () => go('/app/ops/approvals'), category: 'action' },
       { id: 'action-new-card', label: 'Open Workstation', description: 'Go to your execution board', icon: Kanban, action: () => go('/app/workstation'), category: 'action' },
+      { id: 'action-debug', label: 'Debug with Assistant Ops', description: 'Launch full-spectrum internal AI operating console', icon: Robot, action: () => go('/app/ops/assistant'), category: 'action' },
     ]
 
     const recordItems: CommandItem[] = [

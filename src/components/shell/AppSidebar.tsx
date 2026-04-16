@@ -9,6 +9,7 @@ import {
   CurrencyDollar,
   Kanban,
   UploadSimple,
+  Robot,
 } from '@phosphor-icons/react'
 import { AppRole, ROLE_NAV_GROUPS, type NavGroup } from '@/domains/roles/roles'
 import { cn } from '@/lib/utils'
@@ -73,6 +74,12 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Audit',
     href: '/app/ops/audit',
     icon: Wrench,
+    group: 'operations',
+  },
+  {
+    label: 'Assistant Ops',
+    href: '/app/ops/assistant',
+    icon: Robot,
     group: 'operations',
   },
   {
