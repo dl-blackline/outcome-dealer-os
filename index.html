@@ -13,6 +13,32 @@
 
 <body>
     <div id="root"></div>
+    <script>
+      // Inject a localStorage-backed KV mock so the app renders without the
+      // GitHub Spark backend (which returns 403 in non-Spark environments).
+      (function () {
+        var _sparkInternal = {};
+        var kvStore = {};
+        var localKv = {
+          get: function (key) { return Promise.resolve(key in kvStore ? kvStore[key] : null); },
+          set: function (key, value) { kvStore[key] = value; return Promise.resolve(); },
+          delete: function (key) { delete kvStore[key]; return Promise.resolve(); },
+          getKeys: function () { return Promise.resolve(Object.keys(kvStore)); },
+          getAll: function () { return Promise.resolve(Object.assign({}, kvStore)); }
+        };
+        Object.defineProperty(window, 'spark', {
+          get: function () { return _sparkInternal; },
+          set: function (value) {
+            if (value && typeof value === 'object') {
+              value.kv = localKv;
+            }
+            _sparkInternal = value || {};
+            _sparkInternal.kv = localKv;
+          },
+          configurable: true
+        });
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
 </body>
 
