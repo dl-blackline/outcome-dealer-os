@@ -42,26 +42,31 @@ function nhtsaField(results: NHTSAResponse['Results'], variable: string): string
   return item?.Value ?? null
 }
 
+// Depreciation model constants
+const FIRST_YEAR_DEPRECIATION = 0.20
+const ANNUAL_DEPRECIATION = 0.12
+const MAX_DEPRECIATION = 0.85
+
 /**
  * Simple depreciation-based market value estimate.
- * ~20% first year, ~15% per subsequent year.
+ * ~20% first year, ~12% per subsequent year.
  */
 function estimateMarketValue(
   listPrice: number | undefined,
   year: number | undefined
 ): { value: number; accuracy: number } {
   if (!listPrice || listPrice <= 0) return { value: 0, accuracy: 0 }
-  if (!year) return { value: listPrice * 0.85, accuracy: 0.5 }
+  if (!year) return { value: listPrice * (1 - FIRST_YEAR_DEPRECIATION), accuracy: 0.5 }
 
   const currentYear = new Date().getFullYear()
   const age = Math.max(0, currentYear - year)
 
   let depreciation = 0
   if (age === 0) depreciation = 0
-  else if (age === 1) depreciation = 0.2
-  else depreciation = 0.2 + (age - 1) * 0.12
+  else if (age === 1) depreciation = FIRST_YEAR_DEPRECIATION
+  else depreciation = FIRST_YEAR_DEPRECIATION + (age - 1) * ANNUAL_DEPRECIATION
 
-  const value = Math.max(listPrice * (1 - Math.min(depreciation, 0.85)), 0)
+  const value = Math.max(listPrice * (1 - Math.min(depreciation, MAX_DEPRECIATION)), 0)
   // accuracy degrades with age (no real pricing API)
   const accuracy = Math.max(0.9 - age * 0.07, 0.3)
 

@@ -139,13 +139,17 @@ async function runIntelligencePipeline(deal: MockDeal): Promise<void> {
   } catch { /* ignore */ }
 
   try {
-    // 3. Close probability scoring
+    // 3. Close probability scoring — fetch lead source for quality signal
+    interface MockLeadRow extends DbRow {
+      source?: string
+    }
+    const leadRow = await db.findById<MockLeadRow>('mock_leads', deal.leadId)
     await scoreCloseProbability(deal.id, {
       repPerformanceScore: 0.70,
       customerHistoryScore: 0.60,
       dealValueScore: Math.min((deal.amount ?? 0) / 80000, 1),
       engagementSpeedScore: 0.75,
-      sourceQualityScore: sourceQualityScore(),
+      sourceQualityScore: sourceQualityScore(leadRow?.source),
     })
   } catch { /* ignore */ }
 }

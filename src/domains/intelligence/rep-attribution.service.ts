@@ -172,9 +172,15 @@ async function rebuildRepPerformance(repId: string, repName?: string): Promise<v
   )
 
   const totalDeals = attributions.filter((a) => a.attribution_type === 'CLOSE').length
+  // Use a Set for O(n+m) lookup instead of O(n*m) with Array.some
+  const closedDealIds = new Set(
+    attributions
+      .filter((a) => a.attribution_type === 'CLOSE')
+      .map((a) => a.deal_id)
+  )
   const allDeals = await db.findMany<MockDealRow>(
     'mock_deals',
-    (d) => attributions.some((a) => a.deal_id === d.id && a.attribution_type === 'CLOSE')
+    (d) => closedDealIds.has(d.id)
   )
 
   const totalProfit = allDeals.reduce((sum, d) => sum + (d.amount ?? 0), 0)
