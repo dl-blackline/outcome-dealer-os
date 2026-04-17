@@ -18,7 +18,7 @@ import {
   Speedometer,
 } from '@phosphor-icons/react'
 
-const IMAGE_FALLBACK = '/inventory/national-car-mart/placeholder.jpg'
+const IMAGE_FALLBACK = 'https://picsum.photos/seed/placeholder/800/450'
 
 function formatPrice(price: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -49,7 +49,7 @@ function FavoriteCard({
     <Card className="group relative flex flex-col overflow-hidden transition-shadow hover:shadow-lg">
       <div className="relative h-48 bg-muted">
         <img
-          src={unit.imageUrl || IMAGE_FALLBACK}
+          src={unit.imageSourceUrl || unit.imageUrl || IMAGE_FALLBACK}
           alt={`${unit.year} ${unit.make} ${unit.model} ${unit.trim}`}
           className="h-full w-full object-cover"
           loading="lazy"

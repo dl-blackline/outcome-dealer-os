@@ -108,7 +108,7 @@ export function useApprovalMutations(): ApprovalMutations {
         resolved_at: now,
         resolution_notes: notes,
       })
-      await publishEvent({ eventName: 'approval_granted' as any, objectType: 'approval', objectId: id, payload: { notes } }, ctx)
+      await publishEvent({ eventName: 'approval_granted', objectType: 'approval', objectId: id, payload: { notes } }, ctx)
       await writeAuditLog({ action: 'approval_granted', objectType: 'approval', objectId: id, before: { status: 'pending' }, after: { status: 'granted' } }, ctx)
       await refresh()
       console.info(`[ApprovalMutation] Approved ${id}${notes ? ` — "${notes}"` : ''}`)
@@ -125,7 +125,7 @@ export function useApprovalMutations(): ApprovalMutations {
         resolved_at: now,
         resolution_notes: notes,
       })
-      await publishEvent({ eventName: 'approval_denied' as any, objectType: 'approval', objectId: id, payload: { notes } }, ctx)
+      await publishEvent({ eventName: 'approval_denied', objectType: 'approval', objectId: id, payload: { notes } }, ctx)
       await writeAuditLog({ action: 'approval_denied', objectType: 'approval', objectId: id, before: { status: 'pending' }, after: { status: 'denied' } }, ctx)
       await refresh()
       console.info(`[ApprovalMutation] Denied ${id}${notes ? ` — "${notes}"` : ''}`)

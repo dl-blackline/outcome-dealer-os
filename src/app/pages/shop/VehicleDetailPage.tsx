@@ -19,7 +19,7 @@ import {
   Star,
 } from '@phosphor-icons/react'
 
-const IMAGE_FALLBACK = '/inventory/national-car-mart/placeholder.jpg'
+const IMAGE_FALLBACK = 'https://picsum.photos/seed/placeholder/1280/720'
 
 function formatPrice(value: number): string {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value)
@@ -90,7 +90,7 @@ export function VehicleDetailPage() {
           <Card className="overflow-hidden">
             <div className="relative h-80 bg-muted/40">
               <img
-                src={vehicle.imageUrl || IMAGE_FALLBACK}
+                src={vehicle.imageSourceUrl || vehicle.imageUrl || IMAGE_FALLBACK}
                 alt={title}
                 className="h-full w-full object-cover"
                 onError={(e) => {
