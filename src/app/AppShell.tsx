@@ -25,6 +25,7 @@ import { AssistantOpsPage } from '@/app/pages/ops/AssistantOpsPage'
 import { RolesSettingsPage } from '@/app/pages/settings/RolesSettingsPage'
 import { IntegrationsSettingsPage } from '@/app/pages/settings/IntegrationsSettingsPage'
 import { InventoryImportPage } from '@/app/pages/settings/InventoryImportPage'
+import { CrmImportPage } from '@/app/pages/settings/CrmImportPage'
 
 const ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/app/dashboard': DashboardPage,
@@ -44,6 +45,7 @@ const ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/app/settings/roles': RolesSettingsPage,
   '/app/settings/integrations': IntegrationsSettingsPage,
   '/app/settings/inventory-import': InventoryImportPage,
+  '/app/settings/crm-import': CrmImportPage,
 }
 
 function resolvePageComponent(currentPath: string): React.ComponentType | null {
