@@ -4,6 +4,9 @@
 
 [build.environment]
   NODE_VERSION = "20"
+  # @github/spark peer-dep declares vite@^6 but the plugin is runtime-compatible
+  # with vite 7; --legacy-peer-deps lets npm resolve past the constraint.
+  NPM_FLAGS = "--legacy-peer-deps"
 
 # SPA fallback — every path serves index.html so the hash/client router works
 [[redirects]]
