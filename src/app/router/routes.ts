@@ -27,6 +27,7 @@ export const APP_ROUTES: RouteDefinition[] = [
   { path: '/app/settings/roles', label: 'Roles', component: 'RolesSettingsPage', group: 'settings' },
   { path: '/app/settings/integrations', label: 'Integrations', component: 'IntegrationsSettingsPage', group: 'settings' },
   { path: '/app/settings/inventory-import', label: 'Inventory Import', component: 'InventoryImportPage', group: 'settings' },
+  { path: '/app/settings/crm-import', label: 'CRM Import', component: 'CrmImportPage', group: 'settings' },
   // Buyer Hub (customer-facing)
   { path: '/shop', label: 'Shop Inventory', component: 'ShopInventoryPage', group: 'buyer_hub' },
   { path: '/shop/:unitId', label: 'Vehicle Detail', component: 'VehicleDetailPage', group: 'buyer_hub' },

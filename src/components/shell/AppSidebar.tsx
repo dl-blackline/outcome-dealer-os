@@ -94,6 +94,12 @@ const NAV_ITEMS: NavItem[] = [
     icon: UploadSimple,
     group: 'settings',
   },
+  {
+    label: 'CRM Import',
+    href: '/app/settings/crm-import',
+    icon: UploadSimple,
+    group: 'settings',
+  },
 ]
 
 interface AppSidebarProps {
