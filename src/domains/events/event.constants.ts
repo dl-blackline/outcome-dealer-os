@@ -58,6 +58,13 @@ export const EVENT_NAMES = [
   'appointment_confirmed',
   'trade_in_started',
   'trade_in_submitted',
+  // Intelligence engine events
+  'clv_updated',
+  'rep_attributed',
+  'close_probability_scored',
+  'vin_enriched',
+  'ingestion_job_started',
+  'ingestion_job_complete',
 ] as const
 
 export type EventName = typeof EVENT_NAMES[number]

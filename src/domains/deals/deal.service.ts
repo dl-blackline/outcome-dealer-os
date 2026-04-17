@@ -4,10 +4,18 @@
  * Stores MockDeal records in the KV store so that newly created deals
  * (e.g. converted from leads) survive a page reload. Seeds MOCK_DEALS
  * into KV on the first call if the table is empty.
+ *
+ * After every deal create/update the service fires the intelligence pipeline:
+ *   1. CLV recalc for the customer
+ *   2. Rep attribution (CLOSE by default for the assigned rep)
+ *   3. Close probability scoring
  */
 import { ServiceResult, ok, fail, UUID } from '@/types/common'
 import { db, DbRow } from '@/lib/db/supabase'
 import { MOCK_DEALS, type MockDeal } from '@/lib/mockData'
+import { recalcCustomerCLV } from '@/domains/intelligence/clv.service'
+import { addDealAttribution } from '@/domains/intelligence/rep-attribution.service'
+import { scoreCloseProbability, sourceQualityScore } from '@/domains/intelligence/close-probability.service'
 
 const TABLE = 'mock_deals'
 
@@ -81,7 +89,10 @@ export async function createDeal(
       status: input.status,
       amount: input.amount,
     })
-    return ok(rowToDeal(row))
+    const deal = rowToDeal(row)
+    // Fire intelligence pipeline asynchronously — never block the response
+    void runIntelligencePipeline(deal)
+    return ok(deal)
   } catch (error) {
     return fail({ code: 'CREATE_DEAL_FAILED', message: 'Failed to create deal', details: { error: String(error) } })
   }
@@ -94,8 +105,47 @@ export async function updateDealStatus(
   try {
     const updated = await db.update<MockDealRow>(TABLE, id, { status })
     if (!updated) return fail({ code: 'DEAL_NOT_FOUND', message: 'Deal not found' })
-    return ok(rowToDeal(updated))
+    const deal = rowToDeal(updated)
+    // Re-run pipeline on status change (e.g. funded updates CLV, rep gets CLOSE)
+    void runIntelligencePipeline(deal)
+    return ok(deal)
   } catch (error) {
     return fail({ code: 'UPDATE_DEAL_FAILED', message: 'Failed to update deal', details: { error: String(error) } })
   }
+}
+
+/**
+ * Intelligence pipeline — runs asynchronously after every deal create/update.
+ * Never throws; failures are swallowed so they cannot break the deal mutation.
+ */
+async function runIntelligencePipeline(deal: MockDeal): Promise<void> {
+  try {
+    // 1. CLV — collect all deals for this customer and recalc
+    const allDeals = await db.findMany<MockDealRow>(
+      TABLE,
+      (r) => r.customer_name === deal.customerName
+    )
+    const profits = allDeals.map((d) => d.amount ?? 0)
+    const latestDate = allDeals.length > 0
+      ? allDeals.reduce((latest, d) => (d.created_at > latest ? d.created_at : latest), '')
+      : undefined
+    await recalcCustomerCLV(deal.leadId, profits, latestDate)
+  } catch { /* ignore */ }
+
+  try {
+    // 2. Rep attribution — use CLOSE for funded deals, SOURCE otherwise
+    const attributionType = deal.status === 'funded' ? 'CLOSE' : 'SOURCE'
+    await addDealAttribution(deal.id, 'rep-system', attributionType, 'System Rep')
+  } catch { /* ignore */ }
+
+  try {
+    // 3. Close probability scoring
+    await scoreCloseProbability(deal.id, {
+      repPerformanceScore: 0.70,
+      customerHistoryScore: 0.60,
+      dealValueScore: Math.min((deal.amount ?? 0) / 80000, 1),
+      engagementSpeedScore: 0.75,
+      sourceQualityScore: sourceQualityScore(),
+    })
+  } catch { /* ignore */ }
 }
