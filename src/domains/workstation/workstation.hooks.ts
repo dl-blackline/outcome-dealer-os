@@ -56,12 +56,18 @@ export function useWorkstationMutations(): WorkstationMutations {
   useEffect(() => { void refresh() }, [refresh])
 
   const moveCard = useCallback((cardId: string, toCol: WorkstationColumnId) => {
-    // Optimistic update for immediate UI feedback
+    // Optimistic update for immediate UI feedback; revert on failure
     setCards(prev => prev.map(c =>
       c.id === cardId ? { ...c, columnId: toCol, updatedAt: new Date().toISOString() } : c
     ))
-    void moveWorkstationCard(cardId, toCol)
-  }, [])
+    void (async () => {
+      const result = await moveWorkstationCard(cardId, toCol)
+      if (!result.ok) {
+        // Revert by reloading from service
+        await refresh()
+      }
+    })()
+  }, [refresh])
 
   const createCard = useCallback((partial: Omit<WorkstationCard, 'id' | 'createdAt' | 'updatedAt'>) => {
     void (async () => {

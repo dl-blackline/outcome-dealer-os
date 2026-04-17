@@ -36,12 +36,12 @@ export function LeadRecordPage() {
   const sv = lead.status === 'converted' ? 'success' as const : lead.status === 'qualified' ? 'info' as const : lead.status === 'contacted' ? 'warning' as const : 'neutral' as const
 
   async function handleConvert() {
-    if (!vehicleDesc.trim()) return
+    if (!vehicleDesc.trim() || !lead) return
     setConverting(true)
     try {
       const newDeal = await convertLeadToDeal({
-        leadId: lead!.id,
-        customerName: lead!.customerName,
+        leadId: lead.id,
+        customerName: lead.customerName,
         vehicleDescription: vehicleDesc.trim(),
         status: 'structured',
         amount: 0,
@@ -149,7 +149,7 @@ export function LeadRecordPage() {
                 <span className="text-muted-foreground">{d.vehicleDescription}</span>
               </div>
               <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => navigate(`/app/records/deals/${d.id}`)}>
-                {d.amount > 0 ? `$${d.amount.toLocaleString()}` : d.status} <CaretRight className="h-3 w-3" />
+                {d.amount > 0 ? `$${d.amount.toLocaleString()}` : d.status.charAt(0).toUpperCase() + d.status.slice(1)} <CaretRight className="h-3 w-3" />
               </Button>
             </div>
           ))}

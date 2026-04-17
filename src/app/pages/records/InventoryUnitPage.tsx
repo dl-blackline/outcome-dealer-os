@@ -20,6 +20,10 @@ import {
   Warning,
 } from '@phosphor-icons/react'
 
+/** Aging price reduction multipliers applied at 30 and 60 days in stock */
+const AGING_REDUCTION_30_DAYS = 0.97
+const AGING_REDUCTION_60_DAYS = 0.94
+
 // Recon steps derived from vehicle status (simulated until recon domain is wired)
 function getReconSteps(status: string) {
   const steps = [
@@ -154,7 +158,7 @@ export function InventoryUnitPage() {
               <div className="flex items-center justify-between text-sm border-b border-border pb-2">
                 <span className="text-xs text-muted-foreground">Aging Price Reduction</span>
                 <div className="flex items-center gap-3">
-                  <span className="font-semibold text-amber-600">${Math.round(unit.askingPrice * 0.97).toLocaleString()}</span>
+                  <span className="font-semibold text-amber-600">${Math.round(unit.askingPrice * AGING_REDUCTION_30_DAYS).toLocaleString()}</span>
                   <span className="text-xs text-muted-foreground">Day 30</span>
                 </div>
               </div>
@@ -163,7 +167,7 @@ export function InventoryUnitPage() {
               <div className="flex items-center justify-between text-sm">
                 <span className="text-xs text-muted-foreground">Second Reduction</span>
                 <div className="flex items-center gap-3">
-                  <span className="font-semibold text-red-600">${Math.round(unit.askingPrice * 0.94).toLocaleString()}</span>
+                  <span className="font-semibold text-red-600">${Math.round(unit.askingPrice * AGING_REDUCTION_60_DAYS).toLocaleString()}</span>
                   <span className="text-xs text-muted-foreground">Day 60</span>
                 </div>
               </div>

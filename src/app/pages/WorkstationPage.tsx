@@ -34,8 +34,8 @@ export function WorkstationPage() {
   }, [selectedCard, moveCard])
 
   const reorderCards = useCallback((_draggedCardId: string, _targetCardId: string, _columnId: WorkstationColumnId) => {
-    // Reorder is a visual-only operation; persisted order will reset on refresh.
-    // Full drag-and-drop persistence requires an ordering field in the data model.
+    // Visual reorder is not persisted — the data model has no ordering field.
+    // Drag-and-drop reordering will persist once an explicit sort_order column is added.
   }, [])
 
   const filtered = cards.filter(c => {
