@@ -10,6 +10,7 @@ import {
   Kanban,
   UploadSimple,
   Robot,
+  Brain,
 } from '@phosphor-icons/react'
 import { AppRole, ROLE_NAV_GROUPS, type NavGroup } from '@/domains/roles/roles'
 import { cn } from '@/lib/utils'
@@ -80,6 +81,12 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Assistant Ops',
     href: '/app/ops/assistant',
     icon: Robot,
+    group: 'operations',
+  },
+  {
+    label: 'Intelligence',
+    href: '/app/ops/intelligence',
+    icon: Brain,
     group: 'operations',
   },
   {
