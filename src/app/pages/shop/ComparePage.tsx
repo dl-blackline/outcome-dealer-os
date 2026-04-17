@@ -22,9 +22,10 @@ import {
   ArrowRight,
   CurrencyDollar,
   Speedometer,
+  Car,
 } from '@phosphor-icons/react'
 
-const IMAGE_FALLBACK = '/inventory/national-car-mart/placeholder.jpg'
+const IMAGE_FALLBACK = 'https://picsum.photos/seed/placeholder/800/450'
 
 function formatPrice(price: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -101,7 +102,7 @@ export function ComparePage() {
                     <div className="flex flex-col items-center gap-2 py-2">
                       <div className="h-16 w-24 overflow-hidden rounded-lg bg-muted">
                         <img
-                          src={unit.imageUrl || IMAGE_FALLBACK}
+                          src={unit.imageSourceUrl || unit.imageUrl || IMAGE_FALLBACK}
                           alt={`${unit.year} ${unit.make} ${unit.model}`}
                           className="h-full w-full object-cover"
                           loading="lazy"

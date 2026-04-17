@@ -3,15 +3,46 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { EntityBadge } from '@/components/core/EntityBadge'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { useRouter } from '@/app/router'
 import { useDeal } from '@/domains/deals/deal.hooks'
 import { useApprovals } from '@/domains/approvals/approval.hooks'
 import { useEntityEvents } from '@/domains/events/event.hooks'
 import { useLeads } from '@/domains/leads/lead.hooks'
 import { useInventory } from '@/domains/inventory/inventory.hooks'
-import { ArrowLeft, CurrencyDollar, Car, Shield, SpinnerGap, CaretRight } from '@phosphor-icons/react'
+import {
+  ArrowLeft,
+  CurrencyDollar,
+  Car,
+  Shield,
+  SpinnerGap,
+  CaretRight,
+  CheckCircle,
+  Clock,
+  FileText,
+  Warning,
+} from '@phosphor-icons/react'
 
 const STAGES = ['structured', 'quoted', 'signed', 'funded', 'delivered'] as const
+
+// Representative F&I products for a deal that hasn't yet had a menu built
+const FI_PRODUCTS = [
+  { name: 'Vehicle Service Contract', code: 'VSC', status: 'not_offered', price: null },
+  { name: 'GAP Protection', code: 'GAP', status: 'not_offered', price: null },
+  { name: 'Tire & Wheel Protection', code: 'TWP', status: 'not_offered', price: null },
+  { name: 'Paintless Dent Repair', code: 'PDR', status: 'not_offered', price: null },
+]
+
+// Standard document checklist for a retail deal
+const STANDARD_DOCS = [
+  'Retail Installment Contract',
+  'Buyer\'s Order',
+  'Credit Application',
+  'Privacy Notice',
+  'Odometer Disclosure',
+  'Federal Truth-in-Lending',
+  'We-Owe / As-Is Disclosure',
+]
 
 export function DealRecordPage() {
   const { params, navigate } = useRouter()
@@ -93,9 +124,70 @@ export function DealRecordPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <Card><CardHeader><CardTitle>F&I Menu</CardTitle></CardHeader><CardContent><p className="text-sm text-muted-foreground">F&I products will appear here.</p></CardContent></Card>
-        <Card><CardHeader><CardTitle>Credit</CardTitle></CardHeader><CardContent><p className="text-sm text-muted-foreground">Credit app and lender decisions will appear here.</p></CardContent></Card>
-        <Card><CardHeader><CardTitle>Documents</CardTitle></CardHeader><CardContent><p className="text-sm text-muted-foreground">Deal documents will appear here.</p></CardContent></Card>
+        {/* F&I Menu */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              F&amp;I Menu
+              <Badge variant="outline" className="text-xs font-normal">Not presented</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {FI_PRODUCTS.map(p => (
+              <div key={p.code} className="flex items-center justify-between text-sm py-1 border-b border-border last:border-0">
+                <div className="flex items-center gap-2">
+                  <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="text-muted-foreground">{p.name}</span>
+                </div>
+                <Badge variant="secondary" className="text-xs">Pending</Badge>
+              </div>
+            ))}
+            <p className="text-xs text-muted-foreground pt-2">F&amp;I menu will be built when deal reaches the F&amp;I stage.</p>
+          </CardContent>
+        </Card>
+
+        {/* Credit */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              Credit
+              <Badge variant="outline" className="text-xs font-normal">No app yet</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center gap-2 rounded-md bg-muted/50 px-3 py-2 text-sm">
+              <Warning className="h-4 w-4 text-amber-500 shrink-0" />
+              <span className="text-muted-foreground">Credit application not started</span>
+            </div>
+            <div className="space-y-1.5 text-xs text-muted-foreground">
+              <div className="flex justify-between"><span>Application status</span><span className="font-medium">—</span></div>
+              <div className="flex justify-between"><span>Lender decision</span><span className="font-medium">—</span></div>
+              <div className="flex justify-between"><span>Approved rate</span><span className="font-medium">—</span></div>
+              <div className="flex justify-between"><span>Approved term</span><span className="font-medium">—</span></div>
+              <div className="flex justify-between"><span>Stip status</span><span className="font-medium">—</span></div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Documents */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              Documents
+              <Badge variant="outline" className="text-xs font-normal">Incomplete</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-1.5">
+            {STANDARD_DOCS.map(doc => (
+              <div key={doc} className="flex items-center gap-2 text-sm">
+                <FileText className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                <span className="text-muted-foreground">{doc}</span>
+                <CheckCircle className="h-3.5 w-3.5 text-muted-foreground/40 ml-auto" />
+              </div>
+            ))}
+            <p className="text-xs text-muted-foreground pt-2">Documents will be generated when deal is signed.</p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

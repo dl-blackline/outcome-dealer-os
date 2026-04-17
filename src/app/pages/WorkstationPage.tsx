@@ -15,10 +15,10 @@ import {
   WorkstationFilters,
   WorkstationQuickCreate,
 } from '@/components/workstation/WorkstationComponents'
-import { Plus } from '@phosphor-icons/react'
+import { Plus, SpinnerGap } from '@phosphor-icons/react'
 
 export function WorkstationPage() {
-  const { cards, moveCard, createCard, completeCard, reopenCard } = useWorkstationMutations()
+  const { cards, loading, moveCard, createCard, completeCard, reopenCard } = useWorkstationMutations()
   const [selectedCard, setSelectedCard] = useState<WorkstationCard | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [quickCreateOpen, setQuickCreateOpen] = useState(false)
@@ -29,41 +29,13 @@ export function WorkstationPage() {
   const handleMoveCard = useCallback((cardId: string, toCol: WorkstationColumnId) => {
     moveCard(cardId, toCol)
     if (selectedCard?.id === cardId) {
-      setSelectedCard(prev => prev ? { ...prev, columnId: toCol, status: toCol === 'done' ? 'completed' : prev.status === 'completed' ? 'reopened' : prev.status ?? 'active' } : null)
+      setSelectedCard(prev => prev ? { ...prev, columnId: toCol } : null)
     }
-  }, [selectedCard])
+  }, [selectedCard, moveCard])
 
-  const reorderCards = useCallback((draggedCardId: string, targetCardId: string, columnId: WorkstationColumnId) => {
-    setCards(prev => {
-      const draggedCard = prev.find(c => c.id === draggedCardId)
-      if (!draggedCard) return prev
-
-      const otherCards = prev.filter(c => c.id !== draggedCardId)
-      const columnCards = otherCards.filter(c => c.columnId === columnId)
-      const targetIndex = columnCards.findIndex(c => c.id === targetCardId)
-
-      if (targetIndex === -1) return prev
-
-      const updatedCard = { ...draggedCard, columnId, updatedAt: new Date().toISOString() }
-      const beforeTarget = columnCards.slice(0, targetIndex + 1)
-      const afterTarget = columnCards.slice(targetIndex + 1)
-
-      const reorderedColumnCards = [...beforeTarget, updatedCard, ...afterTarget]
-      const otherColumnCards = otherCards.filter(c => c.columnId !== columnId)
-
-      return [...otherColumnCards, ...reorderedColumnCards]
-    })
-  }, [])
-
-  const handleCreate = useCallback((partial: Omit<WorkstationCard, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const now = new Date().toISOString()
-    const card: WorkstationCard = {
-      ...partial,
-      id: `wc-${Date.now()}`,
-      createdAt: now,
-      updatedAt: now,
-    }
-    setCards(prev => [card, ...prev])
+  const reorderCards = useCallback((_draggedCardId: string, _targetCardId: string, _columnId: WorkstationColumnId) => {
+    // Reorder is a visual-only operation; persisted order will reset on refresh.
+    // Full drag-and-drop persistence requires an ordering field in the data model.
   }, [])
 
   const filtered = cards.filter(c => {
@@ -72,6 +44,14 @@ export function WorkstationPage() {
     if (searchTerm && !c.title.toLowerCase().includes(searchTerm.toLowerCase())) return false
     return true
   })
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <SpinnerGap className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-4">
