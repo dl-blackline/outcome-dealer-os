@@ -74,23 +74,32 @@ export function useWorkstationMutations(): WorkstationMutations {
       const result = await createWorkstationCard(partial)
       if (result.ok) {
         setCards(prev => [result.value, ...prev])
+      } else {
+        // Ensure state stays in sync with KV even on failure
+        await refresh()
       }
     })()
-  }, [])
+  }, [refresh])
 
   const completeCard = useCallback((cardId: string) => {
     setCards(prev => prev.map(c =>
       c.id === cardId ? { ...c, columnId: 'done' as WorkstationColumnId, updatedAt: new Date().toISOString() } : c
     ))
-    void completeWorkstationCard(cardId)
-  }, [])
+    void (async () => {
+      const result = await completeWorkstationCard(cardId)
+      if (!result.ok) await refresh()
+    })()
+  }, [refresh])
 
   const reopenCard = useCallback((cardId: string) => {
     setCards(prev => prev.map(c =>
       c.id === cardId ? { ...c, columnId: 'inbox' as WorkstationColumnId, updatedAt: new Date().toISOString() } : c
     ))
-    void updateWorkstationCard(cardId, { columnId: 'inbox' })
-  }, [])
+    void (async () => {
+      const result = await updateWorkstationCard(cardId, { columnId: 'inbox' })
+      if (!result.ok) await refresh()
+    })()
+  }, [refresh])
 
   return { cards, loading, moveCard, createCard, completeCard, reopenCard }
 }

@@ -128,7 +128,7 @@ export function DealRecordPage() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center justify-between">
-              F&amp;I Menu
+              F&I Menu
               <Badge variant="outline" className="text-xs font-normal">Not presented</Badge>
             </CardTitle>
           </CardHeader>
@@ -142,7 +142,7 @@ export function DealRecordPage() {
                 <Badge variant="secondary" className="text-xs">Pending</Badge>
               </div>
             ))}
-            <p className="text-xs text-muted-foreground pt-2">F&amp;I menu will be built when deal reaches the F&amp;I stage.</p>
+            <p className="text-xs text-muted-foreground pt-2">F&I menu will be built when deal reaches the F&I stage.</p>
           </CardContent>
         </Card>
 

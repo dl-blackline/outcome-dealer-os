@@ -23,6 +23,7 @@ export function LeadRecordPage() {
   const [showConvert, setShowConvert] = useState(false)
   const [vehicleDesc, setVehicleDesc] = useState('')
   const [converting, setConverting] = useState(false)
+  const [convertError, setConvertError] = useState<string | null>(null)
 
   if (leadQuery.loading) {
     return <div className="flex items-center justify-center py-24"><SpinnerGap className="h-8 w-8 animate-spin text-muted-foreground" /></div>
@@ -38,6 +39,7 @@ export function LeadRecordPage() {
   async function handleConvert() {
     if (!vehicleDesc.trim() || !lead) return
     setConverting(true)
+    setConvertError(null)
     try {
       const newDeal = await convertLeadToDeal({
         leadId: lead.id,
@@ -50,6 +52,8 @@ export function LeadRecordPage() {
         setShowConvert(false)
         setVehicleDesc('')
         navigate(`/app/records/deals/${newDeal.id}`)
+      } else {
+        setConvertError('Failed to create deal. Please try again.')
       }
     } finally {
       setConverting(false)
@@ -110,7 +114,8 @@ export function LeadRecordPage() {
               />
             </div>
             <div className="flex gap-2 justify-end">
-              <Button variant="outline" size="sm" onClick={() => setShowConvert(false)}>Cancel</Button>
+              {convertError && <p className="text-xs text-red-600 self-center">{convertError}</p>}
+              <Button variant="outline" size="sm" onClick={() => { setShowConvert(false); setConvertError(null) }}>Cancel</Button>
               <Button
                 size="sm"
                 disabled={!vehicleDesc.trim() || converting}
