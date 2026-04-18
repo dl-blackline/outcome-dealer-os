@@ -52,4 +52,38 @@ for each row execute function set_updated_at();
 
 create trigger trg_finance_credit_application_documents_updated_at
 before update on finance_credit_application_documents
+
+-- Row Level Security
+-- Customers (unauthenticated / anon) can insert but not read other rows.
+-- Authenticated staff can read and update all rows.
+alter table finance_credit_applications enable row level security;
+alter table finance_credit_application_documents enable row level security;
+
+-- Staff read/write (any authenticated Supabase user with a valid JWT)
+create policy "staff_all_finance_credit_applications"
+  on finance_credit_applications
+  for all
+  to authenticated
+  using (true)
+  with check (true);
+
+create policy "staff_all_finance_credit_documents"
+  on finance_credit_application_documents
+  for all
+  to authenticated
+  using (true)
+  with check (true);
+
+-- Anonymous customers may insert a new application but cannot read others
+create policy "anon_insert_finance_credit_application"
+  on finance_credit_applications
+  for insert
+  to anon
+  with check (true);
+
+create policy "anon_insert_finance_credit_document"
+  on finance_credit_application_documents
+  for insert
+  to anon
+  with check (true);
 for each row execute function set_updated_at();

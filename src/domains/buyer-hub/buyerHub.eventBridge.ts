@@ -12,6 +12,12 @@
 import { emitEvent } from '@/domains/events/event.bus'
 import { createFinanceCreditApplication } from '@/domains/credit/financeApplication.service'
 import { getRequiredDocumentsForScoreRange } from '@/domains/credit/financeApplication.rules'
+import {
+  sendInquiryNotification,
+  sendAppointmentNotification,
+  sendQuickAppNotification,
+  sendTradeInNotification,
+} from '@/services/email.service'
 import type {
   InquirySubmission,
   QuickAppSubmission,
@@ -57,6 +63,16 @@ export async function submitInquiry(
       },
     }
   )
+
+  void sendInquiryNotification({
+    firstName: data.firstName,
+    lastName: data.lastName,
+    email: data.email,
+    phone: data.phone,
+    message: data.message,
+    preferredContact: data.preferredContact,
+    vehicleInfo: data.unitId,
+  })
 
   return { ok: true, submissionId }
 }
@@ -186,6 +202,14 @@ export async function submitQuickApp(
     }
   )
 
+  void sendQuickAppNotification({
+    fullLegalName: data.fullLegalName,
+    email: data.email,
+    phone: data.phone,
+    creditScoreRange: data.creditScoreRange,
+    vehicleInfo: data.unitId,
+  })
+
   return {
     ok: true,
     submissionId,
@@ -232,6 +256,17 @@ export async function submitTradeIn(
     }
   )
 
+  void sendTradeInNotification({
+    firstName: data.ownerEmail.split('@')[0],
+    lastName: '',
+    email: data.ownerEmail,
+    vehicleYear: data.year,
+    vehicleMake: data.make,
+    vehicleModel: data.model,
+    mileage: data.mileage,
+    condition: data.condition,
+  })
+
   return { ok: true, submissionId }
 }
 
@@ -260,6 +295,18 @@ export async function submitAppointmentRequest(
       },
     }
   )
+
+  void sendAppointmentNotification({
+    firstName: data.firstName,
+    lastName: data.lastName,
+    email: data.email,
+    phone: data.phone,
+    preferredDate: data.preferredDate,
+    preferredTime: data.preferredTime,
+    appointmentType: data.type,
+    vehicleInfo: data.unitId,
+    notes: data.notes,
+  })
 
   return { ok: true, submissionId }
 }

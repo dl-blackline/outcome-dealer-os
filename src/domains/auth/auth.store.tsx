@@ -56,10 +56,24 @@ export function AuthProvider({ children, defaultRole = 'gm' }: AuthProviderProps
 
   const signInWithPassword = useCallback(
     async (email: string, password: string) => {
+      setStatus('loading')
+      setError(null)
+      // Step 1: authenticate — throws on bad credentials
       await AuthService.signInWithPassword(email, password, currentRole)
-      await loadUser(currentRole)
+      // Step 2: load session — explicitly rethrow so LoginPage can show errors
+      try {
+        const sessionUser = await AuthService.loadSessionUser(currentRole)
+        const currentUser = AuthService.buildCurrentAppUser(sessionUser)
+        setUser(currentUser)
+        setStatus('authenticated')
+        setError(null)
+      } catch (err) {
+        setUser(null)
+        setStatus('unauthenticated')
+        throw err
+      }
     },
-    [currentRole, loadUser],
+    [currentRole],
   )
 
   useEffect(() => {

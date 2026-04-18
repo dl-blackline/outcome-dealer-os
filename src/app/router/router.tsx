@@ -12,7 +12,14 @@ const RouterContext = createContext<RouterState | null>(null)
 function getHashPath(): string {
   const hash = window.location.hash
   if (!hash || hash === '#') return '/'
-  return hash.startsWith('#') ? hash.slice(1) : hash
+  // Supabase auth redirects inject access_token / error_code into the URL
+  // fragment. Don't treat these as router paths — let Supabase's
+  // detectSessionInUrl consume them; redirect to home in the meantime.
+  const fragment = hash.startsWith('#') ? hash.slice(1) : hash
+  if (fragment.includes('access_token=') || fragment.includes('error_code=') || fragment.includes('type=recovery')) {
+    return '/'
+  }
+  return fragment
 }
 
 function setHashPath(path: string): void {

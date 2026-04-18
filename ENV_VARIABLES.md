@@ -97,6 +97,38 @@ GITHUB_PAGES=true  # only if deploying to gh-pages
 - [ ] Verify `VITE_AI_ENABLED=false` (leave AI keys blank)
 - [ ] Test build: `npm run build` (should pass)
 - [ ] Test dev: `npm run dev` (public pages should load)
+---
+
+## Email (SendGrid)
+
+### SendGrid API Key
+```
+SENDGRID_API_KEY=SG.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+- **Purpose**: Used by the `netlify/functions/send-email` serverless function to dispatch transactional emails (inquiry, appointment, credit app, trade-in notifications) to `dl@blacklinecrm.com`
+- **Status**: REQUIRED for email delivery in production; set in Netlify dashboard → Site settings → Environment variables
+- **Security**: **NEVER use a `VITE_` prefix** — this must stay server-side only. Never commit to git.
+- **Fallback**: If the key is absent the function returns `{ ok: true, skipped: true }` — form submissions still complete normally, emails are silently skipped
+- **Source**: https://app.sendgrid.com → Settings → API Keys → Create API Key (Restricted: Mail Send only)
+
+### SendGrid Sender Verification
+- The `FROM_EMAIL` in `netlify/functions/send-email.mts` is set to `noreply@blacklinecrm.com`
+- This address **must be verified** in your SendGrid account before emails will deliver
+- Go to: SendGrid Dashboard → Settings → Sender Authentication → Verify a Single Sender
+- Alternatively set up Domain Authentication for `blacklinecrm.com`
+
+---
+
+## Setup Checklist
+
+- [ ] Copy `.env.example` → `.env.local`
+- [ ] Fill in `VITE_SUPABASE_ANON_KEY` from Supabase dashboard
+- [ ] Fill in `DATABASE_URL` for migrations (keep in secure secrets; don't commit)
+- [ ] Verify `VITE_AI_ENABLED=false` (leave AI keys blank)
+- [ ] Set `SENDGRID_API_KEY` in Netlify dashboard environment variables (not in .env.local)
+- [ ] Verify sender `noreply@blacklinecrm.com` in SendGrid Sender Authentication
+- [ ] Test build: `npm run build` (should pass)
+- [ ] Test dev: `npm run dev` (public pages should load)
 
 ---
 
