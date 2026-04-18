@@ -73,8 +73,8 @@ export async function submitQuickApp(
   missingDocuments: string[]
 }> {
   const submissionId = crypto.randomUUID()
-  const leadId = `lead-${submissionId}`
-  const customerId = `cust-${submissionId}`
+  const leadId = crypto.randomUUID()
+  const customerId = crypto.randomUUID()
 
   const createResult = await createFinanceCreditApplication(
     {

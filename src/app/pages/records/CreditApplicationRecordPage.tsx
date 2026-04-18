@@ -44,7 +44,6 @@ export function CreditApplicationRecordPage() {
             <div className="flex justify-between"><span className="text-muted-foreground">Phone</span><span>{application.applicant.phone}</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground">DOB</span><span>{application.applicant.dateOfBirth || 'Not provided'}</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground">SSN</span><span>{maskSSNForDisplay(application.applicant.ssnLast4)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">SSN token ref</span><span className="font-mono text-xs">{application.applicant.ssnTokenRef}</span></div>
             <div className="flex justify-between"><span className="text-muted-foreground">Driver license</span><span>{application.applicant.driverLicenseNumber || 'Not provided'}</span></div>
           </CardContent>
         </Card>

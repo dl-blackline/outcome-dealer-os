@@ -142,8 +142,6 @@ export async function createFinanceCreditApplication(
         creditScoreRange: application.creditScoreRange,
         requiredDocuments: application.requiredDocuments,
         missingDocuments: application.missingDocuments,
-        ssnTokenRef: application.applicant.ssnTokenRef,
-        ssnLast4: application.applicant.ssnLast4,
       },
       userId: ctx.actorId,
       userRole: ctx.actorRole,
