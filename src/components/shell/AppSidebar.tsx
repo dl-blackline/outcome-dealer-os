@@ -48,6 +48,12 @@ const NAV_ITEMS: NavItem[] = [
     group: 'records',
   },
   {
+    label: 'Credit Apps',
+    href: '/app/records/credit-applications',
+    icon: ClipboardText,
+    group: 'records',
+  },
+  {
     label: 'Deals',
     href: '/app/records/deals',
     icon: CurrencyDollar,

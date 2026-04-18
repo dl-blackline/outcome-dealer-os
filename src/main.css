@@ -185,4 +185,11 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Ensure native HTML select dropdown options are readable in dark-themed UIs. */
+  select option,
+  select optgroup {
+    color: var(--color-foreground);
+    background-color: var(--color-popover);
+  }
 }

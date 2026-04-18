@@ -18,6 +18,8 @@ export const APP_ROUTES: RouteDefinition[] = [
   { path: '/app/records/households/:id', label: 'Household', component: 'HouseholdRecordPage', group: 'records' },
   { path: '/app/records/leads', label: 'Leads', component: 'LeadListPage', group: 'records' },
   { path: '/app/records/leads/:id', label: 'Lead', component: 'LeadRecordPage', group: 'records' },
+  { path: '/app/records/credit-applications', label: 'Credit Applications', component: 'CreditApplicationListPage', group: 'records' },
+  { path: '/app/records/credit-applications/:id', label: 'Credit Application', component: 'CreditApplicationRecordPage', group: 'records' },
   { path: '/app/records/deals', label: 'Deals', component: 'DealListPage', group: 'records' },
   { path: '/app/records/deals/:id', label: 'Deal', component: 'DealRecordPage', group: 'records' },
   { path: '/app/records/inventory', label: 'Inventory', component: 'InventoryListPage', group: 'records' },

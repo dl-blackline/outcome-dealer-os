@@ -15,6 +15,8 @@ import { HouseholdListPage } from '@/app/pages/records/HouseholdListPage'
 import { HouseholdRecordPage } from '@/app/pages/records/HouseholdRecordPage'
 import { LeadListPage } from '@/app/pages/records/LeadListPage'
 import { LeadRecordPage } from '@/app/pages/records/LeadRecordPage'
+import { CreditApplicationListPage } from '@/app/pages/records/CreditApplicationListPage'
+import { CreditApplicationRecordPage } from '@/app/pages/records/CreditApplicationRecordPage'
 import { DealListPage } from '@/app/pages/records/DealListPage'
 import { DealRecordPage } from '@/app/pages/records/DealRecordPage'
 import { InventoryListPage } from '@/app/pages/records/InventoryListPage'
@@ -36,6 +38,8 @@ const ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/app/records/households/:id': HouseholdRecordPage,
   '/app/records/leads': LeadListPage,
   '/app/records/leads/:id': LeadRecordPage,
+  '/app/records/credit-applications': CreditApplicationListPage,
+  '/app/records/credit-applications/:id': CreditApplicationRecordPage,
   '/app/records/deals': DealListPage,
   '/app/records/deals/:id': DealRecordPage,
   '/app/records/inventory': InventoryListPage,

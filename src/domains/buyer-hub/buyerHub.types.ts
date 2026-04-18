@@ -47,13 +47,47 @@ export interface InquirySubmission {
 
 /** Quick app submission from buyer hub */
 export interface QuickAppSubmission {
-  firstName: string
-  lastName: string
+  fullLegalName: string
   email: string
   phone: string
   dateOfBirth: string
-  annualIncome: number
-  employerName?: string
+  ssnRaw: string
+  driverLicenseNumber?: string
+  currentAddressLine1: string
+  currentAddressLine2?: string
+  currentCity: string
+  currentState: string
+  currentZip: string
+  housingStatus: 'rent' | 'own' | 'mortgage' | 'family' | 'other'
+  housingStatusOther?: string
+  monthlyHousingPayment?: number
+  residenceYears: number
+  residenceMonths: number
+  previousResidenceAddressLine1?: string
+  previousResidenceAddressLine2?: string
+  previousResidenceCity?: string
+  previousResidenceState?: string
+  previousResidenceZip?: string
+  previousHousingStatus?: 'rent' | 'own' | 'mortgage' | 'family' | 'other'
+  previousHousingStatusOther?: string
+  previousMonthlyHousingPayment?: number
+  previousResidenceYears?: number
+  previousResidenceMonths?: number
+  employerName: string
+  occupationTitle: string
+  employmentStatus: 'full_time' | 'part_time' | 'self_employed' | 'retired' | 'unemployed' | 'other'
+  employmentStatusOther?: string
+  grossMonthlyIncome?: number
+  annualIncome?: number
+  employerYears: number
+  employerMonths: number
+  previousEmployerName?: string
+  previousOccupationTitle?: string
+  previousEmployerYears?: number
+  previousEmployerMonths?: number
+  previousEmployerGrossMonthlyIncome?: number
+  previousEmployerAnnualIncome?: number
+  creditScoreRange: 'under_550' | '550_599' | '600_649' | '650_699' | '700_749' | '750_plus'
   unitId?: UUID
 }
 

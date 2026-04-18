@@ -49,7 +49,7 @@ export class AuthService {
       const client = getSupabaseBrowserClient()
       const { data, error } = await client!.auth.getUser()
 
-      if (error || !data.user) {
+      if (error || !data?.user) {
         throw new Error('No active Supabase session')
       }
 
@@ -97,7 +97,7 @@ export class AuthService {
     if (this.getRuntimeMode() === 'supabase') {
       const client = getSupabaseBrowserClient()
       const { data } = await client!.auth.getUser()
-      const metadataRole = String(data.user?.app_metadata?.role || data.user?.user_metadata?.role || '')
+      const metadataRole = String(data?.user?.app_metadata?.role || data?.user?.user_metadata?.role || '')
 
       return {
         ...authUser,
