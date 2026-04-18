@@ -23,7 +23,7 @@
 import type { Context } from '@netlify/functions'
 
 const SENDGRID_API = 'https://api.sendgrid.com/v3/mail/send'
-const DEALER_EMAIL = 'dl@blacklinecrm.com'
+const DEALER_EMAIL = 'DL@BLACKLINECRM.COM'
 const DEALER_NAME = 'National Car Mart — Vehicle Vault'
 const FROM_EMAIL = 'noreply@blacklinecrm.com' // must be verified in SendGrid
 
