@@ -1,14 +1,4 @@
-import { useMemo, useState } from 'react'
-import { useRouter } from '@/app/router'
-import { computePaymentEstimate } from '@/domains/buyer-hub/buyerHub.types'
-import { useShoppingState } from '@/domains/buyer-hub/useShoppingState'
-import { useInventoryRecord } from '@/domains/inventory/inventory.runtime'
-import { setSelectedUnit } from '@/domains/buyer-hub/helpers/selectedVehicleContext'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from '@/app/router'
 import { computePaymentEstimate } from '@/domains/buyer-hub/buyerHub.types'
 import { useShoppingState } from '@/domains/buyer-hub/useShoppingState'
@@ -49,7 +39,7 @@ export function VehicleDetailPage() {
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0)
 
   // Set selected unit immediately when detail page loads
-  React.useEffect(() => {
+  useEffect(() => {
     if (params.unitId) {
       setSelectedUnit(params.unitId, 'shop')
     }
