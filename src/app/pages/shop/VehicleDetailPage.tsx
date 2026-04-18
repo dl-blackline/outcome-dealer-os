@@ -334,6 +334,27 @@ export function VehicleDetailPage() {
           </Card>
         </div>
       </div>
+
+      {/* Mobile Sticky Action Bar - drives conversion on small screens */}
+      <div className="fixed inset-x-0 bottom-0 block border-t border-white/15 bg-black/95 backdrop-blur-md lg:hidden">
+        <div className="grid grid-cols-3 gap-2 p-2 sm:grid-cols-3">
+          <Button className="vault-btn vault-tap flex-1 rounded-lg py-2.5 text-[0.65rem] uppercase tracking-[0.12em]" onClick={() => navigate(`/inquiry/${vehicle.id}`)}>
+            <ChatCircle size={14} className="mr-1" />
+            Inquire
+          </Button>
+          <Button variant="outline" className="vault-btn-muted vault-tap flex-1 rounded-lg py-2.5 text-[0.65rem] uppercase tracking-[0.12em]" onClick={() => navigate('/schedule')}>
+            <CalendarPlus size={14} className="mr-1" />
+            Schedule
+          </Button>
+          <Button variant="outline" className="vault-btn-muted vault-tap flex-1 rounded-lg py-2.5 text-[0.65rem] uppercase tracking-[0.12em]" onClick={() => navigate('/finance')}>
+            <CurrencyDollar size={14} className="mr-1" />
+            Finance
+          </Button>
+        </div>
+      </div>
+
+      {/* Mobile padding to prevent content overlap with sticky bar */}
+      <div className="h-20 lg:hidden" />
     </div>
   )
 }

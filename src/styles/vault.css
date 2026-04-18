@@ -149,13 +149,49 @@
   }
 }
 
+/* Scroll-triggered entry animations for conversion lift */
+.vault-scroll-rise {
+  opacity: 0;
+  transform: translateY(28px);
+}
+
+.vault-scroll-rise.in-view {
+  animation: vault-scroll-rise-enter 0.8s cubic-bezier(0.33, 0.66, 0.66, 1) forwards;
+}
+
+.vault-scroll-stagger {
+  opacity: 0;
+  transform: translateY(24px);
+}
+
+.vault-scroll-stagger.in-view {
+  animation: vault-scroll-rise-enter 0.7s cubic-bezier(0.33, 0.66, 0.66, 1) forwards;
+}
+
+.vault-scroll-stagger.in-view:nth-child(1) {
+  animation-delay: 0.05s;
+}
+.vault-scroll-stagger.in-view:nth-child(2) {
+  animation-delay: 0.12s;
+}
+.vault-scroll-stagger.in-view:nth-child(3) {
+  animation-delay: 0.19s;
+}
+.vault-scroll-stagger.in-view:nth-child(4) {
+  animation-delay: 0.26s;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .vault-animate-rise,
   .vault-animate-fade,
   .vault-btn,
-  .vault-tap {
+  .vault-tap,
+  .vault-scroll-rise,
+  .vault-scroll-stagger {
     animation: none !important;
     transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 
@@ -165,5 +201,16 @@
   }
   to {
     opacity: 1;
+  }
+}
+
+@keyframes vault-scroll-rise-enter {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

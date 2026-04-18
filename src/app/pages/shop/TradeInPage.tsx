@@ -128,10 +128,10 @@ export function TradeInPage() {
         </Button>
         <div className="mb-2 flex items-center gap-3">
           <Scales size={28} className="text-primary" />
-          <h1 className="text-2xl font-bold text-white">Value Your Trade-In</h1>
+          <h1 className="text-2xl font-bold text-white">Get Your Trade Value — Instantly</h1>
         </div>
         <p className="text-sm text-slate-300">
-          Tell us about your current vehicle and we'll provide a preliminary appraisal estimate.
+          Enter your vehicle details and get a preliminary appraisal in seconds. It only takes 60 seconds.
         </p>
       </div>
 

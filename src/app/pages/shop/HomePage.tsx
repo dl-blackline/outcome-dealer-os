@@ -11,6 +11,7 @@ import {
 } from '@phosphor-icons/react'
 import { useRouter } from '@/app/router'
 import { useInventoryCatalog } from '@/domains/inventory/inventory.runtime'
+import { useScrollIntoView } from '@/hooks/useScrollIntoView'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -27,6 +28,8 @@ export function HomePage() {
   const { navigate } = useRouter()
   const { featuredRecords, publicRecords, masterSource } = useInventoryCatalog()
   const heroUnit = featuredRecords[0] || publicRecords[0]
+  const featureCardsRef = useScrollIntoView()
+  const inventoryGridRef = useScrollIntoView()
 
   return (
     <div className="space-y-20 pb-16">
@@ -97,22 +100,22 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="grid gap-5 md:grid-cols-3">
-        <Card className="vault-panel-soft vault-edge rounded-2xl">
+      <section className="grid gap-5 md:grid-cols-3" ref={featureCardsRef}>
+        <Card className="vault-panel-soft vault-edge vault-scroll-stagger rounded-2xl">
           <CardContent className="space-y-3 p-6">
             <ShieldCheck size={20} className="text-blue-200" />
             <p className="text-base font-semibold text-white">Secure purchase flow</p>
             <p className="text-sm text-slate-400">Inquiry, finance, and scheduling pathways are separated cleanly from internal operations.</p>
           </CardContent>
         </Card>
-        <Card className="vault-panel-soft vault-edge rounded-2xl">
+        <Card className="vault-panel-soft vault-edge vault-scroll-stagger rounded-2xl">
           <CardContent className="space-y-3 p-6">
             <TrendUp size={20} className="text-emerald-300" />
             <p className="text-base font-semibold text-white">Premium inventory intelligence</p>
             <p className="text-sm text-slate-400">Pricing, availability, mileage, and publishing status stay synchronized across buyer and admin surfaces.</p>
           </CardContent>
         </Card>
-        <Card className="vault-panel-soft vault-edge rounded-2xl">
+        <Card className="vault-panel-soft vault-edge vault-scroll-stagger rounded-2xl">
           <CardContent className="space-y-3 p-6">
             <Gauge size={20} className="text-violet-300" />
             <p className="text-base font-semibold text-white">Cinematic browsing speed</p>
@@ -133,13 +136,13 @@ export function HomePage() {
           </Button>
         </div>
 
-        <div className="grid gap-6 xl:grid-cols-3">
+        <div className="grid gap-6 xl:grid-cols-3" ref={inventoryGridRef}>
           {featuredRecords.slice(0, 3).map((record, index) => (
             <button
               key={record.id}
               type="button"
               onClick={() => navigate(`/shop/${record.id}`)}
-              className="vault-panel vault-edge vault-animate-rise overflow-hidden rounded-[1.7rem] text-left transition-all hover:-translate-y-1 hover:border-blue-200/40"
+              className="vault-panel vault-edge vault-scroll-stagger vault-animate-rise overflow-hidden rounded-[1.7rem] text-left transition-all hover:-translate-y-1 hover:border-blue-200/40"
               style={{ animationDelay: `${index * 120}ms` }}
             >
               <div className="vault-image-frame aspect-[16/10]">

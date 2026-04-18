@@ -127,10 +127,10 @@ export function InquiryPage() {
         </Button>
         <div className="mb-2 flex items-center gap-3">
           <ChatCircle size={28} className="text-primary" />
-          <h1 className="text-2xl font-bold text-white">Inquire About This Vehicle</h1>
+          <h1 className="text-2xl font-bold text-white">Connect with a Specialist</h1>
         </div>
         <p className="text-sm text-slate-300">
-          Fill in your details and we'll connect you with an advisor right away.
+          Get personalized guidance, special pricing, and availability updates within 4 business hours.
         </p>
       </div>
 

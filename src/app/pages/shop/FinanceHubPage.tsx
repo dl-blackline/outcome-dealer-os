@@ -85,9 +85,9 @@ export function FinanceHubPage() {
       {/* Header */}
       <div className="vault-panel-soft rounded-4xl border border-white/15 p-7 sm:p-8">
         <p className="vault-title text-[0.62rem] text-slate-400">Vehicle Vault Finance</p>
-        <h1 className="mt-3 text-4xl font-bold tracking-tight text-white">Premium Finance Command Center</h1>
+        <h1 className="mt-3 text-4xl font-bold tracking-tight text-white">Get Pre-Qualified & Drive Home Faster</h1>
         <p className="mt-2 text-slate-300">
-          Explore payment options, products, and start your pre-qualification — all in one place.
+          Transparent payment estimates, flexible terms, and premium protection options — all designed to accelerate your buying journey.
         </p>
       </div>
 
