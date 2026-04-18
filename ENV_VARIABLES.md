@@ -38,32 +38,34 @@ DATABASE_URL=postgresql://postgres:PASSWORD@db.fydbxxdibjxpwsyyigys.supabase.co:
 
 ---
 
-## AI Features (DISABLED by Default)
+## AI Features (OpenAI PRIMARY)
 
 ### OpenAI API Key
 ```
-VITE_OPENAI_API_KEY=
+VITE_OPENAI_API_KEY=<your-openai-api-key>
 ```
-- **Purpose**: OpenAI integration for AI-powered features
-- **Status**: DISABLED (leave blank)
-- **Reason**: Not currently used in public UX; placeholder for future AI agent work
-- **Action**: Keep empty or omit entirely
+- **Purpose**: OpenAI GPT integration for AI-powered features (primary source)
+- **Status**: REQUIRED to enable AI features
+- **Source**: Get from https://platform.openai.com/api-keys
+- **Security**: Keep this secret; never expose in frontend code or git
+- **Action**: Set in Netlify environment variables
 
 ### AI Toggle
 ```
-VITE_AI_ENABLED=false
+VITE_AI_ENABLED=true
 ```
-- **Purpose**: Master switch to disable all AI calls
-- **Status**: Set to `false` to prevent accidental OpenAI API calls
-- **Safety**: If missing, defaults to `false` (safe-by-default)
+- **Purpose**: Master switch to enable/disable all AI calls
+- **Status**: Set to `true` to activate OpenAI integration
+- **Safety**: If `false`, all AI code paths are skipped
 
-### Anthropic API Key
+### Anthropic API Key (Optional Fallback)
 ```
-VITE_ANTHROPIC_KEY=
+VITE_ANTHROPIC_KEY=<optional-anthropic-key>
 ```
-- **Purpose**: Claude API integration (placeholder)
-- **Status**: DISABLED (leave blank); not currently used
-- **Action**: Keep empty or omit
+- **Purpose**: Claude API as fallback if OpenAI unavailable
+- **Status**: OPTIONAL; only fill if you want Claude fallback
+- **Priority**: OpenAI is primary; Anthropic only used if OpenAI fails
+- **Action**: Leave empty to rely on OpenAI only
 
 ---
 
@@ -106,7 +108,7 @@ GITHUB_PAGES=true  # only if deploying to gh-pages
 | Auth System | `VITE_SUPABASE_URL` + key | Demo mode | Works, local session only |
 | Database Ops | `DATABASE_URL`  | N/A (backend only) | Migrations fail; requires manual connection |
 | Photos | `VITE_SUPABASE_STORAGE_BUCKET` | `vehicle-photos` | Works with default bucket |
-| AI Features | `VITE_OPENAI_API_KEY` | Disabled | No API calls; safe |
+| AI Features | `VITE_OPENAI_API_KEY` | `VITE_ANTHROPIC_KEY` → Disabled | Uses Claude if OpenAI unavailable; disabled if both empty |
 
 ---
 
@@ -115,13 +117,13 @@ GITHUB_PAGES=true  # only if deploying to gh-pages
 1. **Set via Netlify Admin > Build & Deploy > Environment**:
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_ANON_KEY`
+   - `VITE_OPENAI_API_KEY` (required to enable AI)
 
-2. **Leave unset or set to empty**:
-   - `VITE_OPENAI_API_KEY`
-   - `VITE_ANTHROPIC_KEY`
+2. **Optional but recommended**:
+   - `VITE_ANTHROPIC_KEY` (fallback if OpenAI fails)
 
-3. **Set explicitly for safety**:
-   - `VITE_AI_ENABLED=false`
+3. **Set explicitly**:
+   - `VITE_AI_ENABLED=true` (master switch for AI features)
 
 4. **Do NOT expose in frontend**:
    - `DATABASE_URL` (server-side only; keep in CI/CD secrets)
