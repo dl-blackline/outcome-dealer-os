@@ -29,6 +29,7 @@ import { IntelligencePage } from '@/app/pages/ops/IntelligencePage'
 import { RolesSettingsPage } from '@/app/pages/settings/RolesSettingsPage'
 import { IntegrationsSettingsPage } from '@/app/pages/settings/IntegrationsSettingsPage'
 import { InventoryImportPage } from '@/app/pages/settings/InventoryImportPage'
+import { InventoryManagePage } from '@/app/pages/settings/InventoryManagePage'
 import { CrmImportPage } from '@/app/pages/settings/CrmImportPage'
 
 const ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
@@ -52,6 +53,7 @@ const ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/app/settings/roles': RolesSettingsPage,
   '/app/settings/integrations': IntegrationsSettingsPage,
   '/app/settings/inventory-import': InventoryImportPage,
+  '/app/settings/inventory-manage': InventoryManagePage,
   '/app/settings/crm-import': CrmImportPage,
 }
 

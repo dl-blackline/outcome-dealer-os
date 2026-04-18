@@ -11,6 +11,7 @@ import {
   UploadSimple,
   Robot,
   Brain,
+  Car,
 } from '@phosphor-icons/react'
 import { AppRole, ROLE_NAV_GROUPS, type NavGroup } from '@/domains/roles/roles'
 import { cn } from '@/lib/utils'
@@ -99,6 +100,12 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Settings',
     href: '/app/settings/roles',
     icon: Gear,
+    group: 'settings',
+  },
+  {
+    label: 'Manage Inventory',
+    href: '/app/settings/inventory-manage',
+    icon: Car,
     group: 'settings',
   },
   {

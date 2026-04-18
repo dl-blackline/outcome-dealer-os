@@ -122,8 +122,33 @@ interface SupabaseVehiclePhotoRow {
 
 const INVENTORY_OVERRIDE_KEY = 'outcome.inventory.overrides'
 const INVENTORY_IMPORTED_KEY = 'outcome.inventory.imported-records'
+const INVENTORY_PHOTOS_KEY = 'outcome.inventory.photos'
 const INVENTORY_UPDATE_EVENT = 'outcome.inventory.updated'
 const PLACEHOLDER_IMAGE = '/inventory/national-car-mart/placeholder.jpg'
+
+// ---- Extended update type covering all editable fields ----
+export interface InventoryRecordFullUpdate {
+  stockNumber?: string
+  vin?: string
+  year?: number
+  make?: string
+  model?: string
+  trim?: string
+  mileage?: number
+  bodyStyle?: string
+  price?: number
+  status?: string
+  available?: boolean
+  isPublished?: boolean
+  isFeatured?: boolean
+  description?: string
+  features?: string[]
+  color?: string
+  condition?: string
+  drivetrain?: string
+  engine?: string
+  transmission?: string
+}
 
 function emitInventoryUpdate() {
   if (typeof window === 'undefined') return
@@ -163,6 +188,34 @@ function writeImportedRecords(records: InventoryRecord[]) {
   if (typeof window === 'undefined') return
   window.localStorage.setItem(INVENTORY_IMPORTED_KEY, JSON.stringify(records))
   emitInventoryUpdate()
+}
+
+// ---- Photo override persistence (local fallback) ----
+
+function readPhotoOverrides(): Record<string, InventoryPhotoRecord[]> {
+  if (typeof window === 'undefined') return {}
+  try {
+    const raw = window.localStorage.getItem(INVENTORY_PHOTOS_KEY)
+    return raw ? JSON.parse(raw) : {}
+  } catch {
+    return {}
+  }
+}
+
+function writePhotoOverrides(data: Record<string, InventoryPhotoRecord[]>) {
+  if (typeof window === 'undefined') return
+  window.localStorage.setItem(INVENTORY_PHOTOS_KEY, JSON.stringify(data))
+  emitInventoryUpdate()
+}
+
+function applyPhotoOverrides(records: InventoryRecord[]): InventoryRecord[] {
+  const overrides = readPhotoOverrides()
+  if (Object.keys(overrides).length === 0) return records
+  return records.map((record) => {
+    const photos = overrides[record.id]
+    if (!photos || photos.length === 0) return record
+    return { ...record, photos }
+  })
 }
 
 function inferDrivetrain(highlights: string[]): string | undefined {
@@ -377,7 +430,8 @@ export async function listRuntimeInventoryRecords(): Promise<InventoryRecord[]> 
     if (supabaseRecords && supabaseRecords.length > 0) return supabaseRecords
   }
 
-  return mergeLocalRuntimeRecords(getSeedInventoryRecords())
+  const base = mergeLocalRuntimeRecords(getSeedInventoryRecords())
+  return applyPhotoOverrides(base)
 }
 
 function createLocalRuntimeRecord(input: InventoryRecordCreateInput): InventoryRecord {
@@ -519,6 +573,200 @@ export async function updateRuntimeInventoryRecord(
 
   const records = await listRuntimeInventoryRecords()
   return records.find((record) => record.id === id) || null
+}
+
+// ---- Full-field update (add/edit form: supports year/make/model/vin etc.) ----
+
+export async function updateRuntimeInventoryRecordFull(
+  id: string,
+  updates: InventoryRecordFullUpdate,
+): Promise<InventoryRecord | null> {
+  const client = getSupabaseBrowserClient()
+
+  if (client) {
+    const payload: Record<string, unknown> = {}
+    if (updates.stockNumber !== undefined) payload.stock_number = updates.stockNumber
+    if (updates.vin !== undefined) payload.vin = updates.vin
+    if (updates.year !== undefined) payload.year = updates.year
+    if (updates.make !== undefined) payload.make = updates.make
+    if (updates.model !== undefined) payload.model = updates.model
+    if (updates.trim !== undefined) payload.trim = updates.trim
+    if (updates.mileage !== undefined) payload.mileage = updates.mileage
+    if (updates.bodyStyle !== undefined) payload.body_style = updates.bodyStyle
+    if (updates.price !== undefined) payload.sale_price = updates.price
+    if (updates.status !== undefined) payload.status = updates.status
+    if (updates.available !== undefined) payload.available_publicly = updates.available
+    if (updates.isPublished !== undefined) payload.is_published = updates.isPublished
+    if (updates.isFeatured !== undefined) payload.is_featured = updates.isFeatured
+    if (updates.description !== undefined) payload.public_description = updates.description
+    if (updates.features !== undefined) payload.features = updates.features
+    if (updates.color !== undefined) payload.color = updates.color
+    if (updates.condition !== undefined) payload.vehicle_condition = updates.condition
+    if (updates.drivetrain !== undefined) payload.drivetrain = updates.drivetrain
+    if (updates.engine !== undefined) payload.engine = updates.engine
+    if (updates.transmission !== undefined) payload.transmission = updates.transmission
+
+    const { error } = await client.from('inventory_units').update(payload).eq('id', id)
+    if (!error) {
+      emitInventoryUpdate()
+      const records = await listRuntimeInventoryRecords()
+      return records.find((r) => r.id === id) || null
+    }
+  }
+
+  // Local path — update imported record directly, fall back to field-level overrides for seed records
+  const importedRecords = readImportedRecords()
+  const importedIndex = importedRecords.findIndex((r) => r.id === id)
+
+  if (importedIndex >= 0) {
+    const existing = importedRecords[importedIndex]
+    importedRecords[importedIndex] = {
+      ...existing,
+      stockNumber: updates.stockNumber ?? existing.stockNumber,
+      vin: updates.vin ?? existing.vin,
+      year: updates.year ?? existing.year,
+      make: updates.make ?? existing.make,
+      model: updates.model ?? existing.model,
+      trim: updates.trim ?? existing.trim,
+      mileage: updates.mileage ?? existing.mileage,
+      bodyStyle: updates.bodyStyle ?? existing.bodyStyle,
+      price: updates.price ?? existing.price,
+      status: updates.status ?? existing.status,
+      available: updates.available ?? existing.available,
+      isPublished: updates.isPublished ?? existing.isPublished,
+      isFeatured: updates.isFeatured ?? existing.isFeatured,
+      description: updates.description ?? existing.description,
+      features: updates.features ?? existing.features,
+      color: updates.color ?? existing.color,
+      condition: updates.condition ?? existing.condition,
+      drivetrain: updates.drivetrain ?? existing.drivetrain,
+      engine: updates.engine ?? existing.engine,
+      transmission: updates.transmission ?? existing.transmission,
+    }
+    writeImportedRecords(importedRecords)
+  } else {
+    // Seed record — use override system for the fields it supports
+    const overrides = readOverrides()
+    overrides[id] = { ...overrides[id], ...updates }
+    writeOverrides(overrides)
+  }
+
+  const records = await listRuntimeInventoryRecords()
+  return records.find((r) => r.id === id) || null
+}
+
+// ---- Photo management ----
+
+export async function attachInventoryPhotos(
+  unitId: string,
+  newPhotos: Omit<InventoryPhotoRecord, 'id' | 'inventoryId'>[],
+): Promise<InventoryPhotoRecord[]> {
+  const client = getSupabaseBrowserClient()
+  const created: InventoryPhotoRecord[] = []
+
+  if (client) {
+    for (const photo of newPhotos) {
+      const row = {
+        inventory_unit_id: unitId,
+        photo_url: photo.url,
+        storage_path: photo.storagePath || null,
+        alt_text: photo.alt,
+        sort_order: photo.sortOrder,
+        is_cover: photo.isCover,
+      }
+      const { data, error } = await client.from('vehicle_photos').insert(row).select('id').single()
+      if (!error && data?.id) {
+        created.push({ id: data.id, inventoryId: unitId, ...photo })
+      }
+    }
+    if (created.length > 0) emitInventoryUpdate()
+    return created
+  }
+
+  // Local fallback
+  const overrides = readPhotoOverrides()
+  const existing = overrides[unitId] || []
+  for (const photo of newPhotos) {
+    const id = `photo-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+    created.push({ id, inventoryId: unitId, ...photo })
+  }
+  overrides[unitId] = [...existing, ...created]
+  writePhotoOverrides(overrides)
+  return created
+}
+
+export async function removeInventoryPhoto(unitId: string, photoId: string): Promise<void> {
+  const client = getSupabaseBrowserClient()
+
+  if (client) {
+    await client.from('vehicle_photos').delete().eq('id', photoId)
+    emitInventoryUpdate()
+    return
+  }
+
+  const overrides = readPhotoOverrides()
+  const photos = (overrides[unitId] || []).filter((p) => p.id !== photoId)
+  overrides[unitId] = photos
+  writePhotoOverrides(overrides)
+}
+
+export async function setInventoryCoverPhoto(unitId: string, photoId: string): Promise<void> {
+  const client = getSupabaseBrowserClient()
+
+  if (client) {
+    await client.from('vehicle_photos').update({ is_cover: false }).eq('inventory_unit_id', unitId)
+    await client.from('vehicle_photos').update({ is_cover: true }).eq('id', photoId)
+    emitInventoryUpdate()
+    return
+  }
+
+  const overrides = readPhotoOverrides()
+  overrides[unitId] = (overrides[unitId] || []).map((p) => ({ ...p, isCover: p.id === photoId }))
+  writePhotoOverrides(overrides)
+}
+
+export async function reorderInventoryPhotos(unitId: string, orderedIds: string[]): Promise<void> {
+  const client = getSupabaseBrowserClient()
+
+  if (client) {
+    for (let i = 0; i < orderedIds.length; i++) {
+      await client.from('vehicle_photos').update({ sort_order: i }).eq('id', orderedIds[i])
+    }
+    emitInventoryUpdate()
+    return
+  }
+
+  const overrides = readPhotoOverrides()
+  const existing = overrides[unitId] || []
+  const byId = new Map(existing.map((p) => [p.id, p]))
+  overrides[unitId] = orderedIds
+    .map((id, i) => {
+      const p = byId.get(id)
+      return p ? { ...p, sortOrder: i } : null
+    })
+    .filter(Boolean) as InventoryPhotoRecord[]
+  writePhotoOverrides(overrides)
+}
+
+// ---- Upload a File to Supabase Storage and return public URL ----
+
+export async function uploadInventoryPhotoFile(
+  unitId: string,
+  file: File,
+): Promise<{ url: string; storagePath: string } | null> {
+  const client = getSupabaseBrowserClient()
+  const bucket = getSupabaseStorageBucket()
+
+  if (!client || !bucket) return null
+
+  const ext = file.name.split('.').pop() || 'jpg'
+  const storagePath = `inventory/${unitId}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}.${ext}`
+
+  const { error } = await client.storage.from(bucket).upload(storagePath, file, { upsert: false })
+  if (error) return null
+
+  const { data } = client.storage.from(bucket).getPublicUrl(storagePath)
+  return { url: data.publicUrl, storagePath }
 }
 
 export function useInventoryCatalog() {
