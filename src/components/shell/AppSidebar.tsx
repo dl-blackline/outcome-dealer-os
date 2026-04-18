@@ -12,6 +12,7 @@ import {
   Robot,
   Brain,
   Car,
+  WarningDiamond,
 } from '@phosphor-icons/react'
 import { AppRole, ROLE_NAV_GROUPS, type NavGroup } from '@/domains/roles/roles'
 import { cn } from '@/lib/utils'
@@ -94,6 +95,12 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Intelligence',
     href: '/app/ops/intelligence',
     icon: Brain,
+    group: 'operations',
+  },
+  {
+    label: 'Operating Review',
+    href: '/app/ops/operating-review',
+    icon: WarningDiamond,
     group: 'operations',
   },
   {

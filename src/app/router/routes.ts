@@ -29,6 +29,7 @@ export const APP_ROUTES: RouteDefinition[] = [
   { path: '/app/ops/audit', label: 'Audit', component: 'AuditExplorerPage', group: 'operations' },
   { path: '/app/ops/assistant', label: 'Assistant Ops', component: 'AssistantOpsPage', group: 'operations' },
   { path: '/app/ops/intelligence', label: 'Intelligence', component: 'IntelligencePage', group: 'operations' },
+  { path: '/app/ops/operating-review', label: 'Operating Review', component: 'OperatingReviewPage', group: 'operations' },
   { path: '/app/settings/roles', label: 'Roles', component: 'RolesSettingsPage', group: 'settings' },
   { path: '/app/settings/integrations', label: 'Integrations', component: 'IntegrationsSettingsPage', group: 'settings' },
   { path: '/app/settings/inventory-import', label: 'Inventory Import', component: 'InventoryImportPage', group: 'settings' },
