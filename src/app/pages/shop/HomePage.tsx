@@ -34,71 +34,84 @@ export function HomePage() {
   return (
     <div className="space-y-20 pb-16">
       <section className="vault-panel vault-edge vault-animate-fade overflow-hidden rounded-[2.2rem]">
-        <div className="grid min-h-[40rem] gap-0 lg:grid-cols-[1.05fr_0.95fr]">
-          <div className="relative p-7 sm:p-10 lg:p-14">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_30%,rgba(182,212,255,0.19),transparent_40%),radial-gradient(circle_at_80%_90%,rgba(168,189,255,0.14),transparent_35%)]" />
-            <div className="relative z-10 flex h-full flex-col justify-between gap-10">
+        <div className="grid min-h-[42rem] gap-0 lg:grid-cols-[0.85fr_1.15fr]">
+          {/* LEFT: Minimal text */}
+          <div className="relative flex flex-col justify-center p-7 sm:p-10 lg:p-12">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_30%,rgba(182,212,255,0.12),transparent_45%),radial-gradient(circle_at_80%_90%,rgba(168,189,255,0.08),transparent_40%)]" />
+            <div className="relative z-10 max-w-sm space-y-6">
               <div>
-                <Badge className="vault-chip rounded-full px-4 py-1.5 text-[0.65rem] uppercase tracking-[0.2em]">
-                  Vehicle Vault | Curated Inventory
+                <Badge className="vault-chip rounded-full px-4 py-1.5 text-[0.6rem] uppercase tracking-[0.18em]">
+                  Vehicle Vault
                 </Badge>
-                <h1 className="vault-title mt-8 max-w-4xl text-[2.2rem] leading-[1.15] sm:text-5xl lg:text-6xl">
-                  The Secure Gallery For High-Value Automotive Assets
+                <h1 className="vault-title mt-6 text-4xl leading-[1.1] sm:text-5xl lg:text-6xl">
+                  Premium Inventory. Precision Buying.
                 </h1>
-                <p className="vault-subtitle mt-7 max-w-2xl text-base leading-8 sm:text-lg">
-                  Vehicle Vault presents verified inventory in an immersive, vault-inspired buying
-                  surface where every unit is showcased with precision, confidence, and cinematic
-                  clarity.
-                </p>
-                <div className="mt-9 flex flex-wrap gap-3">
-                  <Button size="lg" onClick={() => navigate('/shop')} className="vault-btn rounded-full px-7 py-6 text-xs uppercase tracking-[0.16em]">
-                    Open The Vault
-                    <ArrowRight size={16} />
-                  </Button>
-                  <Button size="lg" onClick={() => navigate('/finance')} className="vault-btn-muted rounded-full px-7 py-6 text-xs uppercase tracking-[0.16em]">
-                    Build Payment Plan
-                  </Button>
-                </div>
               </div>
-
-              <div className="grid gap-4 sm:grid-cols-3">
-                <Card className="vault-panel-soft rounded-2xl">
-                  <CardContent className="p-5">
-                    <p className="text-xs uppercase tracking-[0.16em] text-slate-400">Live Units</p>
-                    <p className="mt-2 text-3xl font-bold text-white">{publicRecords.length}</p>
-                  </CardContent>
-                </Card>
-                <Card className="vault-panel-soft rounded-2xl sm:col-span-2">
-                  <CardContent className="p-5">
-                    <p className="text-xs uppercase tracking-[0.16em] text-slate-400">Master Source</p>
-                    <p className="mt-2 text-sm font-semibold text-slate-200">{masterSource.label}</p>
-                    <p className="mt-1 text-xs text-slate-400">CSV-driven inventory with gallery assets preserved and mapped.</p>
-                  </CardContent>
-                </Card>
+              <p className="text-sm leading-7 text-slate-300 max-w-sm">
+                Explore verified vehicles in a vault-inspired gallery built for serious buyers.
+              </p>
+              <div className="flex flex-col gap-2 pt-2 sm:flex-row sm:gap-3">
+                <Button size="lg" onClick={() => navigate('/shop')} className="vault-btn rounded-full px-6 py-2.5 text-xs uppercase tracking-[0.14em]">
+                  Browse Inventory
+                  <ArrowRight size={16} />
+                </Button>
+                <Button size="lg" onClick={() => navigate('/finance')} className="vault-btn-muted rounded-full px-6 py-2.5 text-xs uppercase tracking-[0.14em]">
+                  Finance
+                </Button>
               </div>
             </div>
           </div>
 
-          <div className="relative min-h-[20rem]">
+          {/* RIGHT: Full image with minimal overlay */}
+          <div className="relative min-h-[25rem] sm:min-h-[35rem]">
             <img
               src={heroUnit?.photos[0]?.url || '/inventory/national-car-mart/placeholder.jpg'}
-              alt={heroUnit ? `${heroUnit.year} ${heroUnit.make} ${heroUnit.model}` : 'Vehicle Vault hero'}
+              alt={heroUnit ? `${heroUnit.year} ${heroUnit.make} ${heroUnit.model}` : 'Featured vehicle'}
               className="h-full w-full object-cover"
             />
-            <div className="absolute inset-0 bg-[linear-gradient(270deg,rgba(6,9,15,0.22),rgba(6,9,15,0.78)),linear-gradient(180deg,transparent_40%,rgba(2,5,10,0.85))]" />
+            <div className="absolute inset-0 bg-[linear-gradient(270deg,rgba(6,9,15,0),rgba(6,9,15,0.4)),linear-gradient(180deg,transparent_50%,rgba(2,5,10,0.7))]" />
             {heroUnit && (
-              <div className="absolute bottom-7 left-7 right-7 rounded-2xl border border-white/20 bg-black/35 p-5 backdrop-blur-md">
-                <p className="vault-title text-[0.62rem] text-slate-300">Featured Asset</p>
-                <h2 className="mt-2 text-2xl font-bold text-white">
+              <div className="absolute inset-x-0 bottom-0 flex flex-col justify-end space-y-3 p-6 sm:p-8">
+                <p className="vault-title text-[0.58rem] text-slate-200">Featured</p>
+                <h2 className="text-2xl font-bold text-white sm:text-3xl">
                   {heroUnit.year} {heroUnit.make} {heroUnit.model}
                 </h2>
-                <p className="mt-1 text-sm text-slate-300">{heroUnit.trim} · {heroUnit.bodyStyle}</p>
-                <p className="mt-3 text-xl font-semibold text-white">{formatPrice(heroUnit.price)}</p>
+                <div className="flex items-end justify-between">
+                  <div>
+                    <p className="text-xs text-slate-400">{heroUnit.trim}</p>
+                    <p className="mt-1 text-xl font-semibold text-white">{formatPrice(heroUnit.price)}</p>
+                  </div>
+                  <Button size="sm" onClick={() => navigate(`/shop/${heroUnit.id}`)} className="vault-btn-muted vault-tap rounded-full px-4 py-1.5 text-[0.6rem] uppercase tracking-[0.12em]">
+                    View Details
+                  </Button>
+                </div>
               </div>
             )}
           </div>
         </div>
       </section>
+
+      {/* Stats row - compact, underneath hero */}
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-3 px-2 sm:px-0">
+        <Card className="vault-panel-soft rounded-2xl">
+          <CardContent className="p-4">
+            <p className="text-xs uppercase tracking-[0.14em] text-slate-400">Available</p>
+            <p className="mt-1.5 text-2xl font-bold text-white">{publicRecords.length}</p>
+          </CardContent>
+        </Card>
+        <Card className="vault-panel-soft rounded-2xl">
+          <CardContent className="p-4">
+            <p className="text-xs uppercase tracking-[0.14em] text-slate-400">Live Inventory</p>
+            <p className="mt-1.5 text-sm font-medium text-slate-300">{masterSource.label}</p>
+          </CardContent>
+        </Card>
+        <Card className="vault-panel-soft rounded-2xl col-span-2 md:col-span-1">
+          <CardContent className="p-4">
+            <p className="text-xs uppercase tracking-[0.14em] text-slate-400">Browse Type</p>
+            <p className="mt-1.5 text-sm font-medium text-slate-300">CSV-Sourced</p>
+          </CardContent>
+        </Card>
+      </div>
 
       <section className="grid gap-5 md:grid-cols-3" ref={featureCardsRef}>
         <Card className="vault-panel-soft vault-edge vault-scroll-stagger rounded-2xl">
