@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useRouter } from '@/app/router'
+import { DEALER } from '@/lib/dealer.constants'
 import { submitAppointmentRequest } from '@/domains/buyer-hub/buyerHub.eventBridge'
 import { useCustomerProgress } from '@/domains/buyer-hub/useCustomerProgress'
 import { useInventoryCatalog } from '@/domains/inventory/inventory.runtime'
@@ -17,6 +18,9 @@ import {
   Car,
   Clock,
   Info,
+  Phone,
+  Envelope,
+  MapPin,
 } from '@phosphor-icons/react'
 
 type AppointmentType = 'test_drive' | 'consultation' | 'delivery'
@@ -254,12 +258,28 @@ export function SchedulePage() {
           </CardContent>
         </Card>
 
-        <div className="flex items-start gap-2 rounded-xl border border-white/15 bg-black/30 p-3 text-xs text-slate-400">
-          <Info size={14} className="mt-0.5 shrink-0" />
-          <span>
-            Appointment requests are not confirmed until you receive a confirmation from our team.
-            We'll reach out within one business day.
-          </span>
+        <div className="rounded-xl border border-white/15 bg-black/30 p-4 text-xs text-slate-400 space-y-3">
+          <div className="flex items-start gap-2">
+            <Info size={14} className="mt-0.5 shrink-0" />
+            <span>
+              Appointment requests are not confirmed until you receive a confirmation from our team.
+              We'll reach out within one business day.
+            </span>
+          </div>
+          <div className="border-t border-white/10 pt-3 space-y-1.5">
+            <p className="text-[0.65rem] uppercase tracking-[0.14em] text-slate-500">{DEALER.name} — {DEALER.addressFull}</p>
+            <div className="flex flex-wrap gap-x-5 gap-y-1.5">
+              <a href={DEALER.phoneTel} className="flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors">
+                <Phone size={12} />{DEALER.phone}
+              </a>
+              <a href={DEALER.emailHref} className="flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors">
+                <Envelope size={12} />{DEALER.email}
+              </a>
+              <a href={DEALER.mapUrl} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-slate-300 hover:text-white transition-colors">
+                <MapPin size={12} />Get Directions ↗
+              </a>
+            </div>
+          </div>
         </div>
 
         <Separator className="bg-white/15" />

@@ -1,5 +1,6 @@
 import { useRouter, matchRoute } from '@/app/router'
-import { Heart, ArrowRight, ShieldCheck, List } from '@phosphor-icons/react'
+import { Heart, ArrowRight, ShieldCheck, List, Phone, Envelope, MapPin } from '@phosphor-icons/react'
+import { DEALER } from '@/lib/dealer.constants'
 
 // Buyer hub pages
 import { HomePage } from '@/app/pages/shop/HomePage'
@@ -68,8 +69,8 @@ export function BuyerHubShell() {
               <ShieldCheck size={20} weight="duotone" />
             </div>
             <div>
-              <p className="vault-title text-[0.72rem] leading-tight text-slate-300">Vehicle Vault</p>
-              <p className="text-xs tracking-[0.26em] text-slate-400">Secure Automotive Gallery</p>
+              <p className="vault-title text-[0.72rem] leading-tight text-slate-300">National Car Mart</p>
+              <p className="text-xs tracking-[0.18em] text-slate-400">Vehicle Vault</p>
             </div>
           </button>
 
@@ -138,17 +139,95 @@ export function BuyerHubShell() {
 
       {/* Footer */}
       <footer className="border-t border-white/10 bg-black/35">
-        <div className="mx-auto max-w-[88rem] px-4 py-8 sm:px-6 lg:px-8">
-          <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+        <div className="mx-auto max-w-[88rem] px-4 py-10 sm:px-6 lg:px-8">
+          <div className="grid gap-8 sm:grid-cols-3">
+            {/* Brand */}
             <div>
-              <p className="vault-title text-[0.72rem]">Vehicle Vault</p>
-              <p className="mt-1 text-xs text-slate-400">
-                123 Main Street, Anytown, USA · (555) 000-0000 · Premium inventory, protected experience
-              </p>
+              <div className="flex items-center gap-2 mb-3">
+                <ShieldCheck size={18} weight="duotone" className="text-blue-200" />
+                <p className="vault-title text-[0.72rem] text-slate-200">{DEALER.name}</p>
+              </div>
+              <p className="text-xs leading-relaxed text-slate-400">{DEALER.agentLabel}</p>
+              <a
+                href={DEALER.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-2 inline-flex items-center gap-1 text-xs text-blue-300 hover:text-blue-100 transition-colors"
+              >
+                {DEALER.websiteLabel} ↗
+              </a>
             </div>
+
+            {/* Contact */}
+            <div>
+              <p className="mb-3 text-[0.65rem] uppercase tracking-[0.16em] text-slate-400">Contact</p>
+              <ul className="space-y-2">
+                <li>
+                  <a href={DEALER.phoneTel} className="flex items-center gap-2 text-xs text-slate-300 hover:text-white transition-colors">
+                    <Phone size={13} className="shrink-0 text-slate-400" />
+                    {DEALER.phone}
+                  </a>
+                </li>
+                <li>
+                  <a href={DEALER.emailHref} className="flex items-center gap-2 text-xs text-slate-300 hover:text-white transition-colors">
+                    <Envelope size={13} className="shrink-0 text-slate-400" />
+                    {DEALER.email}
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href={DEALER.mapUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-2 text-xs text-slate-300 hover:text-white transition-colors"
+                  >
+                    <MapPin size={13} className="shrink-0 text-slate-400" />
+                    {DEALER.addressFull}
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            {/* Quick links */}
+            <div>
+              <p className="mb-3 text-[0.65rem] uppercase tracking-[0.16em] text-slate-400">Explore</p>
+              <ul className="space-y-2">
+                {NAV_LINKS.map((link) => (
+                  <li key={link.path}>
+                    <button
+                      onClick={() => navigate(link.path)}
+                      className="text-xs text-slate-300 hover:text-white transition-colors"
+                    >
+                      {link.label}
+                    </button>
+                  </li>
+                ))}
+                <li>
+                  <a
+                    href={DEALER.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-blue-300 hover:text-blue-100 transition-colors"
+                  >
+                    Main Website ↗
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-8 border-t border-white/10 pt-6 flex flex-col items-center justify-between gap-2 sm:flex-row">
             <p className="text-xs text-slate-500">
-              © {new Date().getFullYear()} Vehicle Vault. All rights reserved.
+              © {new Date().getFullYear()} {DEALER.name}. {DEALER.agentLabel}.
             </p>
+            <a
+              href={DEALER.website}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-slate-500 hover:text-slate-300 transition-colors"
+            >
+              {DEALER.websiteLabel}
+            </a>
           </div>
         </div>
       </footer>
