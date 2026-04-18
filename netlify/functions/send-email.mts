@@ -4,7 +4,8 @@
  * Accepts a POST with a JSON body describing the email to send,
  * then calls the SendGrid Web API to deliver it.
  *
- * The SENDGRID_API_KEY is a server-side env var — it is NEVER
+ * The SENDGRID_API_KEY (or VEHICLEVAULT_SENDGRID_APII_KEY alias) is a
+ * server-side env var — it is NEVER
  * exposed to the browser bundle.
  *
  * Allowed origins are restricted to the VITE_PUBLIC_URL var (or
@@ -96,10 +97,13 @@ export default async function handler(req: Request, _ctx: Context): Promise<Resp
     })
   }
 
-  const apiKey = process.env['SENDGRID_API_KEY']
+  const apiKey =
+    process.env['SENDGRID_API_KEY'] ||
+    process.env['VEHICLEVAULT_SENDGRID_API_KEY'] ||
+    process.env['VEHICLEVAULT_SENDGRID_APII_KEY']
   if (!apiKey) {
     // Gracefully degrade — log server-side, return 200 so forms still complete
-    console.warn('[send-email] SENDGRID_API_KEY not set; email skipped')
+    console.warn('[send-email] SENDGRID_API_KEY (or VEHICLEVAULT_SENDGRID_API_KEY / VEHICLEVAULT_SENDGRID_APII_KEY) not set; email skipped')
     return new Response(JSON.stringify({ ok: true, skipped: true }), {
       status: 200,
       headers: { 'Content-Type': 'application/json', ...corsHeaders },
