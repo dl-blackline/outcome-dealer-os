@@ -3,6 +3,17 @@ import { useRouter } from '@/app/router'
 import { computePaymentEstimate } from '@/domains/buyer-hub/buyerHub.types'
 import { useShoppingState } from '@/domains/buyer-hub/useShoppingState'
 import { useInventoryRecord } from '@/domains/inventory/inventory.runtime'
+import { setSelectedUnit } from '@/domains/buyer-hub/helpers/selectedVehicleContext'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Separator } from '@/components/ui/separator'
+import { useMemo, useState } from 'react'
+import { useRouter } from '@/app/router'
+import { computePaymentEstimate } from '@/domains/buyer-hub/buyerHub.types'
+import { useShoppingState } from '@/domains/buyer-hub/useShoppingState'
+import { useInventoryRecord } from '@/domains/inventory/inventory.runtime'
+import { setSelectedUnit } from '@/domains/buyer-hub/helpers/selectedVehicleContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -21,7 +32,7 @@ import {
   Sparkle,
 } from '@phosphor-icons/react'
 
-const IMAGE_FALLBACK = 'https://picsum.photos/seed/placeholder/1280/720'
+const IMAGE_FALLBACK = '/inventory/national-car-mart/placeholder.jpg'
 
 function formatPrice(value: number): string {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value)
@@ -36,6 +47,13 @@ export function VehicleDetailPage() {
   const { isSaved, toggleSaved } = useShoppingState()
   const { record: vehicle, loading } = useInventoryRecord(params.unitId)
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0)
+
+  // Set selected unit immediately when detail page loads
+  React.useEffect(() => {
+    if (params.unitId) {
+      setSelectedUnit(params.unitId, 'shop')
+    }
+  }, [params.unitId])
 
   const isFavorited = vehicle ? isSaved(vehicle.id) : false
 

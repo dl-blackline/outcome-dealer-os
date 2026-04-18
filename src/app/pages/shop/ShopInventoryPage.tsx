@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useRouter } from '@/app/router'
 import { useShoppingState } from '@/domains/buyer-hub/useShoppingState'
 import { type InventoryRecord, useInventoryCatalog } from '@/domains/inventory/inventory.runtime'
+import { setSelectedUnit } from '@/domains/buyer-hub/helpers/selectedVehicleContext'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -16,7 +17,7 @@ import {
   Sparkle,
 } from '@phosphor-icons/react'
 
-const IMAGE_FALLBACK = 'https://picsum.photos/seed/placeholder/800/450'
+const IMAGE_FALLBACK = '/inventory/national-car-mart/placeholder.jpg'
 
 type BodyFilter = 'All' | string
 type PriceRange = 'All' | 'Under $30k' | '$30k–$50k' | 'Over $50k'
@@ -343,7 +344,10 @@ export function ShopInventoryPage() {
             <InventoryCard
               key={unit.id}
               unit={unit}
-              onView={() => navigate(`/shop/${unit.id}`)}
+              onView={() => {
+                setSelectedUnit(unit.id, 'shop')
+                navigate(`/shop/${unit.id}`)
+              }}
               isSaved={isSaved(unit.id)}
               onToggleSaved={() => toggleSaved(unit.id)}
             />
