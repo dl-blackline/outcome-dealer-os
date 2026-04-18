@@ -90,23 +90,23 @@ export function TradeInPage() {
 
   if (done) {
     return (
-      <div className="mx-auto max-w-lg px-4 py-16 text-center">
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100">
-          <CheckCircle size={48} weight="fill" className="text-emerald-600" />
+      <div className="mx-auto max-w-lg px-4 py-16 text-center text-slate-200">
+        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-emerald-300/30 bg-emerald-500/15">
+          <CheckCircle size={48} weight="fill" className="text-emerald-500" />
         </div>
-        <h1 className="text-2xl font-bold">Trade-In Submitted!</h1>
-        <p className="mt-3 text-muted-foreground">
+        <h1 className="text-2xl font-bold text-white">Trade-In Submitted!</h1>
+        <p className="mt-3 text-slate-300">
           We received information on your{' '}
           <strong>{form.year} {form.make} {form.model}</strong>. Our appraisal team will
           review the details and contact you at <strong>{form.ownerEmail}</strong> with a
           preliminary value estimate.
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Button onClick={() => navigate('/my-next-steps')} className="gap-1.5">
+          <Button onClick={() => navigate('/my-next-steps')} className="vault-btn vault-tap gap-1.5 rounded-full px-6 text-xs uppercase tracking-[0.14em]">
             View My Next Steps
             <ArrowRight size={16} />
           </Button>
-          <Button variant="outline" onClick={() => navigate('/shop')}>
+          <Button variant="outline" onClick={() => navigate('/shop')} className="vault-btn-muted vault-tap rounded-full px-6 text-xs uppercase tracking-[0.14em]">
             Continue Shopping
           </Button>
         </div>
@@ -115,32 +115,30 @@ export function TradeInPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-      {/* Header */}
-      <div className="mb-8">
+    <div className="mx-auto max-w-2xl px-2 py-4 sm:px-3">
+      <div className="vault-panel-soft mb-8 rounded-4xl border border-white/15 p-6 sm:p-7">
         <Button
           variant="ghost"
           size="sm"
-          className="-ml-2 mb-4 text-muted-foreground hover:text-foreground"
+          className="vault-btn-muted mb-4 rounded-full border border-white/15 px-4 text-xs uppercase tracking-[0.14em] text-slate-300"
           onClick={() => navigate('/shop')}
         >
           <ArrowLeft size={18} className="mr-1.5" />
           Back to Inventory
         </Button>
-        <div className="flex items-center gap-3 mb-2">
+        <div className="mb-2 flex items-center gap-3">
           <Scales size={28} className="text-primary" />
-          <h1 className="text-2xl font-bold">Value Your Trade-In</h1>
+          <h1 className="text-2xl font-bold text-white">Value Your Trade-In</h1>
         </div>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-sm text-slate-300">
           Tell us about your current vehicle and we'll provide a preliminary appraisal estimate.
         </p>
       </div>
 
       <div className="space-y-6">
-        {/* Vehicle Information */}
-        <Card>
+        <Card className="vault-panel vault-edge rounded-3xl border-white/15 bg-black/30">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-base">
+            <CardTitle className="flex items-center gap-2 text-base text-white">
               <Car size={18} />
               Your Vehicle
             </CardTitle>
@@ -149,78 +147,41 @@ export function TradeInPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="year">Year *</Label>
-                <Input
-                  id="year"
-                  type="number"
-                  placeholder="2019"
-                  min="1980"
-                  max={new Date().getFullYear() + 1}
-                  value={form.year}
-                  onChange={(e) => set('year', e.target.value)}
-                />
+                <Input id="year" type="number" placeholder="2019" min="1980" max={new Date().getFullYear() + 1} value={form.year} onChange={(e) => set('year', e.target.value)} />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="mileage">Mileage *</Label>
-                <Input
-                  id="mileage"
-                  type="number"
-                  placeholder="45000"
-                  min="0"
-                  value={form.mileage}
-                  onChange={(e) => set('mileage', e.target.value)}
-                />
+                <Input id="mileage" type="number" placeholder="45000" min="0" value={form.mileage} onChange={(e) => set('mileage', e.target.value)} />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="make">Make *</Label>
-                <Input
-                  id="make"
-                  placeholder="Toyota"
-                  value={form.make}
-                  onChange={(e) => set('make', e.target.value)}
-                />
+                <Input id="make" placeholder="Toyota" value={form.make} onChange={(e) => set('make', e.target.value)} />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="model">Model *</Label>
-                <Input
-                  id="model"
-                  placeholder="Camry"
-                  value={form.model}
-                  onChange={(e) => set('model', e.target.value)}
-                />
+                <Input id="model" placeholder="Camry" value={form.model} onChange={(e) => set('model', e.target.value)} />
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="trim">Trim (optional)</Label>
-                <Input
-                  id="trim"
-                  placeholder="SE"
-                  value={form.trim}
-                  onChange={(e) => set('trim', e.target.value)}
-                />
+                <Input id="trim" placeholder="SE" value={form.trim} onChange={(e) => set('trim', e.target.value)} />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="vin">VIN (optional)</Label>
-                <Input
-                  id="vin"
-                  placeholder="1HGBH41JXMN109186"
-                  maxLength={17}
-                  value={form.vin}
-                  onChange={(e) => set('vin', e.target.value.toUpperCase())}
-                />
+                <Input id="vin" placeholder="1HGBH41JXMN109186" maxLength={17} value={form.vin} onChange={(e) => set('vin', e.target.value.toUpperCase())} />
               </div>
             </div>
           </CardContent>
         </Card>
 
-        {/* Condition */}
-        <Card>
+        <Card className="vault-panel-soft rounded-3xl border-white/15 bg-white/3">
           <CardHeader>
-            <CardTitle className="text-base">Vehicle Condition *</CardTitle>
+            <CardTitle className="text-base text-white">Vehicle Condition *</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {CONDITIONS.map((c) => (
@@ -228,63 +189,45 @@ export function TradeInPage() {
                 key={c.value}
                 type="button"
                 onClick={() => set('condition', c.value)}
-                className={`w-full rounded-lg border p-3 text-left transition-colors ${
+                className={`vault-tap w-full rounded-xl border p-3 text-left transition-colors ${
                   form.condition === c.value
-                    ? 'border-primary bg-primary/5'
-                    : 'border-input hover:bg-accent'
+                    ? 'border-blue-200/45 bg-blue-300/18'
+                    : 'border-white/15 bg-black/25 hover:bg-white/8'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-sm">{c.label}</span>
+                  <span className="text-sm font-semibold text-white">{c.label}</span>
                   {form.condition === c.value && (
                     <CheckCircle size={18} weight="fill" className="text-primary" />
                   )}
                 </div>
-                <p className="text-xs text-muted-foreground mt-0.5">{c.description}</p>
+                <p className="mt-0.5 text-xs text-slate-400">{c.description}</p>
               </button>
             ))}
           </CardContent>
         </Card>
 
-        {/* Contact */}
-        <Card>
+        <Card className="vault-panel-soft rounded-3xl border-white/15 bg-white/3">
           <CardHeader>
-            <CardTitle className="text-base">Your Contact Info</CardTitle>
+            <CardTitle className="text-base text-white">Your Contact Info</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-1.5">
               <Label htmlFor="ownerName">Full Name *</Label>
-              <Input
-                id="ownerName"
-                placeholder="Jane Smith"
-                value={form.ownerName}
-                onChange={(e) => set('ownerName', e.target.value)}
-              />
+              <Input id="ownerName" placeholder="Jane Smith" value={form.ownerName} onChange={(e) => set('ownerName', e.target.value)} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="ownerEmail">Email Address *</Label>
-              <Input
-                id="ownerEmail"
-                type="email"
-                placeholder="jane@example.com"
-                value={form.ownerEmail}
-                onChange={(e) => set('ownerEmail', e.target.value)}
-              />
+              <Input id="ownerEmail" type="email" placeholder="jane@example.com" value={form.ownerEmail} onChange={(e) => set('ownerEmail', e.target.value)} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="ownerPhone">Phone (optional)</Label>
-              <Input
-                id="ownerPhone"
-                type="tel"
-                placeholder="(555) 000-0000"
-                value={form.ownerPhone}
-                onChange={(e) => set('ownerPhone', e.target.value)}
-              />
+              <Input id="ownerPhone" type="tel" placeholder="(555) 000-0000" value={form.ownerPhone} onChange={(e) => set('ownerPhone', e.target.value)} />
             </div>
           </CardContent>
         </Card>
 
-        <div className="flex items-start gap-2 rounded-md bg-muted/50 p-3 text-xs text-muted-foreground">
+        <div className="flex items-start gap-2 rounded-xl border border-white/15 bg-black/30 p-3 text-xs text-slate-400">
           <Info size={14} className="mt-0.5 shrink-0" />
           <span>
             This is a preliminary value request. A final appraisal requires a physical inspection
@@ -292,15 +235,10 @@ export function TradeInPage() {
           </span>
         </div>
 
-        <Separator />
+        <Separator className="bg-white/15" />
 
         <div className="flex justify-end">
-          <Button
-            disabled={!canSubmit || submitting}
-            onClick={handleSubmit}
-            className="gap-1.5"
-            size="lg"
-          >
+          <Button disabled={!canSubmit || submitting} onClick={handleSubmit} className="vault-btn vault-tap gap-1.5 rounded-full px-6 text-xs uppercase tracking-[0.14em]" size="lg">
             {submitting ? 'Submitting…' : 'Submit Trade-In'}
             {!submitting && <ArrowRight size={16} />}
           </Button>

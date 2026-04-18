@@ -1,4 +1,5 @@
 import { UUID } from '@/types/common'
+import { getSupabaseBrowserClient } from '@/lib/supabase/client'
 
 export interface DbRow {
   id: UUID
@@ -157,60 +158,143 @@ export interface AssistantFixProposalRow extends DbRow {
   status: 'draft' | 'pending_approval' | 'approved' | 'denied'
 }
 
+const LOCAL_DB_PREFIX = 'outcome.db:'
+
 class SupabaseClient {
-  private store = window.spark.kv
+  private getSparkStore() {
+    if (typeof window === 'undefined') return null
+
+    const sparkWindow = window as typeof window & {
+      spark?: {
+        kv?: {
+          get: <T>(key: string) => Promise<T | null>
+          set: <T>(key: string, value: T) => Promise<void>
+        }
+      }
+    }
+
+    return sparkWindow.spark?.kv || null
+  }
+
+  private getTableKey(table: string) {
+    return `${LOCAL_DB_PREFIX}${table}`
+  }
+
+  private readLocalTable<T extends DbRow>(table: string): T[] {
+    if (typeof window === 'undefined') return []
+
+    try {
+      const raw = window.localStorage.getItem(this.getTableKey(table))
+      return raw ? (JSON.parse(raw) as T[]) : []
+    } catch {
+      return []
+    }
+  }
+
+  private writeLocalTable<T extends DbRow>(table: string, rows: T[]) {
+    if (typeof window === 'undefined') return
+    window.localStorage.setItem(this.getTableKey(table), JSON.stringify(rows))
+  }
+
+  private async loadRows<T extends DbRow>(table: string): Promise<T[]> {
+    const client = getSupabaseBrowserClient()
+
+    if (client) {
+      const { data, error } = await client.from(table).select('*')
+      if (!error && data) return data as T[]
+    }
+
+    const sparkStore = this.getSparkStore()
+    if (sparkStore) {
+      const rows = await sparkStore.get<T[]>(`db:${table}`)
+      return rows || []
+    }
+
+    return this.readLocalTable<T>(table)
+  }
 
   async insert<T extends DbRow>(table: string, row: Omit<T, 'id' | 'created_at' | 'updated_at'>): Promise<T> {
     const now = new Date().toISOString()
-    const id = crypto.randomUUID()
-    
     const fullRow = {
-      id,
+      id: crypto.randomUUID(),
       created_at: now,
       updated_at: now,
       ...row,
     } as T
 
-    const tableKey = `db:${table}`
-    const existingRows = await this.store.get<T[]>(tableKey) || []
-    existingRows.push(fullRow)
-    await this.store.set(tableKey, existingRows)
+    const client = getSupabaseBrowserClient()
+    if (client) {
+      const { data, error } = await client.from(table).insert(fullRow).select().single()
+      if (!error && data) return data as T
+    }
 
+    const sparkStore = this.getSparkStore()
+    if (sparkStore) {
+      const tableKey = `db:${table}`
+      const existingRows = (await sparkStore.get<T[]>(tableKey)) || []
+      existingRows.push(fullRow)
+      await sparkStore.set(tableKey, existingRows)
+      return fullRow
+    }
+
+    const existingRows = this.readLocalTable<T>(table)
+    existingRows.push(fullRow)
+    this.writeLocalTable(table, existingRows)
     return fullRow
   }
 
   async update<T extends DbRow>(
     table: string,
     id: UUID,
-    updates: Partial<Omit<T, 'id' | 'created_at'>>
+    updates: Partial<Omit<T, 'id' | 'created_at'>>,
   ): Promise<T | null> {
-    const tableKey = `db:${table}`
-    const existingRows = await this.store.get<T[]>(tableKey) || []
-    const index = existingRows.findIndex((r: DbRow) => r.id === id)
-    
+    const client = getSupabaseBrowserClient()
+    if (client) {
+      const payload = { ...updates, updated_at: new Date().toISOString() }
+      const { data, error } = await client.from(table).update(payload).eq('id', id).select().single()
+      if (!error && data) return data as T
+    }
+
+    const sparkStore = this.getSparkStore()
+    if (sparkStore) {
+      const tableKey = `db:${table}`
+      const existingRows = (await sparkStore.get<T[]>(tableKey)) || []
+      const index = existingRows.findIndex((row) => row.id === id)
+      if (index === -1) return null
+
+      const updatedRow = {
+        ...existingRows[index],
+        ...updates,
+        updated_at: new Date().toISOString(),
+      }
+
+      existingRows[index] = updatedRow
+      await sparkStore.set(tableKey, existingRows)
+      return updatedRow as T
+    }
+
+    const existingRows = this.readLocalTable<T>(table)
+    const index = existingRows.findIndex((row) => row.id === id)
     if (index === -1) return null
 
     const updatedRow = {
       ...existingRows[index],
       ...updates,
       updated_at: new Date().toISOString(),
-    }
+    } as T
 
     existingRows[index] = updatedRow
-    await this.store.set(tableKey, existingRows)
-
+    this.writeLocalTable(table, existingRows)
     return updatedRow
   }
 
   async findOne<T extends DbRow>(table: string, predicate: (row: T) => boolean): Promise<T | null> {
-    const tableKey = `db:${table}`
-    const rows = await this.store.get<T[]>(tableKey) || []
+    const rows = await this.loadRows<T>(table)
     return rows.find(predicate) || null
   }
 
   async findMany<T extends DbRow>(table: string, predicate?: (row: T) => boolean): Promise<T[]> {
-    const tableKey = `db:${table}`
-    const rows = await this.store.get<T[]>(tableKey) || []
+    const rows = await this.loadRows<T>(table)
     return predicate ? rows.filter(predicate) : rows
   }
 
@@ -219,19 +303,31 @@ class SupabaseClient {
   }
 
   async deleteById(table: string, id: UUID): Promise<boolean> {
-    const tableKey = `db:${table}`
-    const rows = await this.store.get<DbRow[]>(tableKey) || []
-    const filtered = rows.filter((r: DbRow) => r.id !== id)
-    
-    if (filtered.length === rows.length) return false
+    const client = getSupabaseBrowserClient()
+    if (client) {
+      const { error } = await client.from(table).delete().eq('id', id)
+      if (!error) return true
+    }
 
-    await this.store.set(tableKey, filtered)
+    const sparkStore = this.getSparkStore()
+    if (sparkStore) {
+      const tableKey = `db:${table}`
+      const rows = (await sparkStore.get<DbRow[]>(tableKey)) || []
+      const filtered = rows.filter((row) => row.id !== id)
+      if (filtered.length === rows.length) return false
+      await sparkStore.set(tableKey, filtered)
+      return true
+    }
+
+    const rows = this.readLocalTable<DbRow>(table)
+    const filtered = rows.filter((row) => row.id !== id)
+    if (filtered.length === rows.length) return false
+    this.writeLocalTable(table, filtered)
     return true
   }
 
   async count(table: string, predicate?: (row: DbRow) => boolean): Promise<number> {
-    const tableKey = `db:${table}`
-    const rows = await this.store.get<DbRow[]>(tableKey) || []
+    const rows = await this.loadRows<DbRow>(table)
     return predicate ? rows.filter(predicate).length : rows.length
   }
 }

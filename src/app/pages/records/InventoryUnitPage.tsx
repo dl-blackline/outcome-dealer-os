@@ -4,8 +4,12 @@ import { StatusPill } from '@/components/core/StatusPill'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useRouter } from '@/app/router'
-import { useInventoryUnit } from '@/domains/inventory/inventory.hooks'
-import { BUYER_HUB_INVENTORY } from '@/domains/buyer-hub/buyerHub.mock'
+import { useInventoryRecord } from '@/domains/inventory/inventory.runtime'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
+import { Textarea } from '@/components/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
   ArrowLeft,
   Barcode,
@@ -38,23 +42,20 @@ function getReconSteps(status: string) {
 
 export function InventoryUnitPage() {
   const { params, navigate } = useRouter()
-  const unitQuery = useInventoryUnit(params.id ?? '')
+  const unitQuery = useInventoryRecord(params.id ?? '')
 
   if (unitQuery.loading) {
     return <div className="flex items-center justify-center py-24"><SpinnerGap className="h-8 w-8 animate-spin text-muted-foreground" /></div>
   }
 
-  const unit = unitQuery.data
+  const unit = unitQuery.record
   if (!unit) return <div className="py-24 text-center text-muted-foreground">Unit not found.</div>
 
   const agingVariant = unit.status === 'aging' ? 'danger' as const : unit.daysInStock > 45 ? 'warning' as const : 'success' as const
   const statusVariant = unit.status === 'frontline' ? 'success' as const : unit.status === 'recon' ? 'warning' as const : unit.status === 'aging' ? 'danger' as const : 'neutral' as const
   const reconSteps = getReconSteps(unit.status)
 
-  // Try to find a buyer-hub entry for this unit (to show an image)
-  const bhUnit = BUYER_HUB_INVENTORY.find(
-    u => u.make === unit.make && u.model === unit.model && u.year === unit.year
-  )
+  const coverPhoto = unit.photos[0]
 
   return (
     <div className="space-y-6">
@@ -68,7 +69,7 @@ export function InventoryUnitPage() {
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Days in Stock</CardTitle></CardHeader>
           <CardContent><div className="flex items-center gap-2"><Calendar className="h-4 w-4" /><span className="text-2xl font-bold">{unit.daysInStock}</span><StatusPill variant={agingVariant} dot={false}>{unit.daysInStock > 60 ? 'aged' : unit.daysInStock > 45 ? 'aging' : 'fresh'}</StatusPill></div></CardContent></Card>
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Asking Price</CardTitle></CardHeader>
-          <CardContent><div className="flex items-center gap-2"><CurrencyDollar className="h-5 w-5 text-primary" /><span className="text-2xl font-bold">${unit.askingPrice.toLocaleString()}</span></div></CardContent></Card>
+          <CardContent><div className="flex items-center gap-2"><CurrencyDollar className="h-5 w-5 text-primary" /><span className="text-2xl font-bold">${unit.price.toLocaleString()}</span></div></CardContent></Card>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
@@ -114,17 +115,22 @@ export function InventoryUnitPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {bhUnit ? (
+            {coverPhoto ? (
               <div className="space-y-3">
                 <div className="overflow-hidden rounded-md border">
                   <img
-                    src={bhUnit.imageSourceUrl}
+                    src={coverPhoto.url}
                     alt={`${unit.year} ${unit.make} ${unit.model}`}
                     className="h-48 w-full object-cover"
                     onError={(e) => { e.currentTarget.style.display = 'none' }}
                   />
                 </div>
-                <p className="text-xs text-muted-foreground">Representative photo. Full photo set available when unit is frontline-ready.</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {unit.photos.map((photo) => (
+                    <img key={photo.id} src={photo.url} alt={photo.alt} className="aspect-4/3 rounded-md border object-cover" />
+                  ))}
+                </div>
+                <p className="text-xs text-muted-foreground">Photo source: {unit.source === 'supabase' ? 'Supabase storage / database' : 'repo archive'}.</p>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center rounded-md border border-dashed py-10 text-center">
@@ -135,6 +141,61 @@ export function InventoryUnitPage() {
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Public Listing Controls</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-5 lg:grid-cols-2">
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="inventory-price">Public Price</Label>
+              <Input id="inventory-price" type="number" defaultValue={unit.price} onBlur={(event) => { void unitQuery.updateRecord(unit.id, { price: Number(event.target.value) || unit.price }) }} />
+            </div>
+            <div className="space-y-2">
+              <Label>Status</Label>
+              <Select defaultValue={unit.status} onValueChange={(value) => { void unitQuery.updateRecord(unit.id, { status: value }) }}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="frontline">Frontline</SelectItem>
+                  <SelectItem value="recon">Recon</SelectItem>
+                  <SelectItem value="aging">Aging</SelectItem>
+                  <SelectItem value="sold">Sold</SelectItem>
+                  <SelectItem value="archived">Archived</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="flex items-center justify-between rounded-xl border p-3 text-sm">
+                <span>Published publicly</span>
+                <Switch checked={unit.isPublished} onCheckedChange={(checked) => { void unitQuery.updateRecord(unit.id, { isPublished: checked, available: checked ? unit.available : false }) }} />
+              </label>
+              <label className="flex items-center justify-between rounded-xl border p-3 text-sm">
+                <span>Featured vehicle</span>
+                <Switch checked={unit.isFeatured} onCheckedChange={(checked) => { void unitQuery.updateRecord(unit.id, { isFeatured: checked }) }} />
+              </label>
+            </div>
+          </div>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="inventory-description">Public Description</Label>
+              <Textarea id="inventory-description" defaultValue={unit.description} rows={7} onBlur={(event) => { void unitQuery.updateRecord(unit.id, { description: event.target.value }) }} />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="inventory-color">Color</Label>
+                <Input id="inventory-color" defaultValue={unit.color || ''} onBlur={(event) => { void unitQuery.updateRecord(unit.id, { color: event.target.value || undefined }) }} />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="inventory-drivetrain">Drivetrain</Label>
+                <Input id="inventory-drivetrain" defaultValue={unit.drivetrain || ''} onBlur={(event) => { void unitQuery.updateRecord(unit.id, { drivetrain: event.target.value || undefined }) }} />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Price History */}
       <Card>
@@ -150,7 +211,7 @@ export function InventoryUnitPage() {
                 <span className="text-xs text-muted-foreground">Initial List Price</span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="font-semibold">${unit.askingPrice.toLocaleString()}</span>
+                <span className="font-semibold">${unit.price.toLocaleString()}</span>
                 <span className="text-xs text-muted-foreground">Day 0</span>
               </div>
             </div>
@@ -158,7 +219,7 @@ export function InventoryUnitPage() {
               <div className="flex items-center justify-between text-sm border-b border-border pb-2">
                 <span className="text-xs text-muted-foreground">Aging Price Reduction</span>
                 <div className="flex items-center gap-3">
-                  <span className="font-semibold text-amber-600">${Math.round(unit.askingPrice * AGING_REDUCTION_30_DAYS).toLocaleString()}</span>
+                  <span className="font-semibold text-amber-600">${Math.round(unit.price * AGING_REDUCTION_30_DAYS).toLocaleString()}</span>
                   <span className="text-xs text-muted-foreground">Day 30</span>
                 </div>
               </div>
@@ -167,7 +228,7 @@ export function InventoryUnitPage() {
               <div className="flex items-center justify-between text-sm">
                 <span className="text-xs text-muted-foreground">Second Reduction</span>
                 <div className="flex items-center gap-3">
-                  <span className="font-semibold text-red-600">${Math.round(unit.askingPrice * AGING_REDUCTION_60_DAYS).toLocaleString()}</span>
+                  <span className="font-semibold text-red-600">${Math.round(unit.price * AGING_REDUCTION_60_DAYS).toLocaleString()}</span>
                   <span className="text-xs text-muted-foreground">Day 60</span>
                 </div>
               </div>

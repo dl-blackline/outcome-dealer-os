@@ -2,6 +2,7 @@ import { AppRole } from '@/domains/roles/roles'
 import { Permission } from '@/domains/roles/permissions'
 
 export type AuthStatus = 'unauthenticated' | 'loading' | 'authenticated'
+export type AuthRuntimeMode = 'supabase' | 'spark' | 'demo'
 
 export interface AuthUser {
   id: string
@@ -32,7 +33,10 @@ export interface AuthState {
 }
 
 export interface AuthContextValue extends AuthState {
+  mode: AuthRuntimeMode
   refreshUser: () => Promise<void>
+  signInWithPassword: (email: string, password: string) => Promise<void>
   setRole: (role: AppRole) => void
+  allowRoleSwitching: boolean
   signOut: () => Promise<void>
 }

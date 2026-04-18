@@ -15,8 +15,11 @@ export function AuthProvider({ children, defaultRole = 'gm' }: AuthProviderProps
   const [user, setUser] = useState<CurrentAppUser | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [currentRole, setCurrentRole] = useState<AppRole>(defaultRole)
+  const [mode, setMode] = useState(AuthService.getRuntimeMode())
 
   const loadUser = useCallback(async (role: AppRole) => {
+    setMode(AuthService.getRuntimeMode())
+
     try {
       setStatus('loading')
       setError(null)
@@ -25,7 +28,8 @@ export function AuthProvider({ children, defaultRole = 'gm' }: AuthProviderProps
       setStatus('authenticated')
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to load user'
-      setError(message)
+      setError(message === 'No active Supabase session' || message === 'No active demo session' ? null : message)
+      setUser(null)
       setStatus('unauthenticated')
     }
   }, [])
@@ -45,20 +49,36 @@ export function AuthProvider({ children, defaultRole = 'gm' }: AuthProviderProps
   )
 
   const signOut = useCallback(async () => {
+    await AuthService.signOut()
     setUser(null)
     setStatus('unauthenticated')
   }, [])
 
+  const signInWithPassword = useCallback(
+    async (email: string, password: string) => {
+      await AuthService.signInWithPassword(email, password, currentRole)
+      await loadUser(currentRole)
+    },
+    [currentRole, loadUser],
+  )
+
   useEffect(() => {
-    loadUser(currentRole)
-  }, [])
+    void loadUser(currentRole)
+
+    return AuthService.subscribeToAuthChanges(() => {
+      void loadUser(currentRole)
+    })
+  }, [currentRole, loadUser])
 
   const value: AuthContextValue = {
     status,
     user,
     error,
+    mode,
     refreshUser,
+    signInWithPassword,
     setRole: handleSetRole,
+    allowRoleSwitching: AuthService.allowRoleSwitching(mode),
     signOut,
   }
 

@@ -10,6 +10,8 @@ export interface RouteDefinition {
 }
 
 export const APP_ROUTES: RouteDefinition[] = [
+  { path: '/', label: 'Home', component: 'HomePage', group: 'buyer_hub' },
+  { path: '/login', label: 'Staff Login', component: 'LoginPage', group: 'buyer_hub' },
   { path: '/app/dashboard', label: 'Dashboard', component: 'DashboardPage', group: 'dashboard' },
   { path: '/app/workstation', label: 'Workstation', component: 'WorkstationPage', group: 'workstation' },
   { path: '/app/records/households', label: 'Households', component: 'HouseholdListPage', group: 'records' },

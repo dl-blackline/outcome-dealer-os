@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { useRouter } from '@/app/router'
-import { AppRole } from '@/domains/roles/roles'
+import { useAuth } from '@/domains/auth'
 import { AppSidebar } from '@/components/shell/AppSidebar'
 import { Topbar } from '@/components/shell/Topbar'
 import { CommandPalette } from '@/components/shell/CommandPalette'
 import { NotificationCenter } from '@/components/shell/NotificationCenter'
-import { matchRoute } from '@/app/router/router'
+import { findMatchingRoute, matchRoute } from '@/app/router/router'
+import { checkExecutiveGuard, checkPermissionGuard } from '@/app/routes/guards'
 
 // Pages
 import { DashboardPage } from '@/app/pages/DashboardPage'
@@ -58,25 +59,61 @@ function resolvePageComponent(currentPath: string): React.ComponentType | null {
 }
 
 export function AppShell() {
-  const [currentRole, setCurrentRole] = useState<AppRole>('gm')
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const { currentPath, navigate } = useRouter()
+  const { status, user, setRole, allowRoleSwitching, mode, signOut } = useAuth()
 
   const PageComponent = resolvePageComponent(currentPath)
+  const routeDefinition = findMatchingRoute(currentPath)
+
+  if (status === 'loading') {
+    return <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">Loading secure workspace…</div>
+  }
+
+  if (status !== 'authenticated' || !user) {
+    if (typeof window !== 'undefined') {
+      window.sessionStorage.setItem('outcome.auth.returnTo', currentPath)
+      if (currentPath !== '/login') navigate('/login')
+    }
+
+    return <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">Redirecting to login…</div>
+  }
+
+  if (routeDefinition?.requireExecutive || routeDefinition?.requiredPermission) {
+    const guardResult = routeDefinition.requireExecutive
+      ? checkExecutiveGuard(user)
+      : checkPermissionGuard(user, routeDefinition.requiredPermission!)
+
+    if (!guardResult.allowed) {
+      if (guardResult.fallbackPath && guardResult.fallbackPath !== currentPath) {
+        navigate(guardResult.fallbackPath)
+      }
+
+      return (
+        <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">
+          Redirecting to authorized workspace…
+        </div>
+      )
+    }
+  }
 
   return (
     <div className="flex h-screen bg-background">
       <AppSidebar
         currentPath={currentPath}
-        currentRole={currentRole}
+        currentRole={user.role}
         onNavigate={navigate}
       />
 
       <div className="flex flex-1 flex-col overflow-hidden">
         <Topbar
-          currentRole={currentRole}
-          onRoleChange={setCurrentRole}
+          currentRole={user.role}
+          userName={user.displayName}
+          allowRoleSwitching={allowRoleSwitching}
+          authMode={mode}
+          onRoleChange={setRole}
+          onLogout={signOut}
           onCommandPaletteOpen={() => setCommandPaletteOpen(true)}
           onNotificationsOpen={() => setNotificationsOpen(true)}
         />

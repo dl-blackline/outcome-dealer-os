@@ -4,18 +4,24 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { AppRole, ROLE_LABELS } from '@/domains/roles/roles'
+import { AuthRuntimeMode } from '@/domains/auth'
 
 interface TopbarProps {
   currentRole: AppRole
+  userName: string
+  allowRoleSwitching: boolean
+  authMode: AuthRuntimeMode
   onRoleChange: (role: AppRole) => void
+  onLogout: () => Promise<void>
   onCommandPaletteOpen: () => void
   onNotificationsOpen: () => void
 }
 
-export function Topbar({ currentRole, onRoleChange, onCommandPaletteOpen, onNotificationsOpen }: TopbarProps) {
+export function Topbar({ currentRole, userName, allowRoleSwitching, authMode, onRoleChange, onLogout, onCommandPaletteOpen, onNotificationsOpen }: TopbarProps) {
   return (
     <div className="flex h-16 items-center justify-between border-b border-border bg-background px-6">
       <div className="flex items-center gap-4">
@@ -38,14 +44,14 @@ export function Topbar({ currentRole, onRoleChange, onCommandPaletteOpen, onNoti
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="gap-2">
               <User />
-              <span className="text-sm">{ROLE_LABELS[currentRole]}</span>
+              <span className="text-sm">{userName}</span>
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-56">
             <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
-              Switch Role (Dev Only)
+              {ROLE_LABELS[currentRole]} · {authMode}
             </div>
-            {Object.entries(ROLE_LABELS).map(([role, label]) => (
+            {allowRoleSwitching && Object.entries(ROLE_LABELS).map(([role, label]) => (
               <DropdownMenuItem
                 key={role}
                 onClick={() => onRoleChange(role as AppRole)}
@@ -54,6 +60,10 @@ export function Topbar({ currentRole, onRoleChange, onCommandPaletteOpen, onNoti
                 {label}
               </DropdownMenuItem>
             ))}
+            {allowRoleSwitching && <DropdownMenuSeparator />}
+            <DropdownMenuItem onClick={() => void onLogout()}>
+              Sign Out
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
 

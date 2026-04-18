@@ -1,28 +1,115 @@
-import { AuthUser, SessionUser, CurrentAppUser } from './auth.types'
-import { AppRole, ROLE_LABELS } from '@/domains/roles/roles'
+import { AuthUser, SessionUser, CurrentAppUser, AuthRuntimeMode } from './auth.types'
+import { APP_ROLES, AppRole, ROLE_LABELS } from '@/domains/roles/roles'
 import { ROLE_PERMISSIONS } from '@/domains/roles/permissions'
+import { getSupabaseBrowserClient, isSupabaseConfigured } from '@/lib/supabase/client'
+
+const DEMO_SESSION_KEY = 'outcome.auth.demo-session'
+
+function isAppRole(value: string | undefined): value is AppRole {
+  return Boolean(value && APP_ROLES.includes(value as AppRole))
+}
+
+function getStoredDemoSession(): SessionUser | null {
+  if (typeof window === 'undefined') return null
+
+  try {
+    const raw = window.localStorage.getItem(DEMO_SESSION_KEY)
+    return raw ? (JSON.parse(raw) as SessionUser) : null
+  } catch {
+    return null
+  }
+}
+
+function storeDemoSession(sessionUser: SessionUser | null) {
+  if (typeof window === 'undefined') return
+
+  if (!sessionUser) {
+    window.localStorage.removeItem(DEMO_SESSION_KEY)
+    return
+  }
+
+  window.localStorage.setItem(DEMO_SESSION_KEY, JSON.stringify(sessionUser))
+}
 
 export class AuthService {
+  static getRuntimeMode(): AuthRuntimeMode {
+    if (isSupabaseConfigured()) return 'supabase'
+    if (typeof spark !== 'undefined') return 'spark'
+    return 'demo'
+  }
+
+  static allowRoleSwitching(mode: AuthRuntimeMode): boolean {
+    return mode !== 'supabase'
+  }
+
   static async fetchAuthUser(): Promise<AuthUser> {
-    try {
-      const userInfo = await spark.user()
-      return {
-        id: userInfo.id,
-        login: userInfo.login,
-        email: userInfo.email,
-        avatarUrl: userInfo.avatarUrl,
-        isOwner: userInfo.isOwner,
+    const mode = this.getRuntimeMode()
+
+    if (mode === 'supabase') {
+      const client = getSupabaseBrowserClient()
+      const { data, error } = await client!.auth.getUser()
+
+      if (error || !data.user) {
+        throw new Error('No active Supabase session')
       }
-    } catch (error) {
-      throw new Error(`Failed to fetch authenticated user: ${error}`)
+
+      return {
+        id: data.user.id,
+        login: String(data.user.user_metadata?.full_name || data.user.email || 'staff'),
+        email: data.user.email || '',
+        avatarUrl: String(data.user.user_metadata?.avatar_url || ''),
+        isOwner: false,
+      }
+    }
+
+    if (mode === 'spark') {
+      try {
+        const userInfo = await spark.user()
+        return {
+          id: userInfo.id,
+          login: userInfo.login,
+          email: userInfo.email,
+          avatarUrl: userInfo.avatarUrl,
+          isOwner: userInfo.isOwner,
+        }
+      } catch (error) {
+        throw new Error(`Failed to fetch authenticated user: ${error}`)
+      }
+    }
+
+    const demoSession = getStoredDemoSession()
+    if (!demoSession) {
+      throw new Error('No active demo session')
+    }
+
+    return {
+      id: demoSession.id,
+      login: demoSession.login,
+      email: demoSession.email,
+      avatarUrl: demoSession.avatarUrl,
+      isOwner: demoSession.isOwner,
     }
   }
 
   static async loadSessionUser(role: AppRole): Promise<SessionUser> {
     const authUser = await this.fetchAuthUser()
+
+    if (this.getRuntimeMode() === 'supabase') {
+      const client = getSupabaseBrowserClient()
+      const { data } = await client!.auth.getUser()
+      const metadataRole = String(data.user?.app_metadata?.role || data.user?.user_metadata?.role || '')
+
+      return {
+        ...authUser,
+        role: isAppRole(metadataRole) ? metadataRole : role,
+      }
+    }
+
+    const demoSession = getStoredDemoSession()
+
     return {
       ...authUser,
-      role,
+      role: demoSession?.role || role,
     }
   }
 
@@ -40,6 +127,48 @@ export class AuthService {
   static async resolveCurrentUser(role: AppRole): Promise<CurrentAppUser> {
     const sessionUser = await this.loadSessionUser(role)
     return this.buildCurrentAppUser(sessionUser)
+  }
+
+  static async signInWithPassword(email: string, password: string, role: AppRole): Promise<void> {
+    if (this.getRuntimeMode() === 'supabase') {
+      const client = getSupabaseBrowserClient()
+      const { error } = await client!.auth.signInWithPassword({ email, password })
+      if (error) throw error
+      return
+    }
+
+    const login = email.split('@')[0] || 'demo-user'
+    storeDemoSession({
+      id: `demo-${login}`,
+      login,
+      email,
+      avatarUrl: '',
+      isOwner: true,
+      role,
+    })
+  }
+
+  static async signOut(): Promise<void> {
+    if (this.getRuntimeMode() === 'supabase') {
+      const client = getSupabaseBrowserClient()
+      await client!.auth.signOut()
+      return
+    }
+
+    storeDemoSession(null)
+  }
+
+  static subscribeToAuthChanges(onChange: () => void): () => void {
+    if (this.getRuntimeMode() !== 'supabase') return () => undefined
+
+    const client = getSupabaseBrowserClient()
+    const subscription = client!.auth.onAuthStateChange(() => {
+      onChange()
+    })
+
+    return () => {
+      subscription.data.subscription.unsubscribe()
+    }
   }
 }
 

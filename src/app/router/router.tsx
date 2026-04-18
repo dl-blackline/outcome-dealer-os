@@ -11,7 +11,7 @@ const RouterContext = createContext<RouterState | null>(null)
 
 function getHashPath(): string {
   const hash = window.location.hash
-  if (!hash || hash === '#') return '/app/dashboard'
+  if (!hash || hash === '#') return '/'
   return hash.startsWith('#') ? hash.slice(1) : hash
 }
 
@@ -67,7 +67,7 @@ export function RouterProvider({ children }: { children: ReactNode }) {
   // Set initial hash if missing
   useEffect(() => {
     if (!window.location.hash || window.location.hash === '#') {
-      setHashPath('/app/dashboard')
+      setHashPath('/')
     }
   }, [])
 

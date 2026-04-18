@@ -45,51 +45,38 @@ function timeAgo(isoDate: string): string {
   return `${Math.floor(hrs / 24)}d ago`
 }
 
-function ProgressCard({
-  item,
-  onRemove,
-}: {
-  item: CustomerProgressItem
-  onRemove: () => void
-}) {
+function ProgressCard({ item, onRemove }: { item: CustomerProgressItem; onRemove: () => void }) {
   const Icon = TYPE_ICONS[item.type]
   const statusInfo = STATUS_LABELS[item.status]
 
   return (
-    <Card>
+    <Card className="vault-panel vault-edge rounded-3xl border-white/15 bg-black/30">
       <CardContent className="pt-5">
         <div className="flex items-start gap-4">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-muted">
-            <Icon size={20} className="text-muted-foreground" />
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/5">
+            <Icon size={20} className="text-slate-200" />
           </div>
-          <div className="flex-1 min-w-0">
+          <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-start justify-between gap-2">
-              <h3 className="font-semibold text-sm leading-tight">{item.title}</h3>
-              <div className="flex items-center gap-2 shrink-0">
-                <span
-                  className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusInfo.color}`}
-                >
+              <h3 className="text-sm leading-tight font-semibold text-white">{item.title}</h3>
+              <div className="shrink-0 flex items-center gap-2">
+                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${statusInfo.color}`}>
                   {statusInfo.label}
                 </span>
-                <span className="text-xs text-muted-foreground">{timeAgo(item.createdAt)}</span>
+                <span className="text-xs text-slate-400">{timeAgo(item.createdAt)}</span>
               </div>
             </div>
-            <p className="mt-1 text-sm text-muted-foreground">{item.description}</p>
+            <p className="mt-1 text-sm text-slate-300">{item.description}</p>
             {item.nextAction && (
-              <div className="mt-3 flex items-start gap-2 rounded-md bg-muted/50 px-3 py-2 text-xs">
-                <Clock size={13} className="mt-0.5 shrink-0 text-muted-foreground" />
-                <span className="text-muted-foreground">{item.nextAction}</span>
+              <div className="mt-3 flex items-start gap-2 rounded-md border border-white/15 bg-black/30 px-3 py-2 text-xs">
+                <Clock size={13} className="mt-0.5 shrink-0 text-slate-300" />
+                <span className="text-slate-300">{item.nextAction}</span>
               </div>
             )}
           </div>
         </div>
         <div className="mt-4 flex justify-end">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 gap-1 text-xs text-muted-foreground hover:text-destructive"
-            onClick={onRemove}
-          >
+          <Button variant="ghost" size="sm" className="h-7 gap-1 text-xs text-slate-400 hover:text-red-400" onClick={onRemove}>
             <Trash size={12} />
             Remove
           </Button>
@@ -111,57 +98,45 @@ export function NextStepsPage() {
   const { items, removeItem, clearAll } = useCustomerProgress()
 
   return (
-    <div className="mx-auto max-w-2xl space-y-6 px-4 py-8 sm:px-6 lg:px-8">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">My Next Steps</h1>
-          <p className="mt-1 text-muted-foreground">
-            Track your inquiries, applications, and appointments in one place.
-          </p>
+    <div className="mx-auto max-w-2xl space-y-6 px-2 py-4 sm:px-3 lg:px-4">
+      <div className="vault-panel-soft rounded-4xl border border-white/15 p-7 sm:p-8">
+        <div className="flex items-center justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-white">My Next Steps</h1>
+            <p className="mt-1 text-slate-300">Track your inquiries, applications, and appointments in one place.</p>
+          </div>
+          {items.length > 0 && (
+            <Button variant="outline" size="sm" onClick={clearAll} className="vault-btn-muted vault-tap gap-1.5 rounded-full text-xs uppercase tracking-[0.13em] text-slate-300">
+              <Trash size={14} />
+              Clear All
+            </Button>
+          )}
         </div>
-        {items.length > 0 && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={clearAll}
-            className="gap-1.5 text-muted-foreground"
-          >
-            <Trash size={14} />
-            Clear All
-          </Button>
-        )}
       </div>
 
       {items.length === 0 ? (
         <div className="space-y-8">
-          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed py-16 text-center">
-            <CheckCircle size={48} weight="thin" className="mb-4 text-muted-foreground/50" />
-            <h2 className="text-lg font-semibold">Nothing here yet</h2>
-            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+          <div className="vault-panel-soft flex flex-col items-center justify-center rounded-3xl border border-dashed border-white/30 py-16 text-center">
+            <CheckCircle size={48} weight="thin" className="mb-4 text-slate-500" />
+            <h2 className="text-lg font-semibold text-white">Nothing here yet</h2>
+            <p className="mt-1 max-w-sm text-sm text-slate-400">
               When you submit an inquiry, application, trade-in, or appointment request,
               it will appear here so you can track its status.
             </p>
           </div>
 
           <div>
-            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-              Get Started
-            </h2>
+            <h2 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-400">Get Started</h2>
             <div className="grid gap-3 sm:grid-cols-2">
               {QUICK_ACTIONS.map((action) => {
                 const Icon = action.icon
                 return (
-                  <button
-                    key={action.path}
-                    onClick={() => navigate(action.path)}
-                    className="flex items-center gap-3 rounded-lg border p-4 text-left transition-colors hover:bg-accent"
-                  >
-                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10">
-                      <Icon size={18} className="text-primary" />
+                  <button key={action.path} onClick={() => navigate(action.path)} className="vault-panel-soft vault-tap flex items-center gap-3 rounded-xl border border-white/15 p-4 text-left transition-colors hover:bg-white/8">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-blue-200/30 bg-blue-300/15">
+                      <Icon size={18} className="text-blue-100" />
                     </div>
-                    <span className="text-sm font-medium">{action.label}</span>
-                    <ArrowRight size={16} className="ml-auto text-muted-foreground" />
+                    <span className="text-sm font-medium text-white">{action.label}</span>
+                    <ArrowRight size={16} className="ml-auto text-slate-300" />
                   </button>
                 )
               })}
@@ -171,22 +146,15 @@ export function NextStepsPage() {
       ) : (
         <div className="space-y-4">
           {items.map((item) => (
-            <ProgressCard
-              key={item.id}
-              item={item}
-              onRemove={() => removeItem(item.id)}
-            />
+            <ProgressCard key={item.id} item={item} onRemove={() => removeItem(item.id)} />
           ))}
 
-          <Separator />
+          <Separator className="bg-white/15" />
 
           <div className="text-center">
-            <p className="text-xs text-muted-foreground">
+            <p className="text-xs text-slate-400">
               Need help? Call us at (555) 000-0000 or{' '}
-              <button
-                className="underline underline-offset-4 hover:text-foreground"
-                onClick={() => navigate('/schedule')}
-              >
+              <button className="underline underline-offset-4 hover:text-slate-200" onClick={() => navigate('/schedule')}>
                 schedule a visit
               </button>
               .

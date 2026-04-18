@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react'
 import { useRouter } from '@/app/router'
 import { submitInquiry } from '@/domains/buyer-hub/buyerHub.eventBridge'
 import { useCustomerProgress } from '@/domains/buyer-hub/useCustomerProgress'
-import { BUYER_HUB_INVENTORY } from '@/domains/buyer-hub/buyerHub.mock'
+import { useInventoryCatalog } from '@/domains/inventory/inventory.runtime'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -29,11 +29,12 @@ const CONTACT_METHODS: { value: ContactMethod; label: string }[] = [
 export function InquiryPage() {
   const { params, navigate } = useRouter()
   const { addItem } = useCustomerProgress()
+  const { publicRecords } = useInventoryCatalog()
 
   const unitId = params.unitId
   const vehicle = useMemo(
-    () => (unitId ? BUYER_HUB_INVENTORY.find((u) => u.id === unitId) : undefined),
-    [unitId]
+    () => (unitId ? publicRecords.find((u) => u.id === unitId) : undefined),
+    [publicRecords, unitId]
   )
 
   const [submitting, setSubmitting] = useState(false)
@@ -85,26 +86,26 @@ export function InquiryPage() {
 
   if (done) {
     return (
-      <div className="mx-auto max-w-lg px-4 py-16 text-center">
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100">
-          <CheckCircle size={48} weight="fill" className="text-emerald-600" />
+      <div className="mx-auto max-w-lg px-4 py-16 text-center text-slate-200">
+        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full border border-emerald-300/30 bg-emerald-500/15">
+          <CheckCircle size={48} weight="fill" className="text-emerald-500" />
         </div>
-        <h1 className="text-2xl font-bold">Inquiry Sent!</h1>
-        <p className="mt-3 text-muted-foreground">
+        <h1 className="text-2xl font-bold text-white">Inquiry Sent!</h1>
+        <p className="mt-3 text-slate-300">
           Thanks, <strong>{form.firstName}</strong>! A member of our team will reach out to you
           at <strong>{form.email}</strong> shortly.
         </p>
         {vehicle && (
-          <p className="mt-2 text-sm text-muted-foreground">
+          <p className="mt-2 text-sm text-slate-400">
             Vehicle: {vehicle.year} {vehicle.make} {vehicle.model} {vehicle.trim}
           </p>
         )}
         <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
-          <Button onClick={() => navigate('/my-next-steps')} className="gap-1.5">
+          <Button onClick={() => navigate('/my-next-steps')} className="vault-btn vault-tap gap-1.5 rounded-full px-6 text-xs uppercase tracking-[0.14em]">
             View My Next Steps
             <ArrowRight size={16} />
           </Button>
-          <Button variant="outline" onClick={() => navigate('/shop')}>
+          <Button variant="outline" onClick={() => navigate('/shop')} className="vault-btn-muted vault-tap rounded-full px-6 text-xs uppercase tracking-[0.14em]">
             Continue Shopping
           </Button>
         </div>
@@ -113,94 +114,70 @@ export function InquiryPage() {
   }
 
   return (
-    <div className="mx-auto max-w-xl px-4 py-8 sm:px-6">
-      {/* Header */}
-      <div className="mb-8">
+    <div className="mx-auto max-w-xl px-2 py-4 sm:px-3">
+      <div className="vault-panel-soft mb-8 rounded-4xl border border-white/15 p-6 sm:p-7">
         <Button
           variant="ghost"
           size="sm"
-          className="-ml-2 mb-4 text-muted-foreground hover:text-foreground"
+          className="vault-btn-muted mb-4 rounded-full border border-white/15 px-4 text-xs uppercase tracking-[0.14em] text-slate-300"
           onClick={() => vehicle ? navigate(`/shop/${vehicle.id}`) : navigate('/shop')}
         >
           <ArrowLeft size={18} className="mr-1.5" />
           {vehicle ? 'Back to Vehicle' : 'Back to Inventory'}
         </Button>
-        <div className="flex items-center gap-3 mb-2">
+        <div className="mb-2 flex items-center gap-3">
           <ChatCircle size={28} className="text-primary" />
-          <h1 className="text-2xl font-bold">Inquire About This Vehicle</h1>
+          <h1 className="text-2xl font-bold text-white">Inquire About This Vehicle</h1>
         </div>
-        <p className="text-muted-foreground text-sm">
+        <p className="text-sm text-slate-300">
           Fill in your details and we'll connect you with an advisor right away.
         </p>
       </div>
 
       <div className="space-y-5">
-        {/* Vehicle context card */}
         {vehicle && (
-          <div className="flex items-center gap-3 rounded-lg border bg-muted/40 p-3">
-            <Car size={24} className="text-muted-foreground shrink-0" />
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-semibold">
+          <div className="vault-panel-soft flex items-center gap-3 rounded-2xl border border-white/15 bg-black/25 p-4">
+            <Car size={24} className="shrink-0 text-slate-300" />
+            <div className="min-w-0 flex-1">
+              <div className="text-sm font-semibold text-white">
                 {vehicle.year} {vehicle.make} {vehicle.model} {vehicle.trim}
               </div>
-              <div className="text-xs text-muted-foreground">
+              <div className="text-xs text-slate-400">
                 {new Intl.NumberFormat('en-US', {
                   style: 'currency',
                   currency: 'USD',
                   maximumFractionDigits: 0,
-                }).format(vehicle.askingPrice)}
+                }).format(vehicle.price)}
                 {' · '}
                 {new Intl.NumberFormat('en-US').format(vehicle.mileage)} mi
               </div>
             </div>
-            <Badge variant="secondary" className="shrink-0">{vehicle.bodyStyle}</Badge>
+            <Badge className="vault-chip shrink-0">{vehicle.bodyStyle}</Badge>
           </div>
         )}
 
-        <Card>
+        <Card className="vault-panel rounded-3xl border-white/15 bg-black/30">
           <CardHeader>
-            <CardTitle className="text-base">Your Information</CardTitle>
+            <CardTitle className="text-base text-white">Your Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="firstName">First Name *</Label>
-                <Input
-                  id="firstName"
-                  placeholder="Jane"
-                  value={form.firstName}
-                  onChange={(e) => set('firstName', e.target.value)}
-                />
+                <Input id="firstName" placeholder="Jane" value={form.firstName} onChange={(e) => set('firstName', e.target.value)} />
               </div>
               <div className="space-y-1.5">
                 <Label htmlFor="lastName">Last Name *</Label>
-                <Input
-                  id="lastName"
-                  placeholder="Smith"
-                  value={form.lastName}
-                  onChange={(e) => set('lastName', e.target.value)}
-                />
+                <Input id="lastName" placeholder="Smith" value={form.lastName} onChange={(e) => set('lastName', e.target.value)} />
               </div>
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="email">Email Address *</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="jane@example.com"
-                value={form.email}
-                onChange={(e) => set('email', e.target.value)}
-              />
+              <Input id="email" type="email" placeholder="jane@example.com" value={form.email} onChange={(e) => set('email', e.target.value)} />
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="phone">Phone (optional)</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="(555) 000-0000"
-                value={form.phone}
-                onChange={(e) => set('phone', e.target.value)}
-              />
+              <Input id="phone" type="tel" placeholder="(555) 000-0000" value={form.phone} onChange={(e) => set('phone', e.target.value)} />
             </div>
 
             <div className="space-y-1.5">
@@ -211,10 +188,10 @@ export function InquiryPage() {
                     key={method.value}
                     type="button"
                     onClick={() => set('preferredContact', method.value)}
-                    className={`rounded-full border px-4 py-1.5 text-sm font-medium transition-colors ${
+                    className={`vault-tap rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.13em] transition-colors ${
                       form.preferredContact === method.value
-                        ? 'border-primary bg-primary text-primary-foreground'
-                        : 'border-input bg-background hover:bg-accent'
+                        ? 'border-blue-200/45 bg-blue-300/18 text-blue-100'
+                        : 'border-white/15 bg-white/3 text-slate-300 hover:bg-white/8'
                     }`}
                   >
                     {method.label}
@@ -225,18 +202,12 @@ export function InquiryPage() {
 
             <div className="space-y-1.5">
               <Label htmlFor="message">Message (optional)</Label>
-              <Textarea
-                id="message"
-                placeholder="Any questions about this vehicle? Let us know…"
-                rows={3}
-                value={form.message}
-                onChange={(e) => set('message', e.target.value)}
-              />
+              <Textarea id="message" placeholder="Any questions about this vehicle? Let us know…" rows={3} value={form.message} onChange={(e) => set('message', e.target.value)} />
             </div>
           </CardContent>
         </Card>
 
-        <div className="flex items-start gap-2 rounded-md bg-muted/50 p-3 text-xs text-muted-foreground">
+        <div className="flex items-start gap-2 rounded-xl border border-white/15 bg-black/30 p-3 text-xs text-slate-400">
           <Lock size={14} className="mt-0.5 shrink-0" />
           <span>
             Your information is never shared with third parties. We use it solely to respond
@@ -245,12 +216,7 @@ export function InquiryPage() {
         </div>
 
         <div className="flex justify-end">
-          <Button
-            disabled={!canSubmit || submitting}
-            onClick={handleSubmit}
-            size="lg"
-            className="gap-1.5"
-          >
+          <Button disabled={!canSubmit || submitting} onClick={handleSubmit} size="lg" className="vault-btn vault-tap gap-1.5 rounded-full px-6 text-xs uppercase tracking-[0.14em]">
             {submitting ? 'Sending…' : 'Send Inquiry'}
             {!submitting && <ArrowRight size={16} />}
           </Button>

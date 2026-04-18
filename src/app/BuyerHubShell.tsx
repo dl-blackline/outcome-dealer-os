@@ -1,7 +1,8 @@
 import { useRouter, matchRoute } from '@/app/router'
-import { Heart, ArrowRight } from '@phosphor-icons/react'
+import { Heart, ArrowRight, ShieldCheck, List } from '@phosphor-icons/react'
 
 // Buyer hub pages
+import { HomePage } from '@/app/pages/shop/HomePage'
 import { ShopInventoryPage } from '@/app/pages/shop/ShopInventoryPage'
 import { VehicleDetailPage } from '@/app/pages/shop/VehicleDetailPage'
 import { ComparePage } from '@/app/pages/shop/ComparePage'
@@ -12,8 +13,11 @@ import { TradeInPage } from '@/app/pages/shop/TradeInPage'
 import { SchedulePage } from '@/app/pages/shop/SchedulePage'
 import { NextStepsPage } from '@/app/pages/shop/NextStepsPage'
 import { InquiryPage } from '@/app/pages/shop/InquiryPage'
+import { LoginPage } from '@/app/pages/auth/LoginPage'
 
 const BUYER_ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
+  '/': HomePage,
+  '/login': LoginPage,
   '/shop': ShopInventoryPage,
   '/shop/:unitId': VehicleDetailPage,
   '/inquiry/:unitId': InquiryPage,
@@ -34,6 +38,7 @@ function resolveBuyerPage(currentPath: string): React.ComponentType | null {
 }
 
 const NAV_LINKS = [
+  { path: '/', label: 'Home' },
   { path: '/shop', label: 'Shop' },
   { path: '/finance', label: 'Finance' },
   { path: '/trade', label: 'Trade-In' },
@@ -43,30 +48,41 @@ const NAV_LINKS = [
 export function BuyerHubShell() {
   const { currentPath, navigate } = useRouter()
   const PageComponent = resolveBuyerPage(currentPath)
+  const isUtilityPage = currentPath === '/login'
+
+  if (isUtilityPage) {
+    return PageComponent ? <PageComponent /> : <LoginPage />
+  }
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="vault-shell vault-grid flex min-h-screen flex-col text-slate-100">
       {/* Top Navigation */}
-      <header className="sticky top-0 z-30 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-30 border-b border-white/10 bg-[#070b12]/80 backdrop-blur-xl supports-backdrop-filter:bg-[#070b12]/70">
+        <div className="mx-auto flex h-20 max-w-[88rem] items-center justify-between px-4 sm:px-6 lg:px-8">
           {/* Logo */}
           <button
-            onClick={() => navigate('/shop')}
-            className="text-lg font-bold tracking-tight"
+            onClick={() => navigate('/')}
+            className="group flex items-center gap-3 text-left"
           >
-            Outcome Dealer
+            <div className="rounded-xl border border-white/20 bg-white/5 p-2 text-slate-100 shadow-lg shadow-black/30">
+              <ShieldCheck size={20} weight="duotone" />
+            </div>
+            <div>
+              <p className="vault-title text-[0.72rem] leading-tight text-slate-300">Vehicle Vault</p>
+              <p className="text-xs tracking-[0.26em] text-slate-400">Secure Automotive Gallery</p>
+            </div>
           </button>
 
           {/* Nav Links */}
-          <nav className="hidden items-center gap-1 md:flex">
+          <nav className="hidden items-center gap-2 md:flex">
             {NAV_LINKS.map((link) => (
               <button
                 key={link.path}
                 onClick={() => navigate(link.path)}
-                className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                className={`rounded-full border px-4 py-2 text-xs font-semibold tracking-[0.15em] uppercase transition-all ${
                   currentPath === link.path || currentPath.startsWith(link.path + '/')
-                    ? 'bg-accent text-accent-foreground'
-                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    ? 'border-blue-200/40 bg-blue-200/20 text-blue-100 shadow-[0_0_35px_rgba(133,171,255,0.25)]'
+                    : 'border-white/12 bg-white/[0.03] text-slate-300 hover:border-white/28 hover:bg-white/[0.08] hover:text-white'
                 }`}
               >
                 {link.label}
@@ -77,11 +93,24 @@ export function BuyerHubShell() {
           {/* Utility */}
           <div className="flex items-center gap-2">
             <button
+              onClick={() => navigate('/shop')}
+              className="rounded-xl border border-white/15 bg-white/[0.04] p-2 text-slate-300 transition-colors hover:bg-white/[0.09] hover:text-white md:hidden"
+              aria-label="Inventory"
+            >
+              <List size={18} />
+            </button>
+            <button
+              onClick={() => navigate('/login')}
+              className="hidden rounded-full border border-white/15 bg-white/[0.03] px-4 py-2 text-xs font-semibold tracking-[0.15em] uppercase text-slate-300 transition-all hover:border-white/30 hover:bg-white/[0.08] hover:text-white md:inline-flex"
+            >
+              Staff Login
+            </button>
+            <button
               onClick={() => navigate('/favorites')}
-              className={`rounded-md p-2 transition-colors ${
+              className={`rounded-full border p-2 transition-all ${
                 currentPath === '/favorites'
-                  ? 'bg-accent text-accent-foreground'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                  ? 'border-rose-200/50 bg-rose-400/20 text-rose-100'
+                  : 'border-white/15 bg-white/[0.03] text-slate-300 hover:border-white/35 hover:bg-white/[0.1] hover:text-white'
               }`}
               aria-label="Favorites"
             >
@@ -89,10 +118,10 @@ export function BuyerHubShell() {
             </button>
             <button
               onClick={() => navigate('/my-next-steps')}
-              className={`inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+              className={`vault-edge inline-flex items-center gap-1 rounded-full px-4 py-2 text-xs font-semibold tracking-[0.14em] uppercase transition-all ${
                 currentPath === '/my-next-steps'
-                  ? 'bg-primary text-primary-foreground'
-                  : 'bg-accent text-accent-foreground hover:bg-primary hover:text-primary-foreground'
+                  ? 'vault-btn text-white'
+                  : 'vault-btn-muted hover:border-white/45 hover:text-white'
               }`}
             >
               My Next Steps
@@ -103,22 +132,22 @@ export function BuyerHubShell() {
       </header>
 
       {/* Main Content */}
-      <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-6 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-[88rem] flex-1 px-4 py-8 sm:px-6 lg:px-8">
         {PageComponent ? <PageComponent /> : <ShopInventoryPage />}
       </main>
 
       {/* Footer */}
-      <footer className="border-t bg-muted/50">
-        <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+      <footer className="border-t border-white/10 bg-black/35">
+        <div className="mx-auto max-w-[88rem] px-4 py-8 sm:px-6 lg:px-8">
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <div>
-              <p className="text-sm font-semibold">Outcome Dealer</p>
-              <p className="text-xs text-muted-foreground">
-                123 Main Street, Anytown, USA · (555) 000-0000
+              <p className="vault-title text-[0.72rem]">Vehicle Vault</p>
+              <p className="mt-1 text-xs text-slate-400">
+                123 Main Street, Anytown, USA · (555) 000-0000 · Premium inventory, protected experience
               </p>
             </div>
-            <p className="text-xs text-muted-foreground">
-              © {new Date().getFullYear()} Outcome Dealer. All rights reserved.
+            <p className="text-xs text-slate-500">
+              © {new Date().getFullYear()} Vehicle Vault. All rights reserved.
             </p>
           </div>
         </div>

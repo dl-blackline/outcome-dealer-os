@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react'
-import { createInventoryUnit } from '@/domains/inventory/inventory.service'
+import { createRuntimeInventoryRecord } from '@/domains/inventory/inventory.runtime'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -159,15 +159,13 @@ function describeRow(row: ParsedRow): string {
   return parts.join(' ') || '(Unknown)'
 }
 
-type ImportStatus = 'pending' | 'success' | 'error'
+type ImportStatus = 'success' | 'error'
 
 interface ImportResult {
   row: ParsedRow
   status: ImportStatus
   message?: string
 }
-
-const SYSTEM_CTX = { actorType: 'system' as const, actorId: 'inventory-import' as any }
 
 const SAMPLE_CSV = `vin,stock_number,year,make,model,trim,mileage,list_price,sale_price,status
 1HGBH41JXMN109186,STK-001,2023,Honda,Accord,Sport,12500,29900,28900,frontline
@@ -220,27 +218,25 @@ export function InventoryImportPage() {
 
     for (const row of validRows) {
       try {
-        const result = await createInventoryUnit(
-          {
-            vin: row.vin,
-            stockNumber: row.stockNumber,
-            year: row.year,
-            make: row.make,
-            model: row.model,
-            trim: row.trim,
-            mileage: row.mileage,
-            listPrice: row.listPrice,
-            salePrice: row.salePrice,
-            acquisitionCost: row.acquisitionCost,
-            status: row.status || 'inventory',
-            reconStatus: row.reconStatus || 'not_started',
-          },
-          SYSTEM_CTX
-        )
-        if (result.ok) {
+        const created = await createRuntimeInventoryRecord({
+          vin: row.vin,
+          stockNumber: row.stockNumber,
+          year: row.year || new Date().getFullYear(),
+          make: row.make || 'Unknown',
+          model: row.model || 'Vehicle',
+          trim: row.trim,
+          mileage: row.mileage,
+          price: row.salePrice ?? row.listPrice,
+          status: row.status || 'inventory',
+          isPublished: false,
+          available: true,
+          description: `${describeRow(row)} imported from inventory CSV.`,
+        })
+
+        if (created) {
           importResults.push({ row, status: 'success' })
         } else {
-          importResults.push({ row, status: 'error', message: result.error.message })
+          importResults.push({ row, status: 'error', message: 'Record was not created.' })
         }
       } catch (err) {
         importResults.push({ row, status: 'error', message: String(err) })

@@ -35,7 +35,7 @@ This is **not** a marketing site or proof-of-concept. It is an enterprise-grade 
 ## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
+| ----- | ---------- |
 | Framework | React 19 + TypeScript |
 | Build | Vite |
 | Styling | Tailwind CSS v4 |
@@ -58,7 +58,7 @@ See the [`docs/architecture/`](docs/architecture/) directory for detailed docume
 
 ## Project Structure
 
-```
+```text
 src/
 ├── app/            # Shell layout (sidebar, topbar, command palette)
 ├── components/     # Shared UI components
@@ -82,6 +82,22 @@ npm run dev
 ```
 
 The dev server starts on `http://localhost:5000`.
+
+## Public Site And Supabase Setup
+
+The repository now includes two clear surfaces:
+
+- Public buyer-facing routes at `#/`, `#/shop`, `#/shop/:unitId`, finance, trade, schedule, and inquiry pages.
+- Protected internal OS routes at `#/app/...`.
+
+Supabase is optional for local development but fully wired for auth and SQL-backed storage when configured.
+
+1. Copy `.env.example` to `.env`.
+2. Set `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`.
+3. Apply SQL migrations in `migrations/`, including `0015_supabase_public_inventory_and_auth.sql`.
+4. Create a public Supabase storage bucket matching `VITE_SUPABASE_STORAGE_BUCKET` if you want staff-managed uploads.
+
+Without Supabase env vars, the app falls back to a safe local/demo mode so the public site and protected route flow still work in development.
 
 ## Building
 
