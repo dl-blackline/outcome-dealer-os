@@ -65,6 +65,9 @@ export class AuthService {
     if (mode === 'spark') {
       try {
         const userInfo = await spark.user()
+        if (!userInfo) {
+          throw new Error('No active Spark session')
+        }
         return {
           id: userInfo.id,
           login: userInfo.login,
