@@ -1081,9 +1081,20 @@ export function useInventoryCatalog() {
 export function useInventoryRecord(id?: string) {
   const catalog = useInventoryCatalog()
 
+  const normalizedId = id?.trim().toLowerCase()
+
   const record = useMemo(
-    () => catalog.records.find((item) => item.id === id) || null,
-    [catalog.records, id],
+    () =>
+      catalog.records.find((item) => {
+        if (!normalizedId) return false
+        const itemId = item.id.trim().toLowerCase()
+        const listingId = item.listingId?.trim().toLowerCase()
+        const stock = item.stockNumber?.trim().toLowerCase()
+        const vin = item.vin?.trim().toLowerCase()
+
+        return itemId === normalizedId || listingId === normalizedId || stock === normalizedId || vin === normalizedId
+      }) || null,
+    [catalog.records, normalizedId],
   )
 
   return {

@@ -20,6 +20,10 @@ export const DOCUMENT_LABELS: Record<RequiredDocumentType, string> = {
   references: 'References',
   proof_of_insurance: 'Proof of insurance',
   driver_license: 'Driver license',
+  primary_proof_of_income: 'Primary Applicant Proof of Income',
+  primary_proof_of_residency: 'Primary Applicant Proof of Residence',
+  co_applicant_proof_of_income: 'Co-Applicant Proof of Income',
+  co_applicant_proof_of_residency: 'Co-Applicant Proof of Residence',
 }
 
 export function getRequiredDocumentsForScoreRange(scoreRange: CreditScoreRange): RequiredDocumentType[] {
@@ -28,6 +32,35 @@ export function getRequiredDocumentsForScoreRange(scoreRange: CreditScoreRange):
   }
 
   return ['driver_license', 'proof_of_insurance']
+}
+
+function getApplicantSpecificDocuments(scoreRange: CreditScoreRange, applicant: 'primary' | 'co'): RequiredDocumentType[] {
+  const baseDocs = getRequiredDocumentsForScoreRange(scoreRange)
+  return baseDocs.flatMap((docType) => {
+    if (docType === 'proof_of_income') {
+      return applicant === 'primary' ? ['primary_proof_of_income'] : ['co_applicant_proof_of_income']
+    }
+
+    if (docType === 'proof_of_residency') {
+      return applicant === 'primary' ? ['primary_proof_of_residency'] : ['co_applicant_proof_of_residency']
+    }
+
+    return [docType]
+  })
+}
+
+export function getRequiredDocumentsForApplication(
+  applicationType: 'individual' | 'joint',
+  primaryScoreRange: CreditScoreRange,
+  coApplicantScoreRange?: CreditScoreRange,
+): RequiredDocumentType[] {
+  const primaryDocs = getApplicantSpecificDocuments(primaryScoreRange, 'primary')
+
+  if (applicationType !== 'joint' || !coApplicantScoreRange) {
+    return primaryDocs
+  }
+
+  return Array.from(new Set([...primaryDocs, ...getApplicantSpecificDocuments(coApplicantScoreRange, 'co')]))
 }
 
 export function shouldRequirePreviousResidence(currentResidence: ResidenceInfo): boolean {

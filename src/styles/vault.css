@@ -19,6 +19,14 @@
     color: #e8edf6;
   }
 
+  :root[data-theme='light'] body {
+    background:
+      radial-gradient(circle at 10% -10%, rgba(24, 96, 190, 0.1), transparent 35%),
+      radial-gradient(circle at 96% -20%, rgba(35, 86, 164, 0.08), transparent 30%),
+      linear-gradient(180deg, #f8fbff 0%, #edf4ff 52%, #e8f0fc 100%);
+    color: #13233a;
+  }
+
   h1,
   h2,
   h3,
@@ -29,6 +37,11 @@
 }
 
 @layer components {
+  .ods-shell-main {
+    scroll-padding-top: 1.25rem;
+    scroll-padding-bottom: calc(5.5rem + env(safe-area-inset-bottom));
+  }
+
   .ods-page {
     scroll-margin-top: 1.25rem;
     padding-bottom: clamp(2.75rem, 3.5vw, 4.5rem);
@@ -50,6 +63,38 @@
 
   .ods-page-header {
     margin-bottom: clamp(1.1rem, 2vw, 1.6rem);
+  }
+
+  .ods-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.7rem;
+    border: 1px solid color-mix(in oklab, var(--color-border) 85%, transparent);
+    background: color-mix(in oklab, var(--color-card) 88%, transparent);
+    border-radius: 0.95rem;
+    padding: 0.72rem;
+  }
+
+  .ods-table-wrap {
+    border: 1px solid color-mix(in oklab, var(--color-border) 86%, transparent);
+    border-radius: 1rem;
+    background: color-mix(in oklab, var(--color-card) 92%, transparent);
+    overflow: clip;
+  }
+
+  .ods-form-stack {
+    display: flex;
+    flex-direction: column;
+    gap: clamp(0.85rem, 1.3vw, 1.15rem);
+  }
+
+  .ods-state-frame {
+    border: 1px solid color-mix(in oklab, var(--color-border) 86%, transparent);
+    border-radius: 1rem;
+    background: color-mix(in oklab, var(--color-card) 82%, transparent);
+    box-shadow: 0 16px 38px color-mix(in oklab, var(--color-foreground) 9%, transparent);
+    backdrop-filter: blur(8px);
   }
 
   .ods-flow-compact {
@@ -169,6 +214,111 @@
   .vault-image {
     image-rendering: auto;
     content-visibility: auto;
+  }
+
+  :root[data-theme='light'] .vault-shell {
+    background:
+      radial-gradient(circle at 5% 20%, rgba(119, 160, 215, 0.2), transparent 38%),
+      radial-gradient(circle at 96% 2%, rgba(121, 164, 228, 0.18), transparent 32%),
+      linear-gradient(180deg, rgba(243, 248, 255, 0.95) 0%, rgba(230, 239, 252, 0.95) 100%);
+  }
+
+  :root[data-theme='light'] .vault-grid {
+    background-image:
+      linear-gradient(rgba(27, 67, 119, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(27, 67, 119, 0.05) 1px, transparent 1px);
+  }
+
+  :root[data-theme='light'] .vault-panel {
+    border: 1px solid rgba(34, 71, 122, 0.18);
+    background: linear-gradient(165deg, rgba(255, 255, 255, 0.84), rgba(244, 250, 255, 0.75));
+    box-shadow: 0 18px 42px rgba(61, 99, 153, 0.16);
+  }
+
+  :root[data-theme='light'] .vault-panel-soft {
+    border: 1px solid rgba(28, 66, 122, 0.12);
+    background: linear-gradient(170deg, rgba(255, 255, 255, 0.75), rgba(237, 247, 255, 0.65));
+  }
+
+  :root[data-theme='light'] .vault-title {
+    color: #173054;
+  }
+
+  :root[data-theme='light'] .vault-subtitle {
+    color: rgba(24, 47, 80, 0.76);
+  }
+
+  :root[data-theme='light'] .vault-chip {
+    border: 1px solid rgba(40, 86, 150, 0.28);
+    background: linear-gradient(180deg, rgba(122, 166, 232, 0.2), rgba(122, 166, 232, 0.1));
+    color: #173765;
+  }
+
+  :root[data-theme='light'] .vault-btn {
+    border: 1px solid rgba(56, 101, 171, 0.45);
+    background: linear-gradient(180deg, rgba(119, 168, 237, 0.32), rgba(88, 136, 213, 0.26));
+    color: #10315f;
+    box-shadow: 0 10px 28px rgba(62, 104, 164, 0.2);
+  }
+
+  :root[data-theme='light'] .vault-btn-muted {
+    border: 1px solid rgba(43, 83, 145, 0.24);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.78), rgba(230, 242, 255, 0.68));
+    color: #1d3d69;
+  }
+
+  :root[data-theme='light'] .ods-toolbar {
+    border-color: rgba(35, 74, 132, 0.17);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(239, 247, 255, 0.72));
+  }
+
+  :root[data-theme='light'] .ods-table-wrap {
+    border-color: rgba(28, 66, 122, 0.16);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(240, 248, 255, 0.7));
+  }
+
+  :root[data-theme='light'] .ods-state-frame {
+    border-color: rgba(32, 68, 122, 0.18);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(238, 247, 255, 0.74));
+    box-shadow: 0 14px 36px rgba(44, 89, 149, 0.16);
+  }
+
+  /* Light-theme bridge for legacy dark-biased buyer-hub utility classes. */
+  :root[data-theme='light'] .vault-shell .text-white,
+  :root[data-theme='light'] .vault-shell .text-slate-100,
+  :root[data-theme='light'] .vault-shell .text-slate-200 {
+    color: #14345f !important;
+  }
+
+  :root[data-theme='light'] .vault-shell .text-slate-300,
+  :root[data-theme='light'] .vault-shell .text-slate-400 {
+    color: #2d4f7e !important;
+  }
+
+  :root[data-theme='light'] .vault-shell .text-slate-500 {
+    color: #3f628f !important;
+  }
+
+  :root[data-theme='light'] .vault-shell .bg-black\/25,
+  :root[data-theme='light'] .vault-shell .bg-black\/30,
+  :root[data-theme='light'] .vault-shell .bg-black\/35 {
+    background-color: rgba(245, 251, 255, 0.76) !important;
+  }
+
+  :root[data-theme='light'] .vault-shell .bg-white\/3,
+  :root[data-theme='light'] .vault-shell .bg-white\/4,
+  :root[data-theme='light'] .vault-shell .bg-white\/5,
+  :root[data-theme='light'] .vault-shell .bg-white\/8,
+  :root[data-theme='light'] .vault-shell .bg-white\/10 {
+    background-color: rgba(231, 243, 255, 0.62) !important;
+  }
+
+  :root[data-theme='light'] .vault-shell .border-white\/10,
+  :root[data-theme='light'] .vault-shell .border-white\/12,
+  :root[data-theme='light'] .vault-shell .border-white\/15,
+  :root[data-theme='light'] .vault-shell .border-white\/20,
+  :root[data-theme='light'] .vault-shell .border-white\/30 {
+    border-color: rgba(40, 76, 130, 0.26) !important;
   }
 }
 

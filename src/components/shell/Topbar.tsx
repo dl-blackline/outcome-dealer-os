@@ -1,4 +1,4 @@
-import { Bell, MagnifyingGlass, User } from '@phosphor-icons/react'
+import { Bell, MagnifyingGlass, Moon, Sun, User } from '@phosphor-icons/react'
 import { Button } from '@/components/ui/button'
 import {
   DropdownMenu,
@@ -9,6 +9,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { AppRole, ROLE_LABELS } from '@/domains/roles/roles'
 import { AuthRuntimeMode } from '@/domains/auth'
+import { ThemeMode } from '@/domains/theme'
 
 interface TopbarProps {
   currentRole: AppRole
@@ -19,9 +20,11 @@ interface TopbarProps {
   onLogout: () => Promise<void>
   onCommandPaletteOpen: () => void
   onNotificationsOpen: () => void
+  theme: ThemeMode
+  onThemeToggle: () => void
 }
 
-export function Topbar({ currentRole, userName, allowRoleSwitching, authMode, onRoleChange, onLogout, onCommandPaletteOpen, onNotificationsOpen }: TopbarProps) {
+export function Topbar({ currentRole, userName, allowRoleSwitching, authMode, onRoleChange, onLogout, onCommandPaletteOpen, onNotificationsOpen, theme, onThemeToggle }: TopbarProps) {
   return (
     <div className="flex h-16 items-center justify-between border-b border-border bg-background px-6">
       <div className="flex items-center gap-4">
@@ -40,6 +43,10 @@ export function Topbar({ currentRole, userName, allowRoleSwitching, authMode, on
       </div>
 
       <div className="flex items-center gap-3">
+        <Button variant="ghost" size="icon" onClick={onThemeToggle} aria-label="Toggle theme">
+          {theme === 'dark' ? <Sun /> : <Moon />}
+        </Button>
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="sm" className="gap-2">

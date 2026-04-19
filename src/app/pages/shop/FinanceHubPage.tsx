@@ -1,7 +1,9 @@
-import { useState, useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { useRouter } from '@/app/router'
 import { computePaymentEstimate } from '@/domains/buyer-hub/buyerHub.types'
 import { useInventoryCatalog } from '@/domains/inventory/inventory.runtime'
+import { getSelectedUnitId, setSelectedUnit } from '@/domains/buyer-hub/helpers/selectedVehicleContext'
+import { SelectedVehicleContext } from '@/domains/buyer-hub/components/SelectedVehicleContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -63,6 +65,11 @@ const FI_PRODUCTS = [
 export function FinanceHubPage() {
   const { navigate } = useRouter()
   const { publicRecords } = useInventoryCatalog()
+  const selectedUnit = useMemo(() => {
+    const selectedId = getSelectedUnitId()
+    if (!selectedId) return null
+    return publicRecords.find((u) => u.id === selectedId) || null
+  }, [publicRecords])
 
   const maxPrice = Math.max(...publicRecords.map((u) => u.price), 50_000)
   const [vehiclePrice, setVehiclePrice] = useState(35_000)
@@ -81,7 +88,7 @@ export function FinanceHubPage() {
     : 0
 
   return (
-    <div className="mx-auto max-w-6xl space-y-12 px-3 pb-24 pt-6 sm:px-4 sm:pt-8 lg:px-6">
+    <div className="ods-buyer-page mx-auto max-w-6xl space-y-12 px-3 pb-24 pt-6 sm:px-4 sm:pt-8 lg:px-6">
       {/* Header */}
       <div className="vault-panel-soft rounded-4xl border border-white/15 p-7 sm:p-8">
         <p className="vault-title text-[0.62rem] text-slate-400">Vehicle Vault Finance</p>
@@ -90,6 +97,14 @@ export function FinanceHubPage() {
           Transparent payment estimates, flexible terms, and premium protection options — all designed to accelerate your buying journey.
         </p>
       </div>
+
+      {selectedUnit ? (
+        <SelectedVehicleContext
+          unit={selectedUnit}
+          label="Financing For"
+          className="border-blue-300/25"
+        />
+      ) : null}
 
       {/* Payment Calculator */}
       <section>
@@ -247,6 +262,18 @@ export function FinanceHubPage() {
                   Get Pre-Qualified
                   <ArrowRight size={16} />
                 </Button>
+                {selectedUnit ? (
+                  <Button
+                    variant="outline"
+                    className="vault-btn-muted vault-tap w-full rounded-full text-xs uppercase tracking-[0.14em]"
+                    onClick={() => {
+                      setSelectedUnit(selectedUnit.id, 'finance')
+                      navigate(`/shop/${selectedUnit.id}`)
+                    }}
+                  >
+                    View Selected Vehicle
+                  </Button>
+                ) : null}
                 <Button variant="outline" className="vault-btn-muted vault-tap w-full rounded-full text-xs uppercase tracking-[0.14em]" onClick={() => navigate('/trade')}>
                   Value My Trade
                 </Button>

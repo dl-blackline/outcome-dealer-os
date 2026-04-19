@@ -5,6 +5,8 @@ import { EntityBadge } from '@/components/core/EntityBadge'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useRouter } from '@/app/router'
+import { useRouteParam, hasRouteParam } from '@/app/router/routeParams'
+import { PageLoadingState, PageNotFoundState } from '@/components/core/PageStates'
 import { useDeal } from '@/domains/deals/deal.hooks'
 import { useApprovals } from '@/domains/approvals/approval.hooks'
 import { useEntityEvents } from '@/domains/events/event.hooks'
@@ -15,7 +17,6 @@ import {
   CurrencyDollar,
   Car,
   Shield,
-  SpinnerGap,
   CaretRight,
   CheckCircle,
   Clock,
@@ -45,19 +46,26 @@ const STANDARD_DOCS = [
 ]
 
 export function DealRecordPage() {
-  const { params, navigate } = useRouter()
-  const dealQuery = useDeal(params.id ?? '')
+  const { navigate } = useRouter()
+  const dealId = useRouteParam('id')
+  const dealQuery = useDeal(dealId)
   const approvalsQuery = useApprovals()
   const eventsQuery = useEntityEvents(params.id ?? '')
   const leadsQuery = useLeads()
   const inventoryQuery = useInventory()
 
+  if (!hasRouteParam(dealId)) {
+    return <PageNotFoundState title="Deal Missing" message="No deal id was provided in this route." />
+  }
+
   if (dealQuery.loading) {
-    return <div className="flex items-center justify-center py-24"><SpinnerGap className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+    return <PageLoadingState title="Loading Deal Record" message="Retrieving deal details, timeline, and linked records." />
   }
 
   const deal = dealQuery.data
-  if (!deal) return <div className="py-24 text-center text-muted-foreground">Deal not found.</div>
+  if (!deal) {
+    return <PageNotFoundState title="Deal Not Found" message="This deal could not be found or may have been removed." />
+  }
 
   const approvals = approvalsQuery.data.filter(a => a.description.toLowerCase().includes(deal.customerName.split(' ')[0].toLowerCase()))
   const events = eventsQuery.data
@@ -66,7 +74,7 @@ export function DealRecordPage() {
   const currentIdx = STAGES.indexOf(deal.status as typeof STAGES[number])
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className="ods-page ods-flow-lg">
       <Button variant="ghost" size="sm" onClick={() => navigate('/app/records/deals')} className="gap-2"><ArrowLeft className="h-4 w-4" /> Deals</Button>
       <SectionHeader title={`${deal.customerName} — ${deal.vehicleDescription}`} description={`Deal record • Created ${new Date(deal.createdAt).toLocaleDateString()}`} />
 

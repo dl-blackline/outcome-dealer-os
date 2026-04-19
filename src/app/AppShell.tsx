@@ -8,6 +8,7 @@ import { NotificationCenter } from '@/components/shell/NotificationCenter'
 import { RouteNotFound } from '@/components/shell/RouteNotFound'
 import { findMatchingRoute, matchRoute } from '@/app/router/router'
 import { checkExecutiveGuard, checkPermissionGuard } from '@/app/routes/guards'
+import { useTheme } from '@/domains/theme'
 
 // Pages
 import { DashboardPage } from '@/app/pages/DashboardPage'
@@ -72,6 +73,7 @@ export function AppShell() {
   const [notificationsOpen, setNotificationsOpen] = useState(false)
   const { currentPath, navigate } = useRouter()
   const { status, user, setRole, allowRoleSwitching, mode, signOut } = useAuth()
+  const { theme, toggleTheme } = useTheme()
 
   const PageComponent = resolvePageComponent(currentPath)
   const routeDefinition = findMatchingRoute(currentPath)
@@ -135,9 +137,11 @@ export function AppShell() {
           onLogout={signOut}
           onCommandPaletteOpen={() => setCommandPaletteOpen(true)}
           onNotificationsOpen={() => setNotificationsOpen(true)}
+          theme={theme}
+          onThemeToggle={toggleTheme}
         />
 
-        <main className="flex-1 overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable] px-3 pb-20 pt-4 sm:px-6 sm:pb-24 sm:pt-6 lg:px-8 lg:pb-28 lg:pt-8 xl:px-10">
+        <main className="ods-shell-main flex-1 overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable] px-3 pb-20 pt-4 sm:px-6 sm:pb-24 sm:pt-6 lg:px-8 lg:pb-28 lg:pt-8 xl:px-10">
           {PageComponent ? (
             <PageComponent />
           ) : isKnownAppRoute ? (

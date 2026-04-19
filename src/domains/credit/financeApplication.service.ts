@@ -15,6 +15,7 @@ import {
 } from './financeApplication.types'
 import {
   getRequiredDocumentsForScoreRange,
+  getRequiredDocumentsForApplication,
   normalizeAndValidateSSN,
   shouldRequirePreviousEmployer,
   shouldRequirePreviousResidence,
@@ -33,25 +34,40 @@ function buildSensitiveTokenRef(): string {
 function validateCreateInput(input: CreateFinanceApplicationInput): string[] {
   const errors: string[] = []
 
-  if (!input.identity.fullLegalName.trim()) errors.push('Full legal name is required')
-  if (!input.identity.phone.trim()) errors.push('Phone is required')
-  if (!input.identity.email.trim()) errors.push('Email is required')
-  if (!normalizeAndValidateSSN(input.identity.ssnRaw)) errors.push('A valid SSN is required')
+  function validateApplicant(
+    applicant: CreateFinanceApplicationInput['primaryApplicant'],
+    label: 'Primary Applicant' | 'Co-Applicant',
+  ) {
+    if (!applicant.identity.fullLegalName.trim()) errors.push(`${label}: full legal name is required`)
+    if (!applicant.identity.phone.trim()) errors.push(`${label}: phone is required`)
+    if (!applicant.identity.email.trim()) errors.push(`${label}: email is required`)
+    if (!normalizeAndValidateSSN(applicant.identity.ssnRaw)) errors.push(`${label}: a valid SSN is required`)
 
-  if (!input.currentResidence.addressLine1.trim()) errors.push('Current address is required')
-  if (!input.currentResidence.city.trim()) errors.push('Current residence city is required')
-  if (!input.currentResidence.state.trim()) errors.push('Current residence state is required')
-  if (!input.currentResidence.zip.trim()) errors.push('Current residence ZIP is required')
+    if (!applicant.currentResidence.addressLine1.trim()) errors.push(`${label}: current address is required`)
+    if (!applicant.currentResidence.city.trim()) errors.push(`${label}: current residence city is required`)
+    if (!applicant.currentResidence.state.trim()) errors.push(`${label}: current residence state is required`)
+    if (!applicant.currentResidence.zip.trim()) errors.push(`${label}: current residence ZIP is required`)
 
-  if (!input.currentEmployment.employerName.trim()) errors.push('Employer name is required')
-  if (!input.currentEmployment.occupationTitle.trim()) errors.push('Job title is required')
+    if (!applicant.currentEmployment.employerName.trim()) errors.push(`${label}: employer name is required`)
+    if (!applicant.currentEmployment.occupationTitle.trim()) errors.push(`${label}: job title is required`)
 
-  if (shouldRequirePreviousResidence(input.currentResidence) && !input.previousResidence) {
-    errors.push('Previous residence is required when current residency is under 2 years')
+    if (shouldRequirePreviousResidence(applicant.currentResidence) && !applicant.previousResidence) {
+      errors.push(`${label}: previous residence is required when current residency is under 2 years`)
+    }
+
+    if (shouldRequirePreviousEmployer(applicant.currentEmployment) && !applicant.previousEmployment) {
+      errors.push(`${label}: previous employment is required when current employment is under 2 years`)
+    }
   }
 
-  if (shouldRequirePreviousEmployer(input.currentEmployment) && !input.previousEmployment) {
-    errors.push('Previous employment is required when current employment is under 2 years')
+  validateApplicant(input.primaryApplicant, 'Primary Applicant')
+
+  if (input.applicationType === 'joint') {
+    if (!input.coApplicant) {
+      errors.push('Co-Applicant details are required for joint applications')
+    } else {
+      validateApplicant(input.coApplicant, 'Co-Applicant')
+    }
   }
 
   return errors
@@ -95,12 +111,21 @@ export async function createFinanceCreditApplication(
       return fail({ code: 'VALIDATION_ERROR', message: validationErrors.join('; ') })
     }
 
-    const ssn = normalizeAndValidateSSN(input.identity.ssnRaw)
-    if (!ssn) {
-      return fail({ code: 'VALIDATION_ERROR', message: 'Invalid SSN format' })
+    const primarySsn = normalizeAndValidateSSN(input.primaryApplicant.identity.ssnRaw)
+    if (!primarySsn) {
+      return fail({ code: 'VALIDATION_ERROR', message: 'Primary Applicant has an invalid SSN format' })
     }
 
-    const requiredDocuments = getRequiredDocumentsForScoreRange(input.creditScoreRange)
+    const coApplicantSsn = input.coApplicant ? normalizeAndValidateSSN(input.coApplicant.identity.ssnRaw) : null
+    if (input.applicationType === 'joint' && !coApplicantSsn) {
+      return fail({ code: 'VALIDATION_ERROR', message: 'Co-Applicant has an invalid SSN format' })
+    }
+
+    const requiredDocuments = getRequiredDocumentsForApplication(
+      input.applicationType,
+      input.primaryApplicant.creditScoreRange,
+      input.coApplicant?.creditScoreRange,
+    )
     const uploadedDocuments: string[] = []
     const { missingDocuments, completenessStatus, applicationStatus } = deriveCompleteness(requiredDocuments, uploadedDocuments)
 
@@ -108,20 +133,56 @@ export async function createFinanceCreditApplication(
       lead_id: input.leadId,
       customer_id: input.customerId,
       quick_app_submission_id: input.quickAppSubmissionId,
+      application_type: input.applicationType,
+      primary_applicant_json: {
+        identity: {
+          fullLegalName: input.primaryApplicant.identity.fullLegalName.trim(),
+          dateOfBirth: input.primaryApplicant.identity.dateOfBirth,
+          phone: input.primaryApplicant.identity.phone.trim(),
+          email: input.primaryApplicant.identity.email.trim().toLowerCase(),
+          driverLicenseNumber: input.primaryApplicant.identity.driverLicenseNumber?.trim(),
+          ssnLast4: primarySsn.last4,
+          ssnTokenRef: buildSensitiveTokenRef(),
+        },
+        currentResidence: input.primaryApplicant.currentResidence,
+        previousResidence: input.primaryApplicant.previousResidence,
+        currentEmployment: input.primaryApplicant.currentEmployment,
+        previousEmployment: input.primaryApplicant.previousEmployment,
+        creditScoreRange: input.primaryApplicant.creditScoreRange,
+      },
+      co_applicant_json: input.coApplicant && coApplicantSsn
+        ? {
+            identity: {
+              fullLegalName: input.coApplicant.identity.fullLegalName.trim(),
+              dateOfBirth: input.coApplicant.identity.dateOfBirth,
+              phone: input.coApplicant.identity.phone.trim(),
+              email: input.coApplicant.identity.email.trim().toLowerCase(),
+              driverLicenseNumber: input.coApplicant.identity.driverLicenseNumber?.trim(),
+              ssnLast4: coApplicantSsn.last4,
+              ssnTokenRef: buildSensitiveTokenRef(),
+            },
+            currentResidence: input.coApplicant.currentResidence,
+            previousResidence: input.coApplicant.previousResidence,
+            currentEmployment: input.coApplicant.currentEmployment,
+            previousEmployment: input.coApplicant.previousEmployment,
+            creditScoreRange: input.coApplicant.creditScoreRange,
+          }
+        : undefined,
+      // Keep legacy columns populated for backward compatibility with old record readers.
       applicant_json: {
-        fullLegalName: input.identity.fullLegalName.trim(),
-        dateOfBirth: input.identity.dateOfBirth,
-        phone: input.identity.phone.trim(),
-        email: input.identity.email.trim().toLowerCase(),
-        driverLicenseNumber: input.identity.driverLicenseNumber?.trim(),
-        ssnLast4: ssn.last4,
+        fullLegalName: input.primaryApplicant.identity.fullLegalName.trim(),
+        dateOfBirth: input.primaryApplicant.identity.dateOfBirth,
+        phone: input.primaryApplicant.identity.phone.trim(),
+        email: input.primaryApplicant.identity.email.trim().toLowerCase(),
+        driverLicenseNumber: input.primaryApplicant.identity.driverLicenseNumber?.trim(),
+        ssnLast4: primarySsn.last4,
         ssnTokenRef: buildSensitiveTokenRef(),
       },
-      current_residence_json: input.currentResidence,
-      previous_residence_json: input.previousResidence,
-      current_employment_json: input.currentEmployment,
-      previous_employment_json: input.previousEmployment,
-      credit_score_range: input.creditScoreRange,
+      current_residence_json: input.primaryApplicant.currentResidence,
+      previous_residence_json: input.primaryApplicant.previousResidence,
+      current_employment_json: input.primaryApplicant.currentEmployment,
+      previous_employment_json: input.primaryApplicant.previousEmployment,
+      credit_score_range: input.primaryApplicant.creditScoreRange,
       required_documents: requiredDocuments,
       uploaded_documents: uploadedDocuments,
       application_status: applicationStatus,
@@ -139,6 +200,7 @@ export async function createFinanceCreditApplication(
         id: application.id,
         leadId: application.leadId,
         customerId: application.customerId,
+        applicationType: application.applicationType,
         creditScoreRange: application.creditScoreRange,
         requiredDocuments: application.requiredDocuments,
         missingDocuments: application.missingDocuments,
@@ -156,6 +218,7 @@ export async function createFinanceCreditApplication(
         applicationId: application.id,
         leadId: application.leadId,
         customerId: application.customerId,
+        applicationType: application.applicationType,
         creditScoreRange: application.creditScoreRange,
         requiredDocuments: application.requiredDocuments,
         missingDocuments: application.missingDocuments,

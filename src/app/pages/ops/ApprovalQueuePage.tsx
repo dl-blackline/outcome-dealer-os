@@ -29,9 +29,9 @@ export function ApprovalQueuePage() {
   }
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className="ods-page ods-flow-lg">
       <SectionHeader title="Approval Queue" description="Review and resolve pending approvals" action={pendingCount > 0 ? <Badge variant="destructive">{pendingCount} pending</Badge> : undefined} />
-      <div className="flex rounded-lg border border-border overflow-hidden w-fit">
+      <div className="ods-toolbar w-fit gap-0 overflow-hidden rounded-lg p-0">
         {TABS.map(t => (
           <button key={t} onClick={() => setTab(t)} className={`px-3 py-1.5 text-sm capitalize ${tab === t ? 'bg-primary text-primary-foreground' : 'hover:bg-accent/50 text-muted-foreground'}`}>{t}</button>
         ))}

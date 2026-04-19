@@ -22,7 +22,7 @@ export function IntegrationsSettingsPage() {
   }
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className="ods-page ods-flow-lg">
       <SectionHeader title="Integrations" description="External system connections and sync status" />
 
       <Card className="border-blue-500/20 bg-blue-500/5">

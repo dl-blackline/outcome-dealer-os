@@ -82,7 +82,7 @@ export function VehicleDetailPage() {
   const selectedPhoto = vehicle.photos[selectedPhotoIndex] || vehicle.photos[0]
 
   return (
-    <div className="mx-auto max-w-[88rem] space-y-7 px-3 pb-20 pt-6 sm:px-4 sm:pt-8 lg:px-6">
+    <div className="ods-buyer-page mx-auto max-w-[88rem] space-y-7 px-3 pb-20 pt-6 sm:px-4 sm:pt-8 lg:px-6">
       {/* Back navigation */}
       <Button
         variant="ghost"

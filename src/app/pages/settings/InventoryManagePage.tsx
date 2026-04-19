@@ -20,6 +20,7 @@ import {
 } from '@/domains/inventory/inventory.runtime'
 import { useRouter } from '@/app/router'
 import { InventoryPhotoImage } from '@/components/inventory/InventoryPhotoImage'
+import { ManufacturerMark } from '@/components/inventory/ManufacturerMark'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -495,7 +496,7 @@ function PhotoManager({ unitId, existingPhotos, isSupabaseBacked, onRefresh, toa
   }
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className="ods-page ods-flow-lg">
       {/* Existing photos */}
       {sorted.length > 0 && (
         <div>
@@ -1137,6 +1138,7 @@ function InventoryList({ records, loading, onAdd, onEdit }: InventoryListProps) 
                         </div>
                       </TableCell>
                       <TableCell>
+                        <ManufacturerMark make={record.make} size="sm" showLabel className="mb-1" />
                         <p className="font-semibold text-sm">
                           {record.year} {record.make} {record.model}
                         </p>

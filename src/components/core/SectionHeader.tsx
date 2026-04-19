@@ -14,10 +14,10 @@ export function SectionHeader({ title, description, action }: SectionHeaderProps
           {title}
         </h2>
         {description && (
-          <p className="text-sm leading-6 text-muted-foreground sm:text-[0.95rem]">{description}</p>
+          <p className="max-w-3xl text-sm leading-6 text-muted-foreground sm:text-[0.95rem]">{description}</p>
         )}
       </div>
-      {action && <div className="flex-shrink-0">{action}</div>}
+      {action && <div className="shrink-0 pt-0.5">{action}</div>}
     </div>
   )
 }

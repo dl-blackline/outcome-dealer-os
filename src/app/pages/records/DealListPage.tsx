@@ -18,7 +18,7 @@ export function DealListPage() {
   }
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className="ods-page ods-flow-lg">
       <SectionHeader title="Deals" description="Active and completed deal pipeline" />
       <div className="flex rounded-lg border border-border overflow-hidden w-fit">
         {STATUSES.map(s => (

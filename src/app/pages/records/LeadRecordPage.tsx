@@ -7,17 +7,21 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useRouter } from '@/app/router'
+import { useRouteParam, hasRouteParam } from '@/app/router/routeParams'
+import { PageLoadingState, PageNotFoundState } from '@/components/core/PageStates'
 import { useLead } from '@/domains/leads/lead.hooks'
 import { useEntityEvents } from '@/domains/events/event.hooks'
 import { useDeals, useDealMutations } from '@/domains/deals/deal.hooks'
-import { MOCK_INVENTORY } from '@/lib/mockData'
-import { ArrowLeft, EnvelopeSimple, Phone, Target, Globe, SpinnerGap, CaretRight, GitMerge } from '@phosphor-icons/react'
+import { useInventoryCatalog } from '@/domains/inventory/inventory.runtime'
+import { ArrowLeft, EnvelopeSimple, Phone, Target, Globe, CaretRight, GitMerge } from '@phosphor-icons/react'
 
 export function LeadRecordPage() {
-  const { params, navigate } = useRouter()
-  const leadQuery = useLead(params.id ?? '')
-  const eventsQuery = useEntityEvents(params.id ?? '')
+  const { navigate } = useRouter()
+  const leadId = useRouteParam('id')
+  const leadQuery = useLead(leadId)
+  const eventsQuery = useEntityEvents(leadId)
   const dealsQuery = useDeals()
+  const inventoryCatalog = useInventoryCatalog()
   const { convertLeadToDeal } = useDealMutations()
 
   const [showConvert, setShowConvert] = useState(false)
@@ -25,12 +29,18 @@ export function LeadRecordPage() {
   const [converting, setConverting] = useState(false)
   const [convertError, setConvertError] = useState<string | null>(null)
 
-  if (leadQuery.loading) {
-    return <div className="flex items-center justify-center py-24"><SpinnerGap className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+  if (!hasRouteParam(leadId)) {
+    return <PageNotFoundState title="Lead Missing" message="No lead id was provided in this route." />
+  }
+
+  if (leadQuery.loading || inventoryCatalog.loading) {
+    return <PageLoadingState title="Loading Lead Record" message="Retrieving lead details and linked runtime inventory." />
   }
 
   const lead = leadQuery.data
-  if (!lead) return <div className="py-24 text-center text-muted-foreground">Lead not found.</div>
+  if (!lead) {
+    return <PageNotFoundState title="Lead Not Found" message="This lead could not be found or may have been removed." />
+  }
 
   const events = eventsQuery.data
   const linkedDeals = dealsQuery.data.filter(d => d.leadId === lead.id)
@@ -61,7 +71,7 @@ export function LeadRecordPage() {
   }
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className="ods-page ods-flow-lg">
       <Button variant="ghost" size="sm" onClick={() => navigate('/app/records/leads')} className="gap-2"><ArrowLeft className="h-4 w-4" /> Leads</Button>
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div className="flex items-center gap-4 flex-wrap">
@@ -99,7 +109,7 @@ export function LeadRecordPage() {
                   className="h-9 flex-1 rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring/50"
                 >
                   <option value="">Select a vehicle or enter below…</option>
-                  {MOCK_INVENTORY.map(u => (
+                  {inventoryCatalog.records.map(u => (
                     <option key={u.id} value={`${u.year} ${u.make} ${u.model} ${u.trim}`}>
                       {u.year} {u.make} {u.model} {u.trim}
                     </option>

@@ -101,13 +101,36 @@ function parsePlainText(text: string, sourceFileId: UUID): RawRow[] {
 
 // ─── XLSX ─────────────────────────────────────────────────────────────────────
 
-async function parseXLSX(_buffer: ArrayBuffer, _sourceFileId: UUID): Promise<RawRow[]> {
-  // XLSX parsing requires the SheetJS library (xlsx >= 0.20.x from the
-  // SheetJS registry, or a compatible fork) which is not currently bundled.
-  // Users should export their spreadsheet as CSV before importing.
-  throw new Error(
-    'XLSX files are not supported directly. Please export your spreadsheet as CSV format before importing.'
-  )
+async function parseXLSX(buffer: ArrayBuffer, sourceFileId: UUID): Promise<RawRow[]> {
+  const XLSX = await import('xlsx')
+  const workbook = XLSX.read(buffer, { type: 'array', cellDates: false })
+  const firstSheetName = workbook.SheetNames[0]
+  if (!firstSheetName) return []
+
+  const worksheet = workbook.Sheets[firstSheetName]
+  const rows = XLSX.utils.sheet_to_json<Record<string, unknown>>(worksheet, {
+    defval: '',
+    raw: false,
+  })
+
+  return rows.map((row, idx) => {
+    const rawColumns: Record<string, string> = {}
+    for (const [key, value] of Object.entries(row)) {
+      const normalizedKey = key.toLowerCase().replace(/[^a-z0-9_]/g, '_')
+      rawColumns[normalizedKey] = String(value ?? '').trim()
+    }
+
+    const rawText = Object.entries(rawColumns)
+      .map(([k, v]) => `${k}: ${v}`)
+      .join(' | ')
+
+    return {
+      rawText,
+      rawColumns,
+      sourceFileId,
+      rowIndex: idx,
+    }
+  })
 }
 
 // ─── PDF text extraction ──────────────────────────────────────────────────────

@@ -19,7 +19,7 @@ export function AuditExplorerPage() {
   }
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className="ods-page ods-flow-lg">
       <SectionHeader title="Audit Log" description="Immutable record of system actions" action={<div className="flex items-center gap-2"><Scroll className="h-5 w-5 text-muted-foreground" /><span className="text-sm text-muted-foreground">{auditLogs.data.length} entries</span></div>} />
       <select value={entityFilter} onChange={e => setEntityFilter(e.target.value)} className="h-8 rounded-md border border-input bg-background px-2 text-sm capitalize">
         {entities.map(e => <option key={e} value={e}>{e === 'all' ? 'All entities' : e}</option>)}

@@ -28,6 +28,7 @@ export function useFinanceApplications(): QueryResult<FinanceCreditApplication[]
   const { user } = useAuth()
   const [data, setData] = useState<FinanceCreditApplication[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -35,7 +36,13 @@ export function useFinanceApplications(): QueryResult<FinanceCreditApplication[]
 
     listFinanceCreditApplications(ctx).then((result) => {
       if (!cancelled) {
-        setData(result.ok ? result.value : [])
+        if (result.ok) {
+          setData(result.value)
+          setError(null)
+        } else {
+          setData([])
+          setError(result.error.message)
+        }
         setLoading(false)
       }
     })
@@ -43,17 +50,19 @@ export function useFinanceApplications(): QueryResult<FinanceCreditApplication[]
     return () => { cancelled = true }
   }, [user?.id, user?.role])
 
-  return { data, loading, error: null }
+  return { data, loading, error }
 }
 
 export function useFinanceApplication(id: string): QueryResult<FinanceCreditApplication | null> {
   const { user } = useAuth()
   const [data, setData] = useState<FinanceCreditApplication | null>(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!id) {
       setLoading(false)
+      setError('Missing finance application id')
       return
     }
 
@@ -62,7 +71,13 @@ export function useFinanceApplication(id: string): QueryResult<FinanceCreditAppl
 
     getFinanceCreditApplicationById(id, ctx).then((result) => {
       if (!cancelled) {
-        setData(result.ok ? result.value : null)
+        if (result.ok) {
+          setData(result.value)
+          setError(null)
+        } else {
+          setData(null)
+          setError(result.error.message)
+        }
         setLoading(false)
       }
     })
@@ -70,17 +85,19 @@ export function useFinanceApplication(id: string): QueryResult<FinanceCreditAppl
     return () => { cancelled = true }
   }, [id, user?.id, user?.role])
 
-  return { data, loading, error: null }
+  return { data, loading, error }
 }
 
 export function useFinanceApplicationDocuments(applicationId: string): QueryResult<FinanceApplicationDocument[]> {
   const { user } = useAuth()
   const [data, setData] = useState<FinanceApplicationDocument[]>([])
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!applicationId) {
       setLoading(false)
+      setError('Missing finance application id')
       return
     }
 
@@ -89,7 +106,13 @@ export function useFinanceApplicationDocuments(applicationId: string): QueryResu
 
     listFinanceDocumentsByApplication(applicationId, ctx).then((result) => {
       if (!cancelled) {
-        setData(result.ok ? result.value : [])
+        if (result.ok) {
+          setData(result.value)
+          setError(null)
+        } else {
+          setData([])
+          setError(result.error.message)
+        }
         setLoading(false)
       }
     })
@@ -97,7 +120,7 @@ export function useFinanceApplicationDocuments(applicationId: string): QueryResu
     return () => { cancelled = true }
   }, [applicationId, user?.id, user?.role])
 
-  return { data, loading, error: null }
+  return { data, loading, error }
 }
 
 export function useFinanceApplicationMutations() {

@@ -131,7 +131,7 @@ export function FavoritesPage() {
   }, [publicRecords, savedUnitIds])
 
   return (
-    <div className="mx-auto max-w-[88rem] space-y-8 px-3 pb-28 pt-6 sm:px-4 sm:pt-8 lg:px-6">
+    <div className="ods-buyer-page mx-auto max-w-[88rem] space-y-8 px-3 pb-28 pt-6 sm:px-4 sm:pt-8 lg:px-6">
       <div className="vault-panel-soft rounded-4xl border border-white/15 p-7 sm:p-8">
         <div className="flex items-center gap-3">
           <Heart size={28} weight="fill" className="text-red-400" />

@@ -11,7 +11,7 @@
  */
 import { emitEvent } from '@/domains/events/event.bus'
 import { createFinanceCreditApplication } from '@/domains/credit/financeApplication.service'
-import { getRequiredDocumentsForScoreRange } from '@/domains/credit/financeApplication.rules'
+import { getRequiredDocumentsForApplication } from '@/domains/credit/financeApplication.rules'
 import {
   sendInquiryNotification,
   sendAppointmentNotification,
@@ -97,70 +97,141 @@ export async function submitQuickApp(
       leadId,
       customerId,
       quickAppSubmissionId: submissionId,
-      identity: {
-        fullLegalName: data.fullLegalName,
-        dateOfBirth: data.dateOfBirth,
-        phone: data.phone,
-        email: data.email,
-        driverLicenseNumber: data.driverLicenseNumber,
-        ssnRaw: data.ssnRaw,
-      },
-      currentResidence: {
-        addressLine1: data.currentAddressLine1,
-        addressLine2: data.currentAddressLine2,
-        city: data.currentCity,
-        state: data.currentState,
-        zip: data.currentZip,
-        housingStatus: data.housingStatus,
-        housingStatusOther: data.housingStatusOther,
-        monthlyHousingPayment: data.monthlyHousingPayment,
-        timeAtResidence: {
-          years: data.residenceYears,
-          months: data.residenceMonths,
+      applicationType: data.applicationType,
+      primaryApplicant: {
+        identity: {
+          fullLegalName: data.primaryApplicant.fullLegalName,
+          dateOfBirth: data.primaryApplicant.dateOfBirth,
+          phone: data.primaryApplicant.phone,
+          email: data.primaryApplicant.email,
+          driverLicenseNumber: data.primaryApplicant.driverLicenseNumber,
+          ssnRaw: data.primaryApplicant.ssnRaw,
         },
+        currentResidence: {
+          addressLine1: data.primaryApplicant.currentAddressLine1,
+          addressLine2: data.primaryApplicant.currentAddressLine2,
+          city: data.primaryApplicant.currentCity,
+          state: data.primaryApplicant.currentState,
+          zip: data.primaryApplicant.currentZip,
+          housingStatus: data.primaryApplicant.housingStatus,
+          housingStatusOther: data.primaryApplicant.housingStatusOther,
+          monthlyHousingPayment: data.primaryApplicant.monthlyHousingPayment,
+          timeAtResidence: {
+            years: data.primaryApplicant.residenceYears,
+            months: data.primaryApplicant.residenceMonths,
+          },
+        },
+        previousResidence: data.primaryApplicant.previousResidenceAddressLine1
+          ? {
+              addressLine1: data.primaryApplicant.previousResidenceAddressLine1,
+              addressLine2: data.primaryApplicant.previousResidenceAddressLine2,
+              city: data.primaryApplicant.previousResidenceCity || '',
+              state: data.primaryApplicant.previousResidenceState || '',
+              zip: data.primaryApplicant.previousResidenceZip || '',
+              housingStatus: data.primaryApplicant.previousHousingStatus || 'other',
+              housingStatusOther: data.primaryApplicant.previousHousingStatusOther,
+              monthlyHousingPayment: data.primaryApplicant.previousMonthlyHousingPayment,
+              timeAtResidence: {
+                years: data.primaryApplicant.previousResidenceYears || 0,
+                months: data.primaryApplicant.previousResidenceMonths || 0,
+              },
+            }
+          : undefined,
+        currentEmployment: {
+          employerName: data.primaryApplicant.employerName,
+          occupationTitle: data.primaryApplicant.occupationTitle,
+          employmentStatus: data.primaryApplicant.employmentStatus,
+          employmentStatusOther: data.primaryApplicant.employmentStatusOther,
+          grossMonthlyIncome: data.primaryApplicant.grossMonthlyIncome,
+          annualIncome: data.primaryApplicant.annualIncome,
+          timeAtEmployer: {
+            years: data.primaryApplicant.employerYears,
+            months: data.primaryApplicant.employerMonths,
+          },
+        },
+        previousEmployment: data.primaryApplicant.previousEmployerName
+          ? {
+              employerName: data.primaryApplicant.previousEmployerName,
+              occupationTitle: data.primaryApplicant.previousOccupationTitle || '',
+              employmentStatus: 'other',
+              grossMonthlyIncome: data.primaryApplicant.previousEmployerGrossMonthlyIncome,
+              annualIncome: data.primaryApplicant.previousEmployerAnnualIncome,
+              timeAtEmployer: {
+                years: data.primaryApplicant.previousEmployerYears || 0,
+                months: data.primaryApplicant.previousEmployerMonths || 0,
+              },
+            }
+          : undefined,
+        creditScoreRange: data.primaryApplicant.creditScoreRange,
       },
-      previousResidence: data.previousResidenceAddressLine1
+      coApplicant: data.coApplicant
         ? {
-            addressLine1: data.previousResidenceAddressLine1,
-            addressLine2: data.previousResidenceAddressLine2,
-            city: data.previousResidenceCity || '',
-            state: data.previousResidenceState || '',
-            zip: data.previousResidenceZip || '',
-            housingStatus: data.previousHousingStatus || 'other',
-            housingStatusOther: data.previousHousingStatusOther,
-            monthlyHousingPayment: data.previousMonthlyHousingPayment,
-            timeAtResidence: {
-              years: data.previousResidenceYears || 0,
-              months: data.previousResidenceMonths || 0,
+            identity: {
+              fullLegalName: data.coApplicant.fullLegalName,
+              dateOfBirth: data.coApplicant.dateOfBirth,
+              phone: data.coApplicant.phone,
+              email: data.coApplicant.email,
+              driverLicenseNumber: data.coApplicant.driverLicenseNumber,
+              ssnRaw: data.coApplicant.ssnRaw,
             },
+            currentResidence: {
+              addressLine1: data.coApplicant.currentAddressLine1,
+              addressLine2: data.coApplicant.currentAddressLine2,
+              city: data.coApplicant.currentCity,
+              state: data.coApplicant.currentState,
+              zip: data.coApplicant.currentZip,
+              housingStatus: data.coApplicant.housingStatus,
+              housingStatusOther: data.coApplicant.housingStatusOther,
+              monthlyHousingPayment: data.coApplicant.monthlyHousingPayment,
+              timeAtResidence: {
+                years: data.coApplicant.residenceYears,
+                months: data.coApplicant.residenceMonths,
+              },
+            },
+            previousResidence: data.coApplicant.previousResidenceAddressLine1
+              ? {
+                  addressLine1: data.coApplicant.previousResidenceAddressLine1,
+                  addressLine2: data.coApplicant.previousResidenceAddressLine2,
+                  city: data.coApplicant.previousResidenceCity || '',
+                  state: data.coApplicant.previousResidenceState || '',
+                  zip: data.coApplicant.previousResidenceZip || '',
+                  housingStatus: data.coApplicant.previousHousingStatus || 'other',
+                  housingStatusOther: data.coApplicant.previousHousingStatusOther,
+                  monthlyHousingPayment: data.coApplicant.previousMonthlyHousingPayment,
+                  timeAtResidence: {
+                    years: data.coApplicant.previousResidenceYears || 0,
+                    months: data.coApplicant.previousResidenceMonths || 0,
+                  },
+                }
+              : undefined,
+            currentEmployment: {
+              employerName: data.coApplicant.employerName,
+              occupationTitle: data.coApplicant.occupationTitle,
+              employmentStatus: data.coApplicant.employmentStatus,
+              employmentStatusOther: data.coApplicant.employmentStatusOther,
+              grossMonthlyIncome: data.coApplicant.grossMonthlyIncome,
+              annualIncome: data.coApplicant.annualIncome,
+              timeAtEmployer: {
+                years: data.coApplicant.employerYears,
+                months: data.coApplicant.employerMonths,
+              },
+            },
+            previousEmployment: data.coApplicant.previousEmployerName
+              ? {
+                  employerName: data.coApplicant.previousEmployerName,
+                  occupationTitle: data.coApplicant.previousOccupationTitle || '',
+                  employmentStatus: 'other',
+                  grossMonthlyIncome: data.coApplicant.previousEmployerGrossMonthlyIncome,
+                  annualIncome: data.coApplicant.previousEmployerAnnualIncome,
+                  timeAtEmployer: {
+                    years: data.coApplicant.previousEmployerYears || 0,
+                    months: data.coApplicant.previousEmployerMonths || 0,
+                  },
+                }
+              : undefined,
+            creditScoreRange: data.coApplicant.creditScoreRange,
           }
         : undefined,
-      currentEmployment: {
-        employerName: data.employerName,
-        occupationTitle: data.occupationTitle,
-        employmentStatus: data.employmentStatus,
-        employmentStatusOther: data.employmentStatusOther,
-        grossMonthlyIncome: data.grossMonthlyIncome,
-        annualIncome: data.annualIncome,
-        timeAtEmployer: {
-          years: data.employerYears,
-          months: data.employerMonths,
-        },
-      },
-      previousEmployment: data.previousEmployerName
-        ? {
-            employerName: data.previousEmployerName,
-            occupationTitle: data.previousOccupationTitle || '',
-            employmentStatus: 'other',
-            grossMonthlyIncome: data.previousEmployerGrossMonthlyIncome,
-            annualIncome: data.previousEmployerAnnualIncome,
-            timeAtEmployer: {
-              years: data.previousEmployerYears || 0,
-              months: data.previousEmployerMonths || 0,
-            },
-          }
-        : undefined,
-      creditScoreRange: data.creditScoreRange,
     },
     {
       actorType: 'system',
@@ -179,7 +250,7 @@ export async function submitQuickApp(
       objectType: 'lead',
       objectId: leadId,
       actorType: 'system',
-      payload: { sessionId: getBuyerSessionId(), email: data.email },
+      payload: { sessionId: getBuyerSessionId(), email: data.primaryApplicant.email },
     }
   )
 
@@ -191,11 +262,13 @@ export async function submitQuickApp(
       actorType: 'system',
       payload: {
         sessionId: getBuyerSessionId(),
-        fullLegalName: data.fullLegalName,
-        email: data.email,
-        phone: data.phone,
-        annualIncome: data.annualIncome,
-        creditScoreRange: data.creditScoreRange,
+        fullLegalName: data.primaryApplicant.fullLegalName,
+        email: data.primaryApplicant.email,
+        phone: data.primaryApplicant.phone,
+        annualIncome: data.primaryApplicant.annualIncome,
+        creditScoreRange: data.primaryApplicant.creditScoreRange,
+        applicationType: data.applicationType,
+        coApplicantName: data.coApplicant?.fullLegalName,
         applicationId: createResult.value.id,
         unitId: data.unitId,
       },
@@ -203,10 +276,13 @@ export async function submitQuickApp(
   )
 
   void sendQuickAppNotification({
-    fullLegalName: data.fullLegalName,
-    email: data.email,
-    phone: data.phone,
-    creditScoreRange: data.creditScoreRange,
+    fullLegalName: data.primaryApplicant.fullLegalName,
+    email: data.primaryApplicant.email,
+    phone: data.primaryApplicant.phone,
+    creditScoreRange:
+      data.applicationType === 'joint' && data.coApplicant
+        ? `${data.primaryApplicant.creditScoreRange} / ${data.coApplicant.creditScoreRange}`
+        : data.primaryApplicant.creditScoreRange,
     vehicleInfo: data.unitId,
   })
 
@@ -216,7 +292,11 @@ export async function submitQuickApp(
     applicationId: createResult.value.id,
     leadId,
     customerId,
-    requiredDocuments: getRequiredDocumentsForScoreRange(data.creditScoreRange),
+    requiredDocuments: getRequiredDocumentsForApplication(
+      data.applicationType,
+      data.primaryApplicant.creditScoreRange,
+      data.coApplicant?.creditScoreRange,
+    ),
     missingDocuments: createResult.value.missingDocuments,
   }
 }

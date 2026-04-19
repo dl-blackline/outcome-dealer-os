@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { InventoryPhotoImage } from '@/components/inventory/InventoryPhotoImage'
+import { ManufacturerMark } from '@/components/inventory/ManufacturerMark'
 import {
   MagnifyingGlass,
   SlidersHorizontal,
@@ -19,6 +20,7 @@ import {
 } from '@phosphor-icons/react'
 
 type BodyFilter = 'All' | string
+type MakeFilter = 'All' | string
 type PriceRange = 'All' | 'Under $30k' | '$30k–$50k' | 'Over $50k'
 type SortOption = 'Newest' | 'Price Low-High' | 'Price High-Low' | 'Mileage'
 
@@ -37,6 +39,10 @@ function matchesSearch(unit: InventoryRecord, query: string): boolean {
 
 function matchesBody(unit: InventoryRecord, filter: BodyFilter): boolean {
   return filter === 'All' || unit.bodyStyle === filter
+}
+
+function matchesMake(unit: InventoryRecord, filter: MakeFilter): boolean {
+  return filter === 'All' || unit.make === filter
 }
 
 function matchesPrice(unit: InventoryRecord, range: PriceRange): boolean {
@@ -132,6 +138,9 @@ function InventoryCard({
           <p className="mt-1 text-xs uppercase tracking-[0.16em] text-slate-400">
             Stock {unit.stockNumber || 'Pending'}
           </p>
+          <div className="mt-2">
+            <ManufacturerMark make={unit.make} size="sm" showLabel />
+          </div>
         </div>
 
         {/* Mileage */}
@@ -172,6 +181,7 @@ export function ShopInventoryPage() {
   const { publicRecords, loading } = useInventoryCatalog()
 
   const [search, setSearch] = useState('')
+  const [makeFilter, setMakeFilter] = useState<MakeFilter>('All')
   const [bodyFilter, setBodyFilter] = useState<BodyFilter>('All')
   const [priceRange, setPriceRange] = useState<PriceRange>('All')
   const [sort, setSort] = useState<SortOption>('Newest')
@@ -189,24 +199,38 @@ export function ShopInventoryPage() {
     ],
     [publicRecords],
   )
+  const makeOptions = useMemo<MakeFilter[]>(
+    () => [
+      'All',
+      ...Array.from(
+        new Set(
+          publicRecords.filter((unit) => unit.available)
+            .map((unit) => unit.make)
+            .filter(Boolean),
+        ),
+      ).sort((a, b) => a.localeCompare(b)),
+    ],
+    [publicRecords],
+  )
 
   const results = useMemo(() => {
     const filtered = publicRecords.filter(
       (u) =>
         u.available &&
         matchesSearch(u, search) &&
+          matchesMake(u, makeFilter) &&
         matchesBody(u, bodyFilter) &&
         matchesPrice(u, priceRange),
     )
     return sortUnits(filtered, sort)
-  }, [publicRecords, search, bodyFilter, priceRange, sort])
+        }, [publicRecords, search, makeFilter, bodyFilter, priceRange, sort])
 
   if (loading) {
     return <div className="py-24 text-center text-sm text-slate-400">Loading inventory…</div>
   }
 
   return (
-    <div className="mx-auto max-w-[88rem] space-y-8 px-3 pb-24 pt-6 sm:px-4 sm:pt-8 lg:px-6">
+    <div className="ods-buyer-page mx-auto max-w-[88rem] space-y-8 px-3 pb-24 pt-6 sm:px-4 sm:pt-8 lg:px-6">
       {/* Header */}
       <div className="vault-panel-soft rounded-[1.8rem] border border-white/15 p-7 sm:p-8">
         <p className="vault-title text-[0.62rem] text-slate-400">Vehicle Vault Collection</p>
@@ -214,6 +238,23 @@ export function ShopInventoryPage() {
         <p className="mt-3 max-w-3xl text-sm leading-7 text-slate-300">
           Search by make, trim, or stock number and explore each unit through a curated, high-definition vault display.
         </p>
+        <div className="mt-5 flex flex-wrap items-center gap-2">
+          {makeOptions.slice(0, 12).map((make) => (
+            <button
+              key={make}
+              type="button"
+              onClick={() => setMakeFilter(make)}
+              className={`vault-tap inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs transition-colors ${
+                makeFilter === make
+                  ? 'border-blue-300/50 bg-blue-300/20 text-blue-100'
+                  : 'border-white/15 bg-white/3 text-slate-300 hover:border-white/35 hover:bg-white/8'
+              }`}
+            >
+              {make !== 'All' ? <ManufacturerMark make={make} size="sm" /> : null}
+              <span className="uppercase tracking-[0.12em]">{make}</span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Search bar */}
@@ -232,7 +273,7 @@ export function ShopInventoryPage() {
       </div>
 
       {/* Filter toggle (mobile) + sort */}
-      <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-white/12 bg-black/25 p-3">
+      <div className="ods-toolbar justify-between rounded-2xl p-3">
         <Button
           variant="outline"
           size="sm"
@@ -327,6 +368,7 @@ export function ShopInventoryPage() {
             className="vault-btn-muted mt-4 rounded-full px-5 text-xs uppercase tracking-[0.13em]"
             onClick={() => {
               setSearch('')
+              setMakeFilter('All')
               setBodyFilter('All')
               setPriceRange('All')
             }}

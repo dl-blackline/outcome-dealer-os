@@ -4,7 +4,9 @@ import { StatusPill } from '@/components/core/StatusPill'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useRouter } from '@/app/router'
+import { useRouteParam, hasRouteParam } from '@/app/router/routeParams'
 import { useInventoryRecord } from '@/domains/inventory/inventory.runtime'
+import { PageLoadingState, PageNotFoundState } from '@/components/core/PageStates'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
@@ -17,7 +19,6 @@ import {
   Calendar,
   CurrencyDollar,
   Wrench,
-  SpinnerGap,
   CheckCircle,
   Clock,
   Image,
@@ -42,15 +43,22 @@ function getReconSteps(status: string) {
 }
 
 export function InventoryUnitPage() {
-  const { params, navigate } = useRouter()
-  const unitQuery = useInventoryRecord(params.id ?? '')
+  const { navigate } = useRouter()
+  const unitId = useRouteParam('id')
+  const unitQuery = useInventoryRecord(unitId)
+
+  if (!hasRouteParam(unitId)) {
+    return <PageNotFoundState title="Inventory Unit Missing" message="No inventory unit id was provided in the route." />
+  }
 
   if (unitQuery.loading) {
-    return <div className="flex items-center justify-center py-24"><SpinnerGap className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+    return <PageLoadingState title="Loading Inventory Unit" message="Retrieving the selected inventory record." />
   }
 
   const unit = unitQuery.record
-  if (!unit) return <div className="py-24 text-center text-muted-foreground">Unit not found.</div>
+  if (!unit) {
+    return <PageNotFoundState title="Unit Not Found" message="The selected inventory unit could not be found or no longer exists." />
+  }
 
   const agingVariant = unit.status === 'aging' ? 'danger' as const : unit.daysInStock > 45 ? 'warning' as const : 'success' as const
   const statusVariant = unit.status === 'frontline' ? 'success' as const : unit.status === 'recon' ? 'warning' as const : unit.status === 'aging' ? 'danger' as const : 'neutral' as const
@@ -59,7 +67,7 @@ export function InventoryUnitPage() {
   const coverPhoto = unit.photos[0]
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className="ods-page ods-flow-lg">
       <Button variant="ghost" size="sm" onClick={() => navigate('/app/records/inventory')} className="gap-2"><ArrowLeft className="h-4 w-4" /> Inventory</Button>
       <SectionHeader title={`${unit.year} ${unit.make} ${unit.model} ${unit.trim}`} description="Inventory unit record" />
       <div className="grid gap-4 md:grid-cols-4">

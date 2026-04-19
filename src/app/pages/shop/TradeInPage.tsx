@@ -1,7 +1,10 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from '@/app/router'
 import { submitTradeIn } from '@/domains/buyer-hub/buyerHub.eventBridge'
 import { useCustomerProgress } from '@/domains/buyer-hub/useCustomerProgress'
+import { useInventoryCatalog } from '@/domains/inventory/inventory.runtime'
+import { getSelectedUnitId } from '@/domains/buyer-hub/helpers/selectedVehicleContext'
+import { SelectedVehicleContext } from '@/domains/buyer-hub/components/SelectedVehicleContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -28,6 +31,7 @@ const CONDITIONS: { value: Condition; label: string; description: string }[] = [
 export function TradeInPage() {
   const { navigate } = useRouter()
   const { addItem } = useCustomerProgress()
+  const { publicRecords } = useInventoryCatalog()
 
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState(false)
@@ -47,6 +51,28 @@ export function TradeInPage() {
 
   const set = (field: keyof typeof form, value: string) =>
     setForm((p) => ({ ...p, [field]: value }))
+
+  const selectedUnit = useMemo(() => {
+    const selectedId = getSelectedUnitId()
+    if (!selectedId) return null
+    return publicRecords.find((u) => u.id === selectedId) || null
+  }, [publicRecords])
+
+  useEffect(() => {
+    if (!selectedUnit) return
+    setForm((prev) => {
+      if (prev.make || prev.model || prev.year || prev.vin) return prev
+      return {
+        ...prev,
+        year: String(selectedUnit.year),
+        make: selectedUnit.make,
+        model: selectedUnit.model,
+        trim: selectedUnit.trim || '',
+        mileage: selectedUnit.mileage > 0 ? String(selectedUnit.mileage) : '',
+        vin: selectedUnit.vin || '',
+      }
+    })
+  }, [selectedUnit])
 
   const yearNumber = Number(form.year)
   const mileageNumber = Number(form.mileage)
@@ -132,7 +158,7 @@ export function TradeInPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-3 pb-24 pt-6 sm:px-4 sm:pt-8">
+    <div className="ods-buyer-page mx-auto max-w-2xl px-3 pb-24 pt-6 sm:px-4 sm:pt-8">
       <div className="vault-panel-soft mb-8 rounded-4xl border border-white/15 p-6 sm:p-7">
         <Button
           variant="ghost"
@@ -158,6 +184,8 @@ export function TradeInPage() {
             {submitError}
           </div>
         )}
+
+        {selectedUnit ? <SelectedVehicleContext unit={selectedUnit} label="Current Vehicle In Focus" /> : null}
 
         <Card className="vault-panel vault-edge rounded-3xl border-white/15 bg-black/30">
           <CardHeader>

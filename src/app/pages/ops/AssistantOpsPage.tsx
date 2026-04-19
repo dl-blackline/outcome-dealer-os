@@ -300,7 +300,7 @@ export function AssistantOpsPage() {
   }, [])
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className="ods-page ods-flow-lg">
       <SectionHeader
         title="Assistant Ops Console"
         description="Full-spectrum internal AI operating agent for debugging, workflow tracing, safe patch proposals, and approval-gated fixes."

@@ -3,35 +3,45 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Button } from '@/components/ui/button'
 import { useRouter } from '@/app/router'
+import { useRouteParam, hasRouteParam } from '@/app/router/routeParams'
+import { PageErrorState, PageLoadingState, PageNotFoundState } from '@/components/core/PageStates'
 import { useFinanceApplication, useFinanceApplicationDocuments } from '@/domains/credit/financeApplication.hooks'
 import { CREDIT_SCORE_LABELS, DOCUMENT_LABELS, maskSSNForDisplay } from '@/domains/credit/financeApplication.rules'
-import { ArrowLeft, SpinnerGap } from '@phosphor-icons/react'
+import { ArrowLeft } from '@phosphor-icons/react'
 
 export function CreditApplicationRecordPage() {
-  const { params, navigate } = useRouter()
-  const appId = params.id || ''
+  const { navigate } = useRouter()
+  const appId = useRouteParam('id')
   const appQuery = useFinanceApplication(appId)
   const docsQuery = useFinanceApplicationDocuments(appId)
 
+  if (!hasRouteParam(appId)) {
+    return <PageNotFoundState title="Credit Application Missing" message="No application id was provided in this route." />
+  }
+
   if (appQuery.loading || docsQuery.loading) {
-    return <div className="flex items-center justify-center py-24"><SpinnerGap className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+    return <PageLoadingState title="Loading Credit Application" message="Retrieving application and supporting document records." />
+  }
+
+  if (appQuery.error || docsQuery.error) {
+    return <PageErrorState title="Unable to Load Credit Application" message={appQuery.error || docsQuery.error || 'An unexpected error occurred.'} />
   }
 
   const application = appQuery.data
   if (!application) {
-    return <div className="py-24 text-center text-muted-foreground">Credit application not found.</div>
+    return <PageNotFoundState title="Credit Application Not Found" message="This application could not be found or may have been removed." />
   }
 
   const uploadedDocTypes = new Set(docsQuery.data.map((doc) => doc.documentType))
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className="ods-page ods-flow-lg">
       <Button variant="ghost" size="sm" onClick={() => navigate('/app/records/credit-applications')} className="gap-2">
         <ArrowLeft className="h-4 w-4" /> Credit Applications
       </Button>
 
       <SectionHeader
-        title={`Credit Review: ${application.applicant.fullLegalName}`}
+        title={`Credit Review: ${application.primaryApplicant.identity.fullLegalName}`}
         description={`Submitted ${new Date(application.createdAt).toLocaleString()} • Application ${application.id}`}
       />
 
@@ -39,18 +49,37 @@ export function CreditApplicationRecordPage() {
         <Card>
           <CardHeader><CardTitle>Applicant Identity</CardTitle></CardHeader>
           <CardContent className="space-y-2 text-sm">
-            <div className="flex justify-between"><span className="text-muted-foreground">Full legal name</span><span>{application.applicant.fullLegalName}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Email</span><span>{application.applicant.email}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Phone</span><span>{application.applicant.phone}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">DOB</span><span>{application.applicant.dateOfBirth || 'Not provided'}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">SSN</span><span>{maskSSNForDisplay(application.applicant.ssnLast4)}</span></div>
-            <div className="flex justify-between"><span className="text-muted-foreground">Driver license</span><span>{application.applicant.driverLicenseNumber || 'Not provided'}</span></div>
+            <div className="mb-3 rounded-lg border border-border p-3">
+              <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Primary Applicant</p>
+              <div className="flex justify-between"><span className="text-muted-foreground">Full legal name</span><span>{application.primaryApplicant.identity.fullLegalName}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Email</span><span>{application.primaryApplicant.identity.email}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Phone</span><span>{application.primaryApplicant.identity.phone}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">DOB</span><span>{application.primaryApplicant.identity.dateOfBirth || 'Not provided'}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">SSN</span><span>{maskSSNForDisplay(application.primaryApplicant.identity.ssnLast4)}</span></div>
+              <div className="flex justify-between"><span className="text-muted-foreground">Driver license</span><span>{application.primaryApplicant.identity.driverLicenseNumber || 'Not provided'}</span></div>
+            </div>
+
+            {application.coApplicant && (
+              <div className="rounded-lg border border-border p-3">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Co-Applicant</p>
+                <div className="flex justify-between"><span className="text-muted-foreground">Full legal name</span><span>{application.coApplicant.identity.fullLegalName}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Email</span><span>{application.coApplicant.identity.email}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Phone</span><span>{application.coApplicant.identity.phone}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">DOB</span><span>{application.coApplicant.identity.dateOfBirth || 'Not provided'}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">SSN</span><span>{maskSSNForDisplay(application.coApplicant.identity.ssnLast4)}</span></div>
+                <div className="flex justify-between"><span className="text-muted-foreground">Driver license</span><span>{application.coApplicant.identity.driverLicenseNumber || 'Not provided'}</span></div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader><CardTitle>Credit Profile and Readiness</CardTitle></CardHeader>
           <CardContent className="space-y-3 text-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Application type</span>
+              <StatusPill variant={application.applicationType === 'joint' ? 'info' : 'neutral'}>{application.applicationType}</StatusPill>
+            </div>
             <div className="flex items-center justify-between">
               <span className="text-muted-foreground">Credit score range</span>
               <span>{CREDIT_SCORE_LABELS[application.creditScoreRange]}</span>

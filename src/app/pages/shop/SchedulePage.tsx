@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from '@/app/router'
 import { DEALER } from '@/lib/dealer.constants'
 import { submitAppointmentRequest } from '@/domains/buyer-hub/buyerHub.eventBridge'
 import { useCustomerProgress } from '@/domains/buyer-hub/useCustomerProgress'
 import { useInventoryCatalog } from '@/domains/inventory/inventory.runtime'
+import { getSelectedUnitId } from '@/domains/buyer-hub/helpers/selectedVehicleContext'
+import { SelectedVehicleContext } from '@/domains/buyer-hub/components/SelectedVehicleContext'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -68,6 +70,15 @@ export function SchedulePage() {
     /^\S+@\S+\.\S+$/.test(form.email.trim())
 
   const selectedUnit = publicRecords.find((u) => u.id === form.unitId)
+
+  useEffect(() => {
+    if (form.unitId) return
+    const selectedId = getSelectedUnitId()
+    if (!selectedId) return
+    const match = publicRecords.find((u) => u.id === selectedId)
+    if (!match) return
+    setForm((prev) => ({ ...prev, unitId: match.id }))
+  }, [form.unitId, publicRecords])
 
   async function handleSubmit() {
     if (!canSubmit) {
@@ -137,7 +148,7 @@ export function SchedulePage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-3 pb-24 pt-6 sm:px-4 sm:pt-8">
+    <div className="ods-buyer-page mx-auto max-w-2xl px-3 pb-24 pt-6 sm:px-4 sm:pt-8">
       <div className="vault-panel-soft mb-8 rounded-4xl border border-white/15 p-6 sm:p-7">
         <Button variant="ghost" size="sm" className="vault-btn-muted mb-4 rounded-full border border-white/15 px-4 text-xs uppercase tracking-[0.14em] text-slate-300" onClick={() => navigate('/shop')}>
           <ArrowLeft size={18} className="mr-1.5" />
@@ -158,6 +169,8 @@ export function SchedulePage() {
             {submitError}
           </div>
         )}
+
+        {selectedUnit ? <SelectedVehicleContext unit={selectedUnit} label="Scheduling Around" /> : null}
 
         <Card className="vault-panel-soft rounded-3xl border-white/15 bg-white/3">
           <CardHeader>
