@@ -43,6 +43,7 @@ export function InquiryPage() {
 
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const [form, setForm] = useState({
     firstName: '',
     lastName: '',
@@ -55,9 +56,20 @@ export function InquiryPage() {
   const set = (field: keyof typeof form, value: string) =>
     setForm((p) => ({ ...p, [field]: value }))
 
-  const canSubmit = form.firstName.trim() && form.lastName.trim() && form.email.trim()
+  const emailValid = /^\S+@\S+\.\S+$/.test(form.email.trim())
+  const phoneDigits = form.phone.replace(/\D/g, '')
+  const requiresPhone = form.preferredContact === 'phone' || form.preferredContact === 'sms'
+  const phoneValid = !requiresPhone || phoneDigits.length >= 10
+
+  const canSubmit = form.firstName.trim() && form.lastName.trim() && emailValid && phoneValid
 
   async function handleSubmit() {
+    if (!canSubmit) {
+      setSubmitError('Complete required fields with a valid email and phone (if phone/SMS is selected).')
+      return
+    }
+
+    setSubmitError(null)
     setSubmitting(true)
     try {
       const result = await submitInquiry({
@@ -82,7 +94,11 @@ export function InquiryPage() {
           linkedUnitId: unitId,
         })
         setDone(true)
+      } else {
+        setSubmitError('We could not submit your inquiry right now. Please try again.')
       }
+    } catch {
+      setSubmitError('We could not submit your inquiry right now. Please try again.')
     } finally {
       setSubmitting(false)
     }
@@ -139,6 +155,12 @@ export function InquiryPage() {
       </div>
 
       <div className="space-y-5">
+        {submitError && (
+          <div className="rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+            {submitError}
+          </div>
+        )}
+
         {vehicle && (
           <div className="vault-panel-soft flex items-center gap-3 rounded-2xl border border-white/15 bg-black/25 p-4">
             <Car size={24} className="shrink-0 text-slate-300" />
@@ -178,10 +200,16 @@ export function InquiryPage() {
             <div className="space-y-1.5">
               <Label htmlFor="email">Email Address *</Label>
               <Input id="email" type="email" placeholder="jane@example.com" value={form.email} onChange={(e) => set('email', e.target.value)} />
+              {form.email.trim() && !emailValid && (
+                <p className="text-xs text-red-300">Enter a valid email address.</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="phone">Phone (optional)</Label>
               <Input id="phone" type="tel" placeholder="(555) 000-0000" value={form.phone} onChange={(e) => set('phone', e.target.value)} />
+              {requiresPhone && !phoneValid && (
+                <p className="text-xs text-red-300">Phone is required when call or SMS is selected.</p>
+              )}
             </div>
 
             <div className="space-y-1.5">

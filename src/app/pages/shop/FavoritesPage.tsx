@@ -6,6 +6,7 @@ import { setSelectedUnit } from '@/domains/buyer-hub/helpers/selectedVehicleCont
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
+import { InventoryPhotoImage } from '@/components/inventory/InventoryPhotoImage'
 import {
   Heart,
   HeartBreak,
@@ -15,8 +16,6 @@ import {
   CurrencyDollar,
   Speedometer,
 } from '@phosphor-icons/react'
-
-const IMAGE_FALLBACK = '/inventory/national-car-mart/placeholder.jpg'
 
 function formatPrice(price: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -46,16 +45,13 @@ function FavoriteCard({
   return (
     <Card className="vault-panel vault-edge vault-tap group relative flex flex-col overflow-hidden rounded-3xl border-white/20 bg-black/30 transition-all hover:-translate-y-1 hover:border-blue-200/40">
       <div className="vault-image-frame relative h-52 bg-muted">
-        <img
-          src={unit.photos[0]?.url || IMAGE_FALLBACK}
+        <InventoryPhotoImage
+          record={unit}
           alt={`${unit.year} ${unit.make} ${unit.model} ${unit.trim}`}
           className="vault-image h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
           decoding="async"
           sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
-          onError={(e) => {
-            e.currentTarget.src = IMAGE_FALLBACK
-          }}
         />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_40%,rgba(3,7,14,0.92))]" />
         <button

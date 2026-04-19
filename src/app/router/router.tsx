@@ -9,6 +9,23 @@ interface RouterState {
 
 const RouterContext = createContext<RouterState | null>(null)
 
+function normalizePath(path: string): string {
+  const trimmed = path.trim()
+  if (!trimmed) return '/'
+
+  let normalized = trimmed.startsWith('/') ? trimmed : `/${trimmed}`
+  const queryOrHashIndex = normalized.search(/[?#]/)
+  if (queryOrHashIndex >= 0) {
+    normalized = normalized.slice(0, queryOrHashIndex)
+  }
+
+  normalized = normalized.replace(/\/+/g, '/')
+  if (normalized.length > 1 && normalized.endsWith('/')) {
+    normalized = normalized.slice(0, -1)
+  }
+  return normalized || '/'
+}
+
 function getHashPath(): string {
   const hash = window.location.hash
   if (!hash || hash === '#') return '/'
@@ -19,11 +36,11 @@ function getHashPath(): string {
   if (fragment.includes('access_token=') || fragment.includes('error_code=') || fragment.includes('type=recovery')) {
     return '/'
   }
-  return fragment
+  return normalizePath(fragment)
 }
 
 function setHashPath(path: string): void {
-  window.location.hash = path
+  window.location.hash = normalizePath(path)
 }
 
 /** Match a pattern like /app/records/leads/:id against a path */
@@ -59,9 +76,11 @@ export function RouterProvider({ children }: { children: ReactNode }) {
   const [currentPath, setCurrentPath] = useState<string>(getHashPath)
 
   const navigate = useCallback((path: string) => {
-    setHashPath(path)
-    setCurrentPath(path)
-  }, [])
+    const normalized = normalizePath(path)
+    if (normalized === currentPath) return
+    setHashPath(normalized)
+    setCurrentPath(normalized)
+  }, [currentPath])
 
   useEffect(() => {
     const handleHashChange = () => {

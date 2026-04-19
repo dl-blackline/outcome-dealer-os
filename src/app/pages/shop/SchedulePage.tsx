@@ -45,6 +45,7 @@ export function SchedulePage() {
 
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const [form, setForm] = useState({
     type: 'test_drive' as AppointmentType,
     preferredDate: '',
@@ -64,11 +65,17 @@ export function SchedulePage() {
     form.preferredDate.trim() &&
     form.firstName.trim() &&
     form.lastName.trim() &&
-    form.email.trim()
+    /^\S+@\S+\.\S+$/.test(form.email.trim())
 
   const selectedUnit = publicRecords.find((u) => u.id === form.unitId)
 
   async function handleSubmit() {
+    if (!canSubmit) {
+      setSubmitError('Complete all required fields with a valid email address.')
+      return
+    }
+
+    setSubmitError(null)
     setSubmitting(true)
     try {
       const result = await submitAppointmentRequest({
@@ -94,7 +101,11 @@ export function SchedulePage() {
           linkedUnitId: form.unitId || undefined,
         })
         setDone(true)
+      } else {
+        setSubmitError('Unable to submit appointment request right now. Please try again.')
       }
+    } catch {
+      setSubmitError('Unable to submit appointment request right now. Please try again.')
     } finally {
       setSubmitting(false)
     }
@@ -142,6 +153,12 @@ export function SchedulePage() {
       </div>
 
       <div className="space-y-6">
+        {submitError && (
+          <div className="rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+            {submitError}
+          </div>
+        )}
+
         <Card className="vault-panel-soft rounded-3xl border-white/15 bg-white/3">
           <CardHeader>
             <CardTitle className="text-base text-white">What brings you in?</CardTitle>

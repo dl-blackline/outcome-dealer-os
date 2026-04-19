@@ -5,6 +5,8 @@
  */
 
 import type { InventoryRecord } from '@/domains/inventory/inventory.runtime'
+import { pickBestInventoryPhoto } from '@/domains/inventory/inventory.runtime'
+import { getPremiumPlaceholderByBodyStyle } from '@/domains/inventory-photo/inventoryPhoto.placeholder'
 
 const SELECTED_UNIT_STORAGE_KEY = 'outcome.buyer-hub.selected-unit-id'
 const SELECTED_UNIT_JOURNEY_KEY = 'outcome.buyer-hub.selected-unit-journey'
@@ -111,15 +113,8 @@ export function formatMileage(mileage: number): string {
  * Get image URL with fallback for vehicle
  */
 export function getVehicleImageUrl(unit: InventoryRecord | null): string {
-  if (!unit) return '/inventory/national-car-mart/placeholder.jpg'
-
-  // Check for photos from inventory runtime
-  if (unit.photos && unit.photos.length > 0 && unit.photos[0].url) {
-    return unit.photos[0].url
-  }
-
-  // Fallback
-  return '/inventory/national-car-mart/placeholder.jpg'
+  if (!unit) return getPremiumPlaceholderByBodyStyle()
+  return pickBestInventoryPhoto(unit)?.url || getPremiumPlaceholderByBodyStyle(unit.bodyStyle)
 }
 
 /**

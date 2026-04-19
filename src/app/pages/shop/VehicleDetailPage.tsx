@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { InventoryPhotoImage } from '@/components/inventory/InventoryPhotoImage'
 import {
   ArrowLeft,
   Heart,
@@ -21,8 +22,6 @@ import {
   Lock,
   Sparkle,
 } from '@phosphor-icons/react'
-
-const IMAGE_FALLBACK = '/inventory/national-car-mart/placeholder.jpg'
 
 function formatPrice(value: number): string {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value)
@@ -99,15 +98,14 @@ export function VehicleDetailPage() {
         {/* ===== LEFT COLUMN — Hero, Specs, Highlights ===== */}
         <div className="lg:col-span-3 space-y-6">
           {/* Hero section */}
-          <Card className="vault-panel vault-edge overflow-hidden rounded-[2rem] border-white/15 bg-black/30">
+          <Card className="vault-panel vault-edge overflow-hidden rounded-4xl border-white/15 bg-black/30">
             <div className="vault-image-frame relative h-[23rem] bg-muted/40 sm:h-[34rem]">
-              <img
-                src={selectedPhoto?.url || IMAGE_FALLBACK}
+              <InventoryPhotoImage
+                record={vehicle}
+                photo={selectedPhoto}
                 alt={title}
                 className="h-full w-full object-cover"
-                onError={(e) => {
-                  e.currentTarget.src = IMAGE_FALLBACK
-                }}
+                loading="eager"
               />
               <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_44%,rgba(3,7,14,0.95))]" />
               <div className="absolute inset-x-0 bottom-0 p-6 sm:p-7">
@@ -145,7 +143,12 @@ export function VehicleDetailPage() {
                   onClick={() => setSelectedPhotoIndex(index)}
                   className={`overflow-hidden rounded-xl border transition-all ${selectedPhotoIndex === index ? 'border-blue-200/45 ring-2 ring-blue-200/25' : 'border-white/15 hover:border-white/40'}`}
                 >
-                  <img src={photo.url} alt={photo.alt} className="aspect-4/3 h-full w-full object-cover" />
+                  <InventoryPhotoImage
+                    record={vehicle}
+                    photo={photo}
+                    alt={photo.alt}
+                    className="aspect-4/3 h-full w-full object-cover"
+                  />
                 </button>
               ))}
             </div>
@@ -153,28 +156,28 @@ export function VehicleDetailPage() {
 
           {/* Key specs grid */}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <Card className="vault-panel-soft border-white/15 bg-white/[0.04]">
+            <Card className="vault-panel-soft border-white/15 bg-white/4">
               <CardContent className="flex flex-col items-center py-4 px-3 text-center">
                 <CurrencyDollar size={24} className="mb-1.5 text-emerald-600" />
                 <span className="text-xs uppercase tracking-[0.14em] text-slate-400">Price</span>
                 <span className="text-lg font-bold text-white">{formatPrice(vehicle.price)}</span>
               </CardContent>
             </Card>
-            <Card className="vault-panel-soft border-white/15 bg-white/[0.04]">
+            <Card className="vault-panel-soft border-white/15 bg-white/4">
               <CardContent className="flex flex-col items-center py-4 px-3 text-center">
                 <Speedometer size={24} className="mb-1.5 text-blue-600" />
                 <span className="text-xs uppercase tracking-[0.14em] text-slate-400">Mileage</span>
                 <span className="text-lg font-bold text-white">{formatMileage(vehicle.mileage)} mi</span>
               </CardContent>
             </Card>
-            <Card className="vault-panel-soft border-white/15 bg-white/[0.04]">
+            <Card className="vault-panel-soft border-white/15 bg-white/4">
               <CardContent className="flex flex-col items-center py-4 px-3 text-center">
                 <CarProfile size={24} className="mb-1.5 text-violet-600" />
                 <span className="text-xs uppercase tracking-[0.14em] text-slate-400">Body Style</span>
                 <span className="text-lg font-bold text-white">{vehicle.bodyStyle}</span>
               </CardContent>
             </Card>
-            <Card className="vault-panel-soft border-white/15 bg-white/[0.04]">
+            <Card className="vault-panel-soft border-white/15 bg-white/4">
               <CardContent className="flex flex-col items-center py-4 px-3 text-center">
                 <CalendarPlus size={24} className="mb-1.5 text-amber-600" />
                 <span className="text-xs uppercase tracking-[0.14em] text-slate-400">Year</span>
@@ -185,13 +188,13 @@ export function VehicleDetailPage() {
 
           {/* Highlights */}
           {vehicle.features.length > 0 && (
-            <Card className="vault-panel-soft border-white/15 bg-white/[0.03]">
+            <Card className="vault-panel-soft border-white/15 bg-white/3">
               <CardHeader className="pb-3">
                 <CardTitle className="text-base text-white">Highlights</CardTitle>
               </CardHeader>
               <CardContent className="flex flex-wrap gap-2">
                 {vehicle.features.map((h) => (
-                  <Badge key={h} variant="secondary" className="border border-white/15 bg-white/[0.04] text-sm text-slate-200">
+                  <Badge key={h} variant="secondary" className="border border-white/15 bg-white/4 text-sm text-slate-200">
                     {h}
                   </Badge>
                 ))}
@@ -199,7 +202,7 @@ export function VehicleDetailPage() {
             </Card>
           )}
 
-          <Card className="vault-panel-soft border-white/15 bg-white/[0.03]">
+          <Card className="vault-panel-soft border-white/15 bg-white/3">
             <CardHeader className="pb-3">
               <CardTitle className="text-base text-white">Vehicle Overview</CardTitle>
             </CardHeader>
@@ -295,7 +298,7 @@ export function VehicleDetailPage() {
           )}
 
           {/* Conversion CTAs */}
-          <Card className="vault-panel-soft rounded-3xl border-white/15 bg-white/[0.03]">
+          <Card className="vault-panel-soft rounded-3xl border-white/15 bg-white/3">
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-base text-white">
                 <Lock size={18} className="text-blue-200" />

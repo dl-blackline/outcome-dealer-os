@@ -1,6 +1,7 @@
 import { useRouter, matchRoute } from '@/app/router'
 import { Heart, ArrowRight, ShieldCheck, List, Phone, Envelope, MapPin } from '@phosphor-icons/react'
 import { DEALER } from '@/lib/dealer.constants'
+import { RouteNotFound } from '@/components/shell/RouteNotFound'
 
 // Buyer hub pages
 import { HomePage } from '@/app/pages/shop/HomePage'
@@ -83,7 +84,7 @@ export function BuyerHubShell() {
                 className={`rounded-full border px-4 py-2 text-xs font-semibold tracking-[0.15em] uppercase transition-all ${
                   currentPath === link.path || currentPath.startsWith(link.path + '/')
                     ? 'border-blue-200/40 bg-blue-200/20 text-blue-100 shadow-[0_0_35px_rgba(133,171,255,0.25)]'
-                    : 'border-white/12 bg-white/[0.03] text-slate-300 hover:border-white/28 hover:bg-white/[0.08] hover:text-white'
+                    : 'border-white/12 bg-white/3 text-slate-300 hover:border-white/28 hover:bg-white/8 hover:text-white'
                 }`}
               >
                 {link.label}
@@ -95,14 +96,14 @@ export function BuyerHubShell() {
           <div className="flex items-center gap-2">
             <button
               onClick={() => navigate('/shop')}
-              className="rounded-xl border border-white/15 bg-white/[0.04] p-2 text-slate-300 transition-colors hover:bg-white/[0.09] hover:text-white md:hidden"
+              className="rounded-xl border border-white/15 bg-white/4 p-2 text-slate-300 transition-colors hover:bg-white/9 hover:text-white md:hidden"
               aria-label="Inventory"
             >
               <List size={18} />
             </button>
             <button
               onClick={() => navigate('/login')}
-              className="hidden rounded-full border border-white/15 bg-white/[0.03] px-4 py-2 text-xs font-semibold tracking-[0.15em] uppercase text-slate-300 transition-all hover:border-white/30 hover:bg-white/[0.08] hover:text-white md:inline-flex"
+              className="hidden rounded-full border border-white/15 bg-white/3 px-4 py-2 text-xs font-semibold tracking-[0.15em] uppercase text-slate-300 transition-all hover:border-white/30 hover:bg-white/8 hover:text-white md:inline-flex"
             >
               Staff Login
             </button>
@@ -111,7 +112,7 @@ export function BuyerHubShell() {
               className={`rounded-full border p-2 transition-all ${
                 currentPath === '/favorites'
                   ? 'border-rose-200/50 bg-rose-400/20 text-rose-100'
-                  : 'border-white/15 bg-white/[0.03] text-slate-300 hover:border-white/35 hover:bg-white/[0.1] hover:text-white'
+                  : 'border-white/15 bg-white/3 text-slate-300 hover:border-white/35 hover:bg-white/10 hover:text-white'
               }`}
               aria-label="Favorites"
             >
@@ -134,7 +135,16 @@ export function BuyerHubShell() {
 
       {/* Main Content */}
       <main className="mx-auto w-full max-w-[88rem] flex-1 px-4 py-8 sm:px-6 lg:px-8">
-        {PageComponent ? <PageComponent /> : <ShopInventoryPage />}
+        {PageComponent ? (
+          <PageComponent />
+        ) : (
+          <RouteNotFound
+            title="Buyer Page Not Found"
+            message="This customer-facing page is unavailable."
+            actionLabel="Back to Inventory"
+            onAction={() => navigate('/shop')}
+          />
+        )}
       </main>
 
       {/* Footer */}

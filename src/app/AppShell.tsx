@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from '@/app/router'
 import { useAuth } from '@/domains/auth'
 import { AppSidebar } from '@/components/shell/AppSidebar'
 import { Topbar } from '@/components/shell/Topbar'
 import { CommandPalette } from '@/components/shell/CommandPalette'
 import { NotificationCenter } from '@/components/shell/NotificationCenter'
+import { RouteNotFound } from '@/components/shell/RouteNotFound'
 import { findMatchingRoute, matchRoute } from '@/app/router/router'
 import { checkExecutiveGuard, checkPermissionGuard } from '@/app/routes/guards'
 
@@ -74,50 +75,60 @@ export function AppShell() {
 
   const PageComponent = resolvePageComponent(currentPath)
   const routeDefinition = findMatchingRoute(currentPath)
+  const isKnownAppRoute = currentPath.startsWith('/app') && Boolean(routeDefinition)
+
+  const guardResult = useMemo(() => {
+    if (!user || !routeDefinition) return null
+    if (routeDefinition.requireExecutive) return checkExecutiveGuard(user)
+    if (routeDefinition.requiredPermission) return checkPermissionGuard(user, routeDefinition.requiredPermission)
+    return null
+  }, [routeDefinition, user])
+
+  const shouldRedirectToLogin = status !== 'loading' && (status !== 'authenticated' || !user)
+
+  useEffect(() => {
+    if (!shouldRedirectToLogin || typeof window === 'undefined') return
+    window.sessionStorage.setItem('outcome.auth.returnTo', currentPath)
+    if (currentPath !== '/login') navigate('/login')
+  }, [currentPath, navigate, shouldRedirectToLogin])
+
+  useEffect(() => {
+    if (!guardResult || guardResult.allowed) return
+    if (guardResult.fallbackPath && guardResult.fallbackPath !== currentPath) {
+      navigate(guardResult.fallbackPath)
+    }
+  }, [currentPath, guardResult, navigate])
 
   if (status === 'loading') {
     return <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">Loading secure workspace…</div>
   }
 
-  if (status !== 'authenticated' || !user) {
-    if (typeof window !== 'undefined') {
-      window.sessionStorage.setItem('outcome.auth.returnTo', currentPath)
-      if (currentPath !== '/login') navigate('/login')
-    }
-
+  if (shouldRedirectToLogin) {
     return <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">Redirecting to login…</div>
   }
 
-  if (routeDefinition?.requireExecutive || routeDefinition?.requiredPermission) {
-    const guardResult = routeDefinition.requireExecutive
-      ? checkExecutiveGuard(user)
-      : checkPermissionGuard(user, routeDefinition.requiredPermission!)
+  const currentUser = user!
 
-    if (!guardResult.allowed) {
-      if (guardResult.fallbackPath && guardResult.fallbackPath !== currentPath) {
-        navigate(guardResult.fallbackPath)
-      }
-
-      return (
-        <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">
-          Redirecting to authorized workspace…
-        </div>
-      )
-    }
+  if (guardResult && !guardResult.allowed) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">
+        Redirecting to authorized workspace…
+      </div>
+    )
   }
 
   return (
     <div className="flex h-screen bg-background">
       <AppSidebar
         currentPath={currentPath}
-        currentRole={user.role}
+        currentRole={currentUser.role}
         onNavigate={navigate}
       />
 
       <div className="flex flex-1 flex-col overflow-hidden">
         <Topbar
-          currentRole={user.role}
-          userName={user.displayName}
+          currentRole={currentUser.role}
+          userName={currentUser.displayName}
           allowRoleSwitching={allowRoleSwitching}
           authMode={mode}
           onRoleChange={setRole}
@@ -129,8 +140,20 @@ export function AppShell() {
         <main className="flex-1 overflow-y-auto p-8">
           {PageComponent ? (
             <PageComponent />
+          ) : isKnownAppRoute ? (
+            <RouteNotFound
+              title="Workspace Page Not Found"
+              message="This internal route could not be resolved. It may have moved or the link is invalid."
+              actionLabel="Go to Dashboard"
+              onAction={() => navigate('/app/dashboard')}
+            />
           ) : (
-            <DashboardPage />
+            <RouteNotFound
+              title="Unknown Internal Route"
+              message="This path is outside registered internal routes."
+              actionLabel="Go to Dashboard"
+              onAction={() => navigate('/app/dashboard')}
+            />
           )}
         </main>
       </div>

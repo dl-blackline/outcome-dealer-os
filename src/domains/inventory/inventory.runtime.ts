@@ -1,6 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BUYER_HUB_INVENTORY } from '@/domains/buyer-hub/data/nationalCarMartInventory.generated'
 import { getSupabaseBrowserClient, getSupabaseStorageBucket, isSupabaseConfigured } from '@/lib/supabase/client'
+import { enhanceInventoryPhotoAsset } from '@/domains/inventory-photo/inventoryPhotoEnhancer'
+import {
+  getPremiumPlaceholderByBodyStyle,
+  isPlaceholderUrl,
+} from '@/domains/inventory-photo/inventoryPhoto.placeholder'
+import type {
+  InventoryEnhancementStatus,
+  InventoryPhotoVariant,
+} from '@/domains/inventory-photo/inventoryPhoto.types'
 
 export interface InventoryPhotoRecord {
   id: string
@@ -11,6 +20,12 @@ export interface InventoryPhotoRecord {
   sortOrder: number
   isCover: boolean
   source: 'repo' | 'remote' | 'supabase' | 'placeholder'
+  variant?: InventoryPhotoVariant
+  originalPhotoId?: string
+  enhancementStatus?: InventoryEnhancementStatus
+  isActivePublic?: boolean
+  enhancedUrl?: string
+  enhancedStoragePath?: string
 }
 
 export interface InventoryRecord {
@@ -124,7 +139,8 @@ const INVENTORY_OVERRIDE_KEY = 'outcome.inventory.overrides'
 const INVENTORY_IMPORTED_KEY = 'outcome.inventory.imported-records'
 const INVENTORY_PHOTOS_KEY = 'outcome.inventory.photos'
 const INVENTORY_UPDATE_EVENT = 'outcome.inventory.updated'
-const PLACEHOLDER_IMAGE = '/inventory/national-car-mart/placeholder.jpg'
+const PLACEHOLDER_IMAGE = getPremiumPlaceholderByBodyStyle()
+const PHOTO_META_PREFIX = '__ovmeta:'
 
 // ---- Extended update type covering all editable fields ----
 export interface InventoryRecordFullUpdate {
@@ -208,13 +224,108 @@ function writePhotoOverrides(data: Record<string, InventoryPhotoRecord[]>) {
   emitInventoryUpdate()
 }
 
+function parseStoredPhotoAlt(rawAlt: string): { alt: string; meta: Partial<InventoryPhotoRecord> } {
+  if (!rawAlt.startsWith(PHOTO_META_PREFIX)) return { alt: rawAlt, meta: {} }
+  const splitAt = rawAlt.indexOf('::')
+  if (splitAt <= PHOTO_META_PREFIX.length) return { alt: rawAlt, meta: {} }
+
+  const encoded = rawAlt.slice(PHOTO_META_PREFIX.length, splitAt)
+  const alt = rawAlt.slice(splitAt + 2)
+
+  try {
+    const json = atob(encoded)
+    const meta = JSON.parse(json) as Partial<InventoryPhotoRecord>
+    return { alt, meta }
+  } catch {
+    return { alt, meta: {} }
+  }
+}
+
+function encodeStoredPhotoAlt(alt: string, photo: Partial<InventoryPhotoRecord>): string {
+  const meta: Partial<InventoryPhotoRecord> = {
+    variant: photo.variant,
+    originalPhotoId: photo.originalPhotoId,
+    enhancementStatus: photo.enhancementStatus,
+    isActivePublic: photo.isActivePublic,
+    enhancedUrl: photo.enhancedUrl,
+    enhancedStoragePath: photo.enhancedStoragePath,
+  }
+
+  const hasMeta = Object.values(meta).some((v) => v !== undefined)
+  if (!hasMeta) return alt
+
+  try {
+    const encoded = btoa(JSON.stringify(meta))
+    return `${PHOTO_META_PREFIX}${encoded}::${alt}`
+  } catch {
+    return alt
+  }
+}
+
+function normalizePhotoRecord(photo: InventoryPhotoRecord, bodyStyle?: string): InventoryPhotoRecord {
+  const placeholder = isPlaceholderUrl(photo.url)
+  const variant = photo.variant || (placeholder || photo.source === 'placeholder' ? 'placeholder' : 'original')
+  const enhancementStatus =
+    photo.enhancementStatus || (variant === 'enhanced' ? 'enhanced' : variant === 'placeholder' ? 'placeholder' : 'original')
+
+  return {
+    ...photo,
+    url: variant === 'placeholder' ? getPremiumPlaceholderByBodyStyle(bodyStyle) : photo.url,
+    source: variant === 'placeholder' ? 'placeholder' : photo.source,
+    variant,
+    enhancementStatus,
+    isActivePublic: photo.isActivePublic ?? photo.isCover,
+  }
+}
+
+function normalizeRecordPhotos(record: InventoryRecord): InventoryRecord {
+  const photos = [...record.photos]
+    .sort((a, b) => a.sortOrder - b.sortOrder)
+    .map((photo) => normalizePhotoRecord(photo, record.bodyStyle))
+
+  if (photos.length === 0) {
+    photos.push({
+      id: `${record.id}-placeholder`,
+      inventoryId: record.id,
+      url: getPremiumPlaceholderByBodyStyle(record.bodyStyle),
+      alt: `${record.year} ${record.make} ${record.model}`.trim(),
+      sortOrder: 0,
+      isCover: true,
+      source: 'placeholder',
+      variant: 'placeholder',
+      enhancementStatus: 'placeholder',
+      isActivePublic: true,
+    })
+  }
+
+  return { ...record, photos }
+}
+
+export function pickBestInventoryPhoto(record: InventoryRecord): InventoryPhotoRecord {
+  const photos = normalizeRecordPhotos(record).photos
+
+  const enhancedCover = photos.find((p) => p.isCover && p.variant === 'enhanced' && p.enhancementStatus !== 'failed')
+  if (enhancedCover) return enhancedCover
+
+  const originalCover = photos.find((p) => p.isCover && p.variant !== 'enhanced')
+  if (originalCover) return originalCover
+
+  const firstEnhanced = photos.find((p) => p.variant === 'enhanced' && p.enhancementStatus !== 'failed')
+  if (firstEnhanced) return firstEnhanced
+
+  const firstOriginal = photos.find((p) => p.variant !== 'placeholder')
+  if (firstOriginal) return firstOriginal
+
+  return photos[0]
+}
+
 function applyPhotoOverrides(records: InventoryRecord[]): InventoryRecord[] {
   const overrides = readPhotoOverrides()
-  if (Object.keys(overrides).length === 0) return records
+  if (Object.keys(overrides).length === 0) return records.map(normalizeRecordPhotos)
   return records.map((record) => {
     const photos = overrides[record.id]
-    if (!photos || photos.length === 0) return record
-    return { ...record, photos }
+    if (!photos || photos.length === 0) return normalizeRecordPhotos(record)
+    return normalizeRecordPhotos({ ...record, photos })
   })
 }
 
@@ -236,6 +347,9 @@ function buildPhotos(unit: (typeof BUYER_HUB_INVENTORY)[number]): InventoryPhoto
       sortOrder: 0,
       isCover: true,
       source: 'repo',
+      variant: 'original',
+      enhancementStatus: 'original',
+      isActivePublic: true,
     })
   }
 
@@ -248,6 +362,9 @@ function buildPhotos(unit: (typeof BUYER_HUB_INVENTORY)[number]): InventoryPhoto
       sortOrder: photos.length,
       isCover: photos.length === 0,
       source: 'remote',
+      variant: 'original',
+      enhancementStatus: 'original',
+      isActivePublic: photos.length === 0,
     })
   }
 
@@ -255,11 +372,14 @@ function buildPhotos(unit: (typeof BUYER_HUB_INVENTORY)[number]): InventoryPhoto
     photos.push({
       id: `${unit.id}-placeholder`,
       inventoryId: unit.id,
-      url: PLACEHOLDER_IMAGE,
+      url: getPremiumPlaceholderByBodyStyle(unit.bodyStyle),
       alt,
       sortOrder: 0,
       isCover: true,
       source: 'placeholder',
+      variant: 'placeholder',
+      enhancementStatus: 'placeholder',
+      isActivePublic: true,
     })
   }
 
@@ -279,7 +399,7 @@ function buildSeedDescription(unit: (typeof BUYER_HUB_INVENTORY)[number]): strin
 }
 
 function mapSeedInventoryToRecord(unit: (typeof BUYER_HUB_INVENTORY)[number]): InventoryRecord {
-  return {
+  return normalizeRecordPhotos({
     id: unit.id,
     listingId: unit.listingId,
     stockNumber: unit.stockNumber,
@@ -304,7 +424,7 @@ function mapSeedInventoryToRecord(unit: (typeof BUYER_HUB_INVENTORY)[number]): I
     detailUrl: unit.detailUrl,
     source: 'master_sheet',
     photos: buildPhotos(unit),
-  }
+  })
 }
 
 function applyOverride(record: InventoryRecord, override?: LocalInventoryOverride): InventoryRecord {
@@ -348,16 +468,27 @@ function mergeLocalRuntimeRecords(seedRecords: InventoryRecord[]): InventoryReco
 
 function mapSupabasePhoto(row: SupabaseVehiclePhotoRow, fallbackAlt: string): InventoryPhotoRecord {
   const url = row.photo_url || row.storage_path || PLACEHOLDER_IMAGE
+  const parsed = parseStoredPhotoAlt(row.alt_text || fallbackAlt)
+  const inferredVariant: InventoryPhotoVariant =
+    parsed.meta.variant || (isPlaceholderUrl(url) ? 'placeholder' : 'original')
 
   return {
     id: row.id,
     inventoryId: row.inventory_unit_id,
     url,
     storagePath: row.storage_path || undefined,
-    alt: row.alt_text || fallbackAlt,
+    alt: parsed.alt,
     sortOrder: row.sort_order ?? 0,
     isCover: Boolean(row.is_cover),
-    source: row.storage_path ? 'supabase' : url === PLACEHOLDER_IMAGE ? 'placeholder' : 'remote',
+    source: row.storage_path ? 'supabase' : isPlaceholderUrl(url) ? 'placeholder' : 'remote',
+    variant: inferredVariant,
+    originalPhotoId: parsed.meta.originalPhotoId,
+    enhancementStatus:
+      parsed.meta.enhancementStatus ||
+      (inferredVariant === 'enhanced' ? 'enhanced' : inferredVariant === 'placeholder' ? 'placeholder' : 'original'),
+    isActivePublic: parsed.meta.isActivePublic ?? Boolean(row.is_cover),
+    enhancedUrl: parsed.meta.enhancedUrl,
+    enhancedStoragePath: parsed.meta.enhancedStoragePath,
   }
 }
 
@@ -386,15 +517,18 @@ async function loadSupabaseInventoryRecords(): Promise<InventoryRecord[] | null>
       {
         id: `${row.id}-placeholder`,
         inventoryId: row.id,
-        url: PLACEHOLDER_IMAGE,
+        url: getPremiumPlaceholderByBodyStyle(row.body_style || undefined),
         alt: title || 'Vehicle photo',
         sortOrder: 0,
         isCover: true,
         source: 'placeholder',
+        variant: 'placeholder',
+        enhancementStatus: 'placeholder',
+        isActivePublic: true,
       },
     ]
 
-    return {
+    return normalizeRecordPhotos({
       id: row.id,
       listingId: row.source_listing_id || row.id,
       stockNumber: row.stock_number || undefined,
@@ -420,7 +554,7 @@ async function loadSupabaseInventoryRecords(): Promise<InventoryRecord[] | null>
       transmission: row.transmission || undefined,
       source: 'supabase',
       photos,
-    }
+    })
   })
 }
 
@@ -438,7 +572,7 @@ function createLocalRuntimeRecord(input: InventoryRecordCreateInput): InventoryR
   const id = `local-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
   const title = `${input.year} ${input.make} ${input.model} ${input.trim || ''}`.trim()
 
-  return {
+  return normalizeRecordPhotos({
     id,
     listingId: id,
     stockNumber: input.stockNumber,
@@ -467,14 +601,17 @@ function createLocalRuntimeRecord(input: InventoryRecordCreateInput): InventoryR
       {
         id: `${id}-placeholder`,
         inventoryId: id,
-        url: PLACEHOLDER_IMAGE,
+        url: getPremiumPlaceholderByBodyStyle(input.bodyStyle),
         alt: title,
         sortOrder: 0,
         isCover: true,
         source: 'placeholder',
+        variant: 'placeholder',
+        enhancementStatus: 'placeholder',
+        isActivePublic: true,
       },
     ],
-  }
+  })
 }
 
 export async function createRuntimeInventoryRecord(
@@ -666,17 +803,26 @@ export async function attachInventoryPhotos(
 
   if (client) {
     for (const photo of newPhotos) {
+      const normalizedPhoto: Omit<InventoryPhotoRecord, 'id' | 'inventoryId'> = {
+        ...photo,
+        variant: photo.variant || (isPlaceholderUrl(photo.url) ? 'placeholder' : 'original'),
+        enhancementStatus:
+          photo.enhancementStatus ||
+          (photo.variant === 'enhanced' ? 'enhanced' : isPlaceholderUrl(photo.url) ? 'placeholder' : 'original'),
+        isActivePublic: photo.isActivePublic ?? photo.isCover,
+      }
+
       const row = {
         inventory_unit_id: unitId,
-        photo_url: photo.url,
-        storage_path: photo.storagePath || null,
-        alt_text: photo.alt,
-        sort_order: photo.sortOrder,
-        is_cover: photo.isCover,
+        photo_url: normalizedPhoto.url,
+        storage_path: normalizedPhoto.storagePath || null,
+        alt_text: encodeStoredPhotoAlt(normalizedPhoto.alt, normalizedPhoto),
+        sort_order: normalizedPhoto.sortOrder,
+        is_cover: normalizedPhoto.isCover,
       }
       const { data, error } = await client.from('vehicle_photos').insert(row).select('id').single()
       if (!error && data?.id) {
-        created.push({ id: data.id, inventoryId: unitId, ...photo })
+        created.push(normalizePhotoRecord({ id: data.id, inventoryId: unitId, ...normalizedPhoto }))
       }
     }
     if (created.length > 0) emitInventoryUpdate()
@@ -688,7 +834,15 @@ export async function attachInventoryPhotos(
   const existing = overrides[unitId] || []
   for (const photo of newPhotos) {
     const id = `photo-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
-    created.push({ id, inventoryId: unitId, ...photo })
+    const normalizedPhoto: Omit<InventoryPhotoRecord, 'id' | 'inventoryId'> = {
+      ...photo,
+      variant: photo.variant || (isPlaceholderUrl(photo.url) ? 'placeholder' : 'original'),
+      enhancementStatus:
+        photo.enhancementStatus ||
+        (photo.variant === 'enhanced' ? 'enhanced' : isPlaceholderUrl(photo.url) ? 'placeholder' : 'original'),
+      isActivePublic: photo.isActivePublic ?? photo.isCover,
+    }
+    created.push(normalizePhotoRecord({ id, inventoryId: unitId, ...normalizedPhoto }))
   }
   overrides[unitId] = [...existing, ...created]
   writePhotoOverrides(overrides)
@@ -767,6 +921,108 @@ export async function uploadInventoryPhotoFile(
 
   const { data } = client.storage.from(bucket).getPublicUrl(storagePath)
   return { url: data.publicUrl, storagePath }
+}
+
+function dataUrlToFile(dataUrl: string, filename: string): File {
+  const [head, content] = dataUrl.split(',')
+  const mime = head.match(/data:(.*?);base64/)?.[1] || 'image/jpeg'
+  const binary = atob(content)
+  const len = binary.length
+  const bytes = new Uint8Array(len)
+  for (let i = 0; i < len; i++) bytes[i] = binary.charCodeAt(i)
+  return new File([bytes], filename, { type: mime })
+}
+
+function getPhotoById(records: InventoryRecord[], unitId: string, photoId: string): { record: InventoryRecord; photo: InventoryPhotoRecord } | null {
+  const record = records.find((r) => r.id === unitId)
+  if (!record) return null
+  const photo = record.photos.find((p) => p.id === photoId)
+  if (!photo) return null
+  return { record, photo }
+}
+
+export async function enhanceInventoryPhoto(
+  unitId: string,
+  photoId: string,
+): Promise<InventoryPhotoRecord | null> {
+  const records = await listRuntimeInventoryRecords()
+  const found = getPhotoById(records, unitId, photoId)
+  if (!found) return null
+
+  const { record, photo } = found
+  if (photo.variant === 'placeholder' || isPlaceholderUrl(photo.url)) return null
+
+  const enhancement = await enhanceInventoryPhotoAsset({ sourceUrl: photo.url, upscaleFactor: 1.2, quality: 0.9 })
+  if (!enhancement.ok || !enhancement.dataUrl) return null
+
+  let url = enhancement.dataUrl
+  let storagePath: string | undefined
+
+  if (isSupabaseConfigured()) {
+    const file = dataUrlToFile(enhancement.dataUrl, `enhanced-${photo.id}.jpg`)
+    const uploaded = await uploadInventoryPhotoFile(unitId, file)
+    if (uploaded) {
+      url = uploaded.url
+      storagePath = uploaded.storagePath
+    }
+  }
+
+  const created = await attachInventoryPhotos(unitId, [
+    {
+      url,
+      storagePath,
+      alt: `${photo.alt} (Enhanced)`,
+      sortOrder: Math.max(...record.photos.map((p) => p.sortOrder), 0) + 1,
+      isCover: photo.isCover,
+      source: storagePath ? 'supabase' : 'remote',
+      variant: 'enhanced',
+      originalPhotoId: photo.id,
+      enhancementStatus: 'enhanced',
+      isActivePublic: true,
+    },
+  ])
+
+  if (created[0]?.isCover) {
+    await setInventoryCoverPhoto(unitId, created[0].id)
+  }
+
+  return created[0] || null
+}
+
+export async function enhanceAllInventoryPhotos(unitId: string): Promise<number> {
+  const records = await listRuntimeInventoryRecords()
+  const record = records.find((r) => r.id === unitId)
+  if (!record) return 0
+
+  let count = 0
+  for (const photo of record.photos) {
+    if (photo.variant === 'enhanced' || photo.variant === 'placeholder' || isPlaceholderUrl(photo.url)) continue
+    const enhanced = await enhanceInventoryPhoto(unitId, photo.id)
+    if (enhanced) count += 1
+  }
+  return count
+}
+
+export async function useEnhancedPhotoAsPublic(
+  unitId: string,
+  enhancedPhotoId: string,
+): Promise<void> {
+  await setInventoryCoverPhoto(unitId, enhancedPhotoId)
+}
+
+export async function revertEnhancedPhotoToOriginal(
+  unitId: string,
+  enhancedPhotoId: string,
+): Promise<void> {
+  const records = await listRuntimeInventoryRecords()
+  const record = records.find((r) => r.id === unitId)
+  if (!record) return
+
+  const enhanced = record.photos.find((p) => p.id === enhancedPhotoId)
+  const originalId = enhanced?.originalPhotoId
+  if (!originalId) return
+
+  await setInventoryCoverPhoto(unitId, originalId)
 }
 
 export function useInventoryCatalog() {

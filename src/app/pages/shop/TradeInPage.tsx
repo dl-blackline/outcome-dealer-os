@@ -31,6 +31,7 @@ export function TradeInPage() {
 
   const [submitting, setSubmitting] = useState(false)
   const [done, setDone] = useState(false)
+  const [submitError, setSubmitError] = useState<string | null>(null)
   const [form, setForm] = useState({
     year: '',
     make: '',
@@ -47,17 +48,29 @@ export function TradeInPage() {
   const set = (field: keyof typeof form, value: string) =>
     setForm((p) => ({ ...p, [field]: value }))
 
+  const yearNumber = Number(form.year)
+  const mileageNumber = Number(form.mileage)
+  const emailValid = /^\S+@\S+\.\S+$/.test(form.ownerEmail.trim())
   const canSubmit =
     form.year.trim() &&
-    !isNaN(Number(form.year)) &&
+    Number.isFinite(yearNumber) &&
+    yearNumber >= 1980 &&
+    yearNumber <= new Date().getFullYear() + 1 &&
     form.make.trim() &&
     form.model.trim() &&
     form.mileage.trim() &&
-    !isNaN(Number(form.mileage)) &&
+    Number.isFinite(mileageNumber) &&
+    mileageNumber >= 0 &&
     form.ownerName.trim() &&
-    form.ownerEmail.trim()
+    emailValid
 
   async function handleSubmit() {
+    if (!canSubmit) {
+      setSubmitError('Complete required fields with valid year, mileage, and email.')
+      return
+    }
+
+    setSubmitError(null)
     setSubmitting(true)
     try {
       const result = await submitTradeIn({
@@ -82,7 +95,11 @@ export function TradeInPage() {
           nextAction: 'Our appraisal team will review your vehicle information and contact you with a value estimate.',
         })
         setDone(true)
+      } else {
+        setSubmitError('Unable to submit your trade-in right now. Please try again.')
       }
+    } catch {
+      setSubmitError('Unable to submit your trade-in right now. Please try again.')
     } finally {
       setSubmitting(false)
     }
@@ -136,6 +153,12 @@ export function TradeInPage() {
       </div>
 
       <div className="space-y-6">
+        {submitError && (
+          <div className="rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+            {submitError}
+          </div>
+        )}
+
         <Card className="vault-panel vault-edge rounded-3xl border-white/15 bg-black/30">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-base text-white">
@@ -219,6 +242,9 @@ export function TradeInPage() {
             <div className="space-y-1.5">
               <Label htmlFor="ownerEmail">Email Address *</Label>
               <Input id="ownerEmail" type="email" placeholder="jane@example.com" value={form.ownerEmail} onChange={(e) => set('ownerEmail', e.target.value)} />
+              {form.ownerEmail.trim() && !emailValid && (
+                <p className="text-xs text-red-300">Enter a valid email address.</p>
+              )}
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="ownerPhone">Phone (optional)</Label>

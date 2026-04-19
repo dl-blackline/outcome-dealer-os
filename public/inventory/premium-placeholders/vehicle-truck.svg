@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-label="Premium truck placeholder">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#090d11"/><stop offset="100%" stop-color="#1d2631"/></linearGradient>
+    <linearGradient id="line" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#627487"/><stop offset="50%" stop-color="#d6e0ea"/><stop offset="100%" stop-color="#5a6b7d"/></linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <g transform="translate(170 352)">
+    <path d="M130 250c42-98 111-160 231-174h347l144 94h162c83 0 138 28 170 80" fill="#15202a"/>
+    <path d="M246 104h468l88 122H160z" fill="#22303d"/>
+    <path d="M320 138h360" stroke="url(#line)" stroke-width="4" stroke-linecap="round"/>
+    <rect x="138" y="244" width="998" height="80" rx="30" fill="#0f151c"/>
+    <circle cx="284" cy="313" r="65" fill="#0b1016"/><circle cx="284" cy="313" r="40" fill="#7c8ca0"/>
+    <circle cx="902" cy="313" r="65" fill="#0b1016"/><circle cx="902" cy="313" r="40" fill="#7c8ca0"/>
+  </g>
+  <text x="90" y="100" fill="#d2dbe6" font-family="'Space Grotesk',sans-serif" font-size="22" letter-spacing="0.24em">TRUCK INVENTORY</text>
+</svg>

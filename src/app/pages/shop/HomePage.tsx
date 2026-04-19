@@ -15,6 +15,7 @@ import { useScrollIntoView } from '@/hooks/useScrollIntoView'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
+import { InventoryPhotoImage } from '@/components/inventory/InventoryPhotoImage'
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat('en-US', {
@@ -64,10 +65,11 @@ export function HomePage() {
 
           {/* RIGHT: Full image with minimal overlay */}
           <div className="relative min-h-[25rem] sm:min-h-[35rem]">
-            <img
-              src={heroUnit?.photos[0]?.url || '/inventory/national-car-mart/placeholder.jpg'}
+            <InventoryPhotoImage
+              record={heroUnit}
               alt={heroUnit ? `${heroUnit.year} ${heroUnit.make} ${heroUnit.model}` : 'Featured vehicle'}
               className="h-full w-full object-cover"
+              loading="eager"
             />
             <div className="absolute inset-0 bg-[linear-gradient(270deg,rgba(6,9,15,0),rgba(6,9,15,0.4)),linear-gradient(180deg,transparent_50%,rgba(2,5,10,0.7))]" />
             {heroUnit && (
@@ -158,9 +160,9 @@ export function HomePage() {
               className="vault-panel vault-edge vault-scroll-stagger vault-animate-rise overflow-hidden rounded-[1.7rem] text-left transition-all hover:-translate-y-1 hover:border-blue-200/40"
               style={{ animationDelay: `${index * 120}ms` }}
             >
-              <div className="vault-image-frame aspect-[16/10]">
-                <img
-                  src={record.photos[0]?.url || '/inventory/national-car-mart/placeholder.jpg'}
+              <div className="vault-image-frame aspect-16/10">
+                <InventoryPhotoImage
+                  record={record}
                   alt={`${record.year} ${record.make} ${record.model}`}
                   className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                 />
@@ -180,7 +182,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="vault-panel-soft vault-edge grid gap-8 rounded-[2rem] p-8 lg:grid-cols-[1fr_1fr] lg:p-10">
+      <section className="vault-panel-soft vault-edge grid gap-8 rounded-4xl p-8 lg:grid-cols-[1fr_1fr] lg:p-10">
         <div>
           <p className="vault-title text-[0.63rem] text-slate-400">Buyer Confidence Layer</p>
           <h2 className="mt-3 max-w-xl text-3xl font-bold text-white">Luxury presentation backed by operational trust.</h2>

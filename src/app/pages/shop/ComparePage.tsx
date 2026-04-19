@@ -14,6 +14,7 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import { Separator } from '@/components/ui/separator'
+import { InventoryPhotoImage } from '@/components/inventory/InventoryPhotoImage'
 import {
   Scales,
   Trash,
@@ -22,8 +23,6 @@ import {
   Speedometer,
   Car,
 } from '@phosphor-icons/react'
-
-const IMAGE_FALLBACK = '/inventory/national-car-mart/placeholder.jpg'
 
 function formatPrice(price: number): string {
   return new Intl.NumberFormat('en-US', {
@@ -96,16 +95,13 @@ export function ComparePage() {
                   <TableHead key={unit.id} className="min-w-[220px] text-center">
                     <div className="flex flex-col items-center gap-2 py-2">
                       <div className="vault-image-frame h-20 w-28 overflow-hidden rounded-lg bg-muted">
-                        <img
-                          src={unit.photos[0]?.url || IMAGE_FALLBACK}
+                        <InventoryPhotoImage
+                          record={unit}
                           alt={`${unit.year} ${unit.make} ${unit.model}`}
                           className="vault-image h-full w-full object-cover"
                           loading="lazy"
                           decoding="async"
                           sizes="(max-width: 768px) 50vw, 240px"
-                          onError={(e) => {
-                            e.currentTarget.src = IMAGE_FALLBACK
-                          }}
                         />
                       </div>
                       <span className="text-sm font-semibold text-white">{unit.year} {unit.make} {unit.model}</span>

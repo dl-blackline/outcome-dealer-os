@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900" role="img" aria-label="Premium vehicle placeholder">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0a0d12" />
+      <stop offset="55%" stop-color="#111720" />
+      <stop offset="100%" stop-color="#1c2430" />
+    </linearGradient>
+    <linearGradient id="chrome" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#6f7f91" />
+      <stop offset="50%" stop-color="#d7e0ea" />
+      <stop offset="100%" stop-color="#5f6d7b" />
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="42%" r="65%">
+      <stop offset="0%" stop-color="#7a8ea5" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#0c1118" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  <rect width="1600" height="900" fill="url(#glow)"/>
+  <g opacity="0.18">
+    <path d="M120 620c180-170 410-260 680-260s500 90 680 260" fill="none" stroke="#8ea1b7" stroke-width="2" />
+    <path d="M180 680c150-130 356-205 620-205s470 75 620 205" fill="none" stroke="#6d7d90" stroke-width="2" />
+  </g>
+  <g transform="translate(255 338)">
+    <rect x="220" y="182" width="650" height="75" rx="28" fill="#0f141b" />
+    <path d="M100 210c30-76 86-132 183-150l434-2c104 14 165 74 204 152" fill="#151c25" />
+    <path d="M247 84h520l56 83H198z" fill="#1f2833" />
+    <path d="M302 120h410" stroke="url(#chrome)" stroke-width="3" stroke-linecap="round" />
+    <circle cx="250" cy="246" r="55" fill="#0d1117" />
+    <circle cx="250" cy="246" r="35" fill="#7f8ea0" />
+    <circle cx="770" cy="246" r="55" fill="#0d1117" />
+    <circle cx="770" cy="246" r="35" fill="#7f8ea0" />
+  </g>
+  <text x="80" y="92" fill="#cfd8e3" font-family="'Space Grotesk',sans-serif" font-size="24" letter-spacing="0.24em" opacity="0.8">NATIONAL CAR MART</text>
+  <text x="80" y="130" fill="#92a4b8" font-family="'Space Grotesk',sans-serif" font-size="16" letter-spacing="0.22em" opacity="0.72">PREMIUM INVENTORY PLACEHOLDER</text>
+</svg>

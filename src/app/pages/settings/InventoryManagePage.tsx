@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import {
   useInventoryCatalog,
   createRuntimeInventoryRecord,
@@ -8,12 +8,18 @@ import {
   setInventoryCoverPhoto,
   reorderInventoryPhotos,
   uploadInventoryPhotoFile,
+  enhanceInventoryPhoto,
+  enhanceAllInventoryPhotos,
+  useEnhancedPhotoAsPublic as setEnhancedPhotoAsPublic,
+  revertEnhancedPhotoToOriginal,
+  pickBestInventoryPhoto,
   type InventoryRecord,
   type InventoryPhotoRecord,
   type InventoryRecordCreateInput,
   type InventoryRecordFullUpdate,
 } from '@/domains/inventory/inventory.runtime'
 import { useRouter } from '@/app/router'
+import { InventoryPhotoImage } from '@/components/inventory/InventoryPhotoImage'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -39,6 +45,7 @@ import {
   Image,
   ArrowUp,
   ArrowDown,
+  ArrowCounterClockwise,
   Eye,
   EyeSlash,
   MagnifyingGlass,
@@ -46,6 +53,7 @@ import {
   Warning,
   X,
   Camera,
+  Sparkle,
 } from '@phosphor-icons/react'
 
 // ─────────────────────────────────────────
@@ -285,6 +293,8 @@ function PhotoManager({ unitId, existingPhotos, isSupabaseBacked, onRefresh, toa
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [dragOver, setDragOver] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [enhancingPhotoId, setEnhancingPhotoId] = useState<string | null>(null)
+  const [enhancingAll, setEnhancingAll] = useState(false)
 
   const sorted = [...existingPhotos].sort((a, b) => a.sortOrder - b.sortOrder)
 
@@ -434,6 +444,56 @@ function PhotoManager({ unitId, existingPhotos, isSupabaseBacked, onRefresh, toa
     onRefresh()
   }
 
+  async function handleEnhance(photoId: string) {
+    setEnhancingPhotoId(photoId)
+    try {
+      const enhanced = await enhanceInventoryPhoto(unitId, photoId)
+      if (enhanced) {
+        onRefresh()
+        toast('Photo enhanced successfully')
+      } else {
+        toast('Unable to enhance this photo', 'error')
+      }
+    } catch {
+      toast('Photo enhancement failed', 'error')
+    } finally {
+      setEnhancingPhotoId(null)
+    }
+  }
+
+  async function handleEnhanceAll() {
+    setEnhancingAll(true)
+    try {
+      const count = await enhanceAllInventoryPhotos(unitId)
+      onRefresh()
+      toast(count > 0 ? `Enhanced ${count} photo${count === 1 ? '' : 's'}` : 'No eligible photos to enhance')
+    } catch {
+      toast('Bulk enhancement failed', 'error')
+    } finally {
+      setEnhancingAll(false)
+    }
+  }
+
+  async function handleUseEnhancedAsPublic(photoId: string) {
+    try {
+      await setEnhancedPhotoAsPublic(unitId, photoId)
+      onRefresh()
+      toast('Enhanced photo is now public cover')
+    } catch {
+      toast('Failed to set enhanced cover', 'error')
+    }
+  }
+
+  async function handleRevertToOriginal(photoId: string) {
+    try {
+      await revertEnhancedPhotoToOriginal(unitId, photoId)
+      onRefresh()
+      toast('Reverted cover back to original photo')
+    } catch {
+      toast('Failed to revert enhanced cover', 'error')
+    }
+  }
+
   return (
     <div className="space-y-6">
       {/* Existing photos */}
@@ -442,25 +502,42 @@ function PhotoManager({ unitId, existingPhotos, isSupabaseBacked, onRefresh, toa
           <p className="mb-3 text-xs uppercase tracking-[0.14em] text-muted-foreground">
             Attached Photos ({sorted.length})
           </p>
+          {sorted.some((photo) => photo.variant !== 'enhanced' && photo.variant !== 'placeholder') && (
+            <div className="mb-3 flex justify-end">
+              <Button
+                variant="outline"
+                onClick={() => void handleEnhanceAll()}
+                disabled={enhancingAll}
+                className="gap-1.5 rounded-full text-xs uppercase tracking-[0.12em]"
+              >
+                <Sparkle size={14} />
+                {enhancingAll ? 'Enhancing...' : 'Enhance All Photos'}
+              </Button>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
             {sorted.map((photo, idx) => (
               <div
                 key={photo.id}
                 className={`relative rounded-xl overflow-hidden border ${photo.isCover ? 'border-amber-400/50 ring-2 ring-amber-400/25' : 'border-white/15'}`}
               >
-                <img
-                  src={photo.url}
+                <InventoryPhotoImage
+                  photo={photo}
                   alt={photo.alt}
                   className="aspect-4/3 w-full object-cover bg-muted/30"
-                  onError={(e) => {
-                    e.currentTarget.src = '/inventory/national-car-mart/placeholder.jpg'
-                  }}
                 />
                 {photo.isCover && (
                   <div className="absolute left-2 top-2">
                     <Badge className="rounded-full bg-amber-500/80 text-[0.6rem] text-white px-1.5 py-0.5">
                       <Star size={9} weight="fill" className="mr-0.5" />
                       Cover
+                    </Badge>
+                  </div>
+                )}
+                {photo.variant === 'enhanced' && (
+                  <div className="absolute right-2 top-2">
+                    <Badge className="rounded-full bg-blue-500/80 px-1.5 py-0.5 text-[0.6rem] text-white">
+                      Enhanced
                     </Badge>
                   </div>
                 )}
@@ -500,6 +577,36 @@ function PhotoManager({ unitId, existingPhotos, isSupabaseBacked, onRefresh, toa
                     >
                       <Trash size={12} />
                     </button>
+                    {photo.variant !== 'enhanced' && photo.variant !== 'placeholder' && (
+                      <button
+                        onClick={() => void handleEnhance(photo.id)}
+                        disabled={enhancingPhotoId === photo.id}
+                        className="rounded p-1 text-blue-300 hover:text-blue-100 disabled:opacity-40"
+                        title="Enhance photo"
+                      >
+                        <Sparkle size={12} />
+                      </button>
+                    )}
+                    {photo.variant === 'enhanced' && (
+                      <>
+                        {!photo.isCover && (
+                          <button
+                            onClick={() => void handleUseEnhancedAsPublic(photo.id)}
+                            className="rounded p-1 text-emerald-300 hover:text-emerald-100"
+                            title="Use enhanced as cover"
+                          >
+                            <Eye size={12} />
+                          </button>
+                        )}
+                        <button
+                          onClick={() => void handleRevertToOriginal(photo.id)}
+                          className="rounded p-1 text-amber-300 hover:text-amber-100"
+                          title="Revert to original cover"
+                        >
+                          <ArrowCounterClockwise size={12} />
+                        </button>
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -558,7 +665,7 @@ function PhotoManager({ unitId, existingPhotos, isSupabaseBacked, onRefresh, toa
         onDrop={handleDrop}
         onClick={() => fileInputRef.current?.click()}
         className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed py-10 text-center transition-all ${
-          dragOver ? 'border-blue-400/60 bg-blue-400/10' : 'border-white/15 hover:border-white/30 hover:bg-white/[0.02]'
+          dragOver ? 'border-blue-400/60 bg-blue-400/10' : 'border-white/15 hover:border-white/30 hover:bg-white/2'
         }`}
       >
         <Camera size={36} className="mb-3 text-muted-foreground/50" />
@@ -699,7 +806,7 @@ function UnitForm({ mode, record, isSupabaseBacked, onSave, onCancel, toast }: U
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-1 rounded-xl border border-white/10 bg-white/[0.03] p-1 w-fit">
+      <div className="flex w-fit gap-1 rounded-xl border border-white/10 bg-white/3 p-1">
         {(['details', 'photos'] as const).map((t) => (
           <button
             key={t}
@@ -741,7 +848,7 @@ function UnitForm({ mode, record, isSupabaseBacked, onSave, onCancel, toast }: U
             <Toggle checked={form.isFeatured} onChange={(v) => set('isFeatured', v)} label="Featured" />
           </div>
 
-          <Card className="border-white/10 bg-white/[0.02]">
+          <Card className="border-white/10 bg-white/2">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm text-muted-foreground uppercase tracking-wide">Identification</CardTitle>
             </CardHeader>
@@ -768,7 +875,7 @@ function UnitForm({ mode, record, isSupabaseBacked, onSave, onCancel, toast }: U
             </CardContent>
           </Card>
 
-          <Card className="border-white/10 bg-white/[0.02]">
+          <Card className="border-white/10 bg-white/2">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm text-muted-foreground uppercase tracking-wide">Vehicle *</CardTitle>
             </CardHeader>
@@ -794,7 +901,7 @@ function UnitForm({ mode, record, isSupabaseBacked, onSave, onCancel, toast }: U
             </CardContent>
           </Card>
 
-          <Card className="border-white/10 bg-white/[0.02]">
+          <Card className="border-white/10 bg-white/2">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm text-muted-foreground uppercase tracking-wide">Specs & Pricing</CardTitle>
             </CardHeader>
@@ -838,7 +945,7 @@ function UnitForm({ mode, record, isSupabaseBacked, onSave, onCancel, toast }: U
             </CardContent>
           </Card>
 
-          <Card className="border-white/10 bg-white/[0.02]">
+          <Card className="border-white/10 bg-white/2">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm text-muted-foreground uppercase tracking-wide">Listing Content</CardTitle>
             </CardHeader>
@@ -879,7 +986,7 @@ function UnitForm({ mode, record, isSupabaseBacked, onSave, onCancel, toast }: U
       )}
 
       {tab === 'photos' && photosUnit && (
-        <Card className="border-white/10 bg-white/[0.02]">
+        <Card className="border-white/10 bg-white/2">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm text-muted-foreground uppercase tracking-wide flex items-center gap-2">
               <Image size={15} />
@@ -904,7 +1011,7 @@ function UnitForm({ mode, record, isSupabaseBacked, onSave, onCancel, toast }: U
       )}
 
       {tab === 'photos' && !photosUnit && (
-        <div className="rounded-xl border border-white/10 bg-white/[0.02] p-8 text-center text-sm text-muted-foreground">
+        <div className="rounded-xl border border-white/10 bg-white/2 p-8 text-center text-sm text-muted-foreground">
           Save the vehicle details first to enable photo management.
         </div>
       )}
@@ -941,8 +1048,7 @@ function InventoryList({ records, loading, onAdd, onEdit }: InventoryListProps) 
     )
   })
 
-  const coverPhoto = (r: InventoryRecord) =>
-    r.photos.find((p) => p.isCover) || r.photos[0]
+  const coverPhoto = (r: InventoryRecord) => pickBestInventoryPhoto(r)
 
   return (
     <div className="space-y-6">
@@ -1022,13 +1128,11 @@ function InventoryList({ records, loading, onAdd, onEdit }: InventoryListProps) 
                     >
                       <TableCell>
                         <div className="h-10 w-14 overflow-hidden rounded-lg border border-white/10 bg-muted/30">
-                          <img
-                            src={cover?.url || '/inventory/national-car-mart/placeholder.jpg'}
-                            alt={cover?.alt || 'Vehicle'}
+                          <InventoryPhotoImage
+                            record={record}
+                            photo={cover}
+                            alt={cover?.alt || `${record.year} ${record.make} ${record.model}`}
                             className="h-full w-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.src = '/inventory/national-car-mart/placeholder.jpg'
-                            }}
                           />
                         </div>
                       </TableCell>

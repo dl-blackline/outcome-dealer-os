@@ -8,7 +8,8 @@ import React from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import type { InventoryRecord } from '@/domains/inventory/inventory.runtime'
-import { formatPrice, formatMileage, formatVehicleTitle } from './selectedVehicleContext'
+import { InventoryPhotoImage } from '@/components/inventory/InventoryPhotoImage'
+import { formatPrice, formatMileage, formatVehicleTitle } from '../helpers/selectedVehicleContext'
 
 interface Props {
   unit: InventoryRecord | null
@@ -20,20 +21,15 @@ interface Props {
 export function SelectedVehicleContext({ unit, label = 'Selected Vehicle', showPrice = true, className = '' }: Props) {
   if (!unit) return null
 
-  const imageUrl = unit.photos?.[0]?.url || '/inventory/national-car-mart/placeholder.jpg'
-
   return (
     <Card className={`vault-panel-soft border-white/15 overflow-hidden rounded-xl ${className}`}>
       <CardContent className="flex gap-4 p-4">
         {/* Vehicle Image */}
-        <div className="h-24 w-32 flex-shrink-0 overflow-hidden rounded-lg bg-slate-900">
-          <img
-            src={imageUrl}
+        <div className="h-24 w-32 shrink-0 overflow-hidden rounded-lg bg-slate-900">
+          <InventoryPhotoImage
+            record={unit}
             alt={formatVehicleTitle(unit)}
             className="h-full w-full object-cover"
-            onError={(e) => {
-              e.currentTarget.src = '/inventory/national-car-mart/placeholder.jpg'
-            }}
           />
         </div>
 

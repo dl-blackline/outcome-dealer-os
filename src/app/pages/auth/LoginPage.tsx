@@ -43,9 +43,9 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,_rgba(14,165,233,0.18),_transparent_30%),linear-gradient(180deg,_rgba(15,23,42,1)_0%,_rgba(3,7,18,1)_100%)] text-foreground">
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(14,165,233,0.18),transparent_30%),linear-gradient(180deg,rgba(15,23,42,1)_0%,rgba(3,7,18,1)_100%)] text-foreground">
       <div className="mx-auto grid min-h-screen max-w-7xl gap-12 px-6 py-10 lg:grid-cols-[1.2fr_0.8fr] lg:px-10">
-        <section className="flex flex-col justify-between rounded-[2rem] border border-white/10 bg-white/5 p-8 backdrop-blur-xl lg:p-12">
+        <section className="flex flex-col justify-between rounded-4xl border border-white/10 bg-white/5 p-8 backdrop-blur-xl lg:p-12">
           <div>
             <p className="text-sm uppercase tracking-[0.3em] text-sky-200/80">Vehicle Vault Internal Access</p>
             <h1 className="mt-6 max-w-2xl font-display text-5xl font-semibold tracking-tight text-white lg:text-6xl">

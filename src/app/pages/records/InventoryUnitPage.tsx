@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { InventoryPhotoImage } from '@/components/inventory/InventoryPhotoImage'
 import {
   ArrowLeft,
   Barcode,
@@ -118,16 +119,23 @@ export function InventoryUnitPage() {
             {coverPhoto ? (
               <div className="space-y-3">
                 <div className="overflow-hidden rounded-md border">
-                  <img
-                    src={coverPhoto.url}
+                  <InventoryPhotoImage
+                    record={unit}
+                    photo={coverPhoto}
                     alt={`${unit.year} ${unit.make} ${unit.model}`}
                     className="h-48 w-full object-cover"
-                    onError={(e) => { e.currentTarget.style.display = 'none' }}
+                    loading="eager"
                   />
                 </div>
                 <div className="grid grid-cols-3 gap-2">
                   {unit.photos.map((photo) => (
-                    <img key={photo.id} src={photo.url} alt={photo.alt} className="aspect-4/3 rounded-md border object-cover" />
+                    <InventoryPhotoImage
+                      key={photo.id}
+                      record={unit}
+                      photo={photo}
+                      alt={photo.alt}
+                      className="aspect-4/3 rounded-md border object-cover"
+                    />
                   ))}
                 </div>
                 <p className="text-xs text-muted-foreground">Photo source: {unit.source === 'supabase' ? 'Supabase storage / database' : 'repo archive'}.</p>

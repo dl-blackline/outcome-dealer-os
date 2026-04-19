@@ -64,15 +64,47 @@ function normaliseKey(key: string): string {
   return key.toLowerCase().replace(/[\s-]/g, '_')
 }
 
+function parseCsvLine(line: string): string[] {
+  const values: string[] = []
+  let current = ''
+  let inQuotes = false
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i]
+    const next = line[i + 1]
+
+    if (char === '"') {
+      if (inQuotes && next === '"') {
+        current += '"'
+        i += 1
+      } else {
+        inQuotes = !inQuotes
+      }
+      continue
+    }
+
+    if (char === ',' && !inQuotes) {
+      values.push(current.trim())
+      current = ''
+      continue
+    }
+
+    current += char
+  }
+
+  values.push(current.trim())
+  return values
+}
+
 function parseCSV(text: string): ParsedRow[] {
   const lines = text.split(/\r?\n/).filter((l) => l.trim())
   if (lines.length < 2) return []
 
-  const headerRaw = lines[0].split(',').map((h) => h.trim().replace(/^"|"$/g, ''))
+  const headerRaw = parseCsvLine(lines[0]).map((h) => h.replace(/^"|"$/g, ''))
   const headers = headerRaw.map(normaliseKey)
 
-  return lines.slice(1).map((line) => {
-    const values = line.split(',').map((v) => v.trim().replace(/^"|"$/g, ''))
+  const parsed = lines.slice(1).map((line) => {
+    const values = parseCsvLine(line).map((v) => v.replace(/^"|"$/g, ''))
     const raw: Record<string, string> = {}
     headers.forEach((h, i) => {
       raw[headerRaw[i]] = values[i] ?? ''
@@ -148,6 +180,31 @@ function parseCSV(text: string): ParsedRow[] {
 
     return row
   })
+
+  const seenVin = new Set<string>()
+  const seenStock = new Set<string>()
+
+  for (const row of parsed) {
+    const vin = (row.vin || '').trim().toUpperCase()
+    if (vin) {
+      if (seenVin.has(vin)) {
+        row._errors.push(`Duplicate VIN in file: ${vin}`)
+      } else {
+        seenVin.add(vin)
+      }
+    }
+
+    const stock = (row.stockNumber || '').trim().toUpperCase()
+    if (stock) {
+      if (seenStock.has(stock)) {
+        row._errors.push(`Duplicate stock number in file: ${stock}`)
+      } else {
+        seenStock.add(stock)
+      }
+    }
+  }
+
+  return parsed
 }
 
 function describeRow(row: ParsedRow): string {
@@ -178,11 +235,28 @@ export function InventoryImportPage() {
   const [results, setResults] = useState<ImportResult[]>([])
   const [importing, setImporting] = useState(false)
   const [importDone, setImportDone] = useState(false)
+  const [importError, setImportError] = useState<string | null>(null)
 
   const validRows = rows.filter((r) => r._errors.length === 0)
   const invalidRows = rows.filter((r) => r._errors.length > 0)
 
   const handleFile = useCallback((file: File) => {
+    setImportError(null)
+
+    if (!file.name.toLowerCase().endsWith('.csv')) {
+      setRows([])
+      setFileName('')
+      setImportError('Unsupported file type. Please upload a .csv file.')
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      setRows([])
+      setFileName('')
+      setImportError('File is too large. Please upload a CSV under 5MB.')
+      return
+    }
+
     setFileName(file.name)
     setResults([])
     setImportDone(false)
@@ -190,7 +264,15 @@ export function InventoryImportPage() {
     reader.onload = (e) => {
       const text = e.target?.result as string
       const parsed = parseCSV(text)
+      if (parsed.length === 0) {
+        setImportError('No valid rows detected. Ensure the file includes a header row and at least one data row.')
+      }
       setRows(parsed)
+    }
+    reader.onerror = () => {
+      setImportError('Could not read this file. Please try again.')
+      setRows([])
+      setFileName('')
     }
     reader.readAsText(file)
   }, [])
@@ -199,7 +281,7 @@ export function InventoryImportPage() {
     (e: React.DragEvent) => {
       e.preventDefault()
       const file = e.dataTransfer.files[0]
-      if (file && file.name.endsWith('.csv')) handleFile(file)
+      if (file) handleFile(file)
     },
     [handleFile]
   )
@@ -213,6 +295,12 @@ export function InventoryImportPage() {
   )
 
   async function handleImport() {
+    if (validRows.length === 0) {
+      setImportError('No valid rows available to import.')
+      return
+    }
+
+    setImportError(null)
     setImporting(true)
     const importResults: ImportResult[] = []
 
@@ -263,6 +351,12 @@ export function InventoryImportPage() {
 
   return (
     <div className="space-y-8">
+      {importError && (
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-700">
+          {importError}
+        </div>
+      )}
+
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>
@@ -339,7 +433,7 @@ export function InventoryImportPage() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => { setRows([]); setFileName('') }}
+                    onClick={() => { setRows([]); setFileName(''); setImportError(null) }}
                     className="gap-1"
                   >
                     <X size={14} />

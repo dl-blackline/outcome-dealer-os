@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { InventoryPhotoImage } from '@/components/inventory/InventoryPhotoImage'
 import {
   MagnifyingGlass,
   SlidersHorizontal,
@@ -16,8 +17,6 @@ import {
   CurrencyDollar,
   Sparkle,
 } from '@phosphor-icons/react'
-
-const IMAGE_FALLBACK = '/inventory/national-car-mart/placeholder.jpg'
 
 type BodyFilter = 'All' | string
 type PriceRange = 'All' | 'Under $30k' | '$30k–$50k' | 'Over $50k'
@@ -93,16 +92,13 @@ function InventoryCard({
   onToggleSaved: () => void
 }) {
   return (
-    <Card className="vault-panel vault-edge group relative flex flex-col overflow-hidden rounded-[1.5rem] border-white/20 bg-black/30 transition-all hover:-translate-y-1 hover:border-blue-200/40">
+    <Card className="vault-panel vault-edge group relative flex flex-col overflow-hidden rounded-3xl border-white/20 bg-black/30 transition-all hover:-translate-y-1 hover:border-blue-200/40">
       <div className="vault-image-frame relative h-56 bg-muted">
-        <img
-          src={unit.photos[0]?.url || IMAGE_FALLBACK}
+        <InventoryPhotoImage
+          record={unit}
           alt={`${unit.year} ${unit.make} ${unit.model} ${unit.trim}`}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           loading="lazy"
-          onError={(e) => {
-            e.currentTarget.src = IMAGE_FALLBACK
-          }}
         />
         <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_40%,rgba(3,7,14,0.9))]" />
         <button
@@ -148,7 +144,7 @@ function InventoryCard({
         {unit.features.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {unit.features.slice(0, 4).map((h) => (
-              <Badge key={h} variant="outline" className="border-white/18 bg-white/[0.03] text-xs font-normal text-slate-300">
+              <Badge key={h} variant="outline" className="border-white/18 bg-white/3 text-xs font-normal text-slate-300">
                 {h}
               </Badge>
             ))}
@@ -252,7 +248,7 @@ export function ShopInventoryPage() {
           <select
             value={sort}
             onChange={(e) => setSort(e.target.value as SortOption)}
-            className="h-10 rounded-full border border-white/18 bg-white/[0.03] px-4 text-xs uppercase tracking-[0.14em] text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-200/40"
+            className="h-10 rounded-full border border-white/18 bg-white/3 px-4 text-xs uppercase tracking-[0.14em] text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-200/40"
           >
             {SORT_OPTIONS.map((o) => (
               <option key={o} value={o}>
@@ -278,7 +274,7 @@ export function ShopInventoryPage() {
                   className={`rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.13em] transition-colors ${
                     bodyFilter === opt
                       ? 'border-blue-200/45 bg-blue-300/20 text-blue-100'
-                      : 'border-white/15 bg-white/[0.03] text-slate-300 hover:border-white/35 hover:bg-white/[0.08]'
+                      : 'border-white/15 bg-white/3 text-slate-300 hover:border-white/35 hover:bg-white/8'
                   }`}
                 >
                   {opt}
@@ -299,7 +295,7 @@ export function ShopInventoryPage() {
                   className={`rounded-full border px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.13em] transition-colors ${
                     priceRange === opt
                       ? 'border-blue-200/45 bg-blue-300/20 text-blue-100'
-                      : 'border-white/15 bg-white/[0.03] text-slate-300 hover:border-white/35 hover:bg-white/[0.08]'
+                      : 'border-white/15 bg-white/3 text-slate-300 hover:border-white/35 hover:bg-white/8'
                   }`}
                 >
                   {opt}
