@@ -149,7 +149,7 @@ export function CrmImportPage() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10 pb-8">
       {/* Page header */}
       <div className="flex items-center justify-between">
         <div>

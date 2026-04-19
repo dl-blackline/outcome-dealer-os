@@ -90,7 +90,7 @@ export function WorkstationCardItem({
       className={`border-l-4 ${PRIORITY_BORDER[card.priority]} cursor-move transition-all hover:ring-1 hover:ring-primary/30 ${isDragging ? 'opacity-50' : ''} ${isCompleted ? 'opacity-60' : ''}`}
       onClick={onSelect}
     >
-      <CardContent className="p-3 space-y-2">
+      <CardContent className="space-y-3 p-4">
         <div className="flex items-start justify-between gap-2">
           <p className="text-sm font-medium leading-tight">{card.title}</p>
           {card.requiresApproval && <Shield className="h-4 w-4 text-yellow-500 flex-shrink-0" weight="fill" />}
@@ -288,18 +288,18 @@ export function WorkstationFilters({
   const priorities: (CardPriority | 'all')[] = ['all', 'urgent', 'high', 'medium', 'low']
 
   return (
-    <div className="flex flex-wrap items-center gap-3 pb-4">
+    <div className="vault-panel-soft flex flex-wrap items-center gap-3 rounded-xl border border-border/60 p-3 sm:p-4">
       <input
         type="text"
         placeholder="Search cards…"
         value={searchTerm}
         onChange={e => onSearchChange(e.target.value)}
-        className="h-8 w-48 rounded-md border border-input bg-background px-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+        className="h-9 w-52 rounded-md border border-input bg-background px-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
       />
       <select
         value={queueFilter}
         onChange={e => onQueueChange(e.target.value as QueueType | 'all')}
-        className="h-8 rounded-md border border-input bg-background px-2 text-sm capitalize"
+        className="h-9 rounded-md border border-input bg-background px-2 text-sm capitalize"
       >
         {queues.map(q => <option key={q} value={q}>{q === 'all' ? 'All queues' : q}</option>)}
       </select>

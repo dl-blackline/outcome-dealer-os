@@ -417,7 +417,7 @@ function LiveIngestionPanel() {
 
 export function IntelligencePage() {
   return (
-    <div className="space-y-8">
+    <div className="space-y-10 pb-8">
       <SectionHeader
         title="Dealer Intelligence Engine"
         description="CLV, Rep Attribution, AI Close Probability, VIN Enrichment &amp; Live Ingestion Stream"

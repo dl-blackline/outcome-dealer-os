@@ -23,7 +23,7 @@ export function SelectedVehicleContext({ unit, label = 'Selected Vehicle', showP
 
   return (
     <Card className={`vault-panel-soft border-white/15 overflow-hidden rounded-xl ${className}`}>
-      <CardContent className="flex gap-4 p-4">
+      <CardContent className="flex gap-4 p-5">
         {/* Vehicle Image */}
         <div className="h-24 w-32 shrink-0 overflow-hidden rounded-lg bg-slate-900">
           <InventoryPhotoImage

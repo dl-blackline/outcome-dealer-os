@@ -18,7 +18,7 @@ export function CreditApplicationListPage() {
   const applications = query.data
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pb-8">
       <SectionHeader
         title="Credit Applications"
         description="Finance-ready applications with score-driven document requirements and completeness tracking"

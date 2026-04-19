@@ -26,7 +26,7 @@ export function RolesSettingsPage() {
   const [expandedRole, setExpandedRole] = useState<string | null>(null)
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pb-8">
       <SectionHeader title="Roles & Permissions" description="View role definitions and permission assignments" />
 
       <Card className="border-blue-500/20 bg-blue-500/5">

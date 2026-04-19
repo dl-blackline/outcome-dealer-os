@@ -134,7 +134,7 @@ export function BuyerHubShell() {
       </header>
 
       {/* Main Content */}
-      <main className="mx-auto w-full max-w-[88rem] flex-1 px-4 py-8 sm:px-6 lg:px-8">
+      <main className="mx-auto w-full max-w-[88rem] flex-1 px-4 pb-24 pt-6 sm:px-6 sm:pb-28 sm:pt-8 lg:px-8 lg:pb-32">
         {PageComponent ? (
           <PageComponent />
         ) : (

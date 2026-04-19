@@ -131,7 +131,7 @@ export function FavoritesPage() {
   }, [publicRecords, savedUnitIds])
 
   return (
-    <div className="mx-auto max-w-[88rem] space-y-6 px-2 py-4 sm:px-3 lg:px-4">
+    <div className="mx-auto max-w-[88rem] space-y-8 px-3 pb-28 pt-6 sm:px-4 sm:pt-8 lg:px-6">
       <div className="vault-panel-soft rounded-4xl border border-white/15 p-7 sm:p-8">
         <div className="flex items-center gap-3">
           <Heart size={28} weight="fill" className="text-red-400" />
@@ -178,7 +178,7 @@ export function FavoritesPage() {
           </div>
 
           {compareCount > 0 && (
-            <div className="fixed bottom-6 left-1/2 z-50 -translate-x-1/2">
+            <div className="fixed bottom-5 left-1/2 z-50 -translate-x-1/2 sm:bottom-7">
               <Button size="lg" className="vault-btn vault-tap gap-2 rounded-full px-6 text-xs uppercase tracking-[0.13em]" onClick={() => navigate('/compare')}>
                 <Scales size={18} />
                 Compare Selected ({compareCount})

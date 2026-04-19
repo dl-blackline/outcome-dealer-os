@@ -33,7 +33,7 @@ export function HomePage() {
   const inventoryGridRef = useScrollIntoView()
 
   return (
-    <div className="space-y-20 pb-16">
+    <div className="space-y-24 pb-24 pt-4 sm:pt-6">
       <section className="vault-panel vault-edge vault-animate-fade overflow-hidden rounded-[2.2rem]">
         <div className="grid min-h-[42rem] gap-0 lg:grid-cols-[0.85fr_1.15fr]">
           {/* LEFT: Minimal text */}

@@ -166,7 +166,7 @@ function FixProposalsPanel({
   }, [report, actionId, onSubmit, reload])
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6 pb-8">
       {report && report.codePatchProposals.length > 0 && (
         <div className="rounded-md border border-border p-3 space-y-2">
           <div className="text-sm font-medium">Submit current patch proposals for approval</div>
@@ -300,7 +300,7 @@ export function AssistantOpsPage() {
   }, [])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pb-8">
       <SectionHeader
         title="Assistant Ops Console"
         description="Full-spectrum internal AI operating agent for debugging, workflow tracing, safe patch proposals, and approval-gated fixes."

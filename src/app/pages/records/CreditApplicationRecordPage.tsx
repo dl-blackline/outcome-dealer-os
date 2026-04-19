@@ -25,7 +25,7 @@ export function CreditApplicationRecordPage() {
   const uploadedDocTypes = new Set(docsQuery.data.map((doc) => doc.documentType))
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pb-8">
       <Button variant="ghost" size="sm" onClick={() => navigate('/app/records/credit-applications')} className="gap-2">
         <ArrowLeft className="h-4 w-4" /> Credit Applications
       </Button>

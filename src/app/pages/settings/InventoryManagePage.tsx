@@ -495,7 +495,7 @@ function PhotoManager({ unitId, existingPhotos, isSupabaseBacked, onRefresh, toa
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pb-8">
       {/* Existing photos */}
       {sorted.length > 0 && (
         <div>

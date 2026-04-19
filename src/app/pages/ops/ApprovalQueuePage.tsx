@@ -29,7 +29,7 @@ export function ApprovalQueuePage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pb-8">
       <SectionHeader title="Approval Queue" description="Review and resolve pending approvals" action={pendingCount > 0 ? <Badge variant="destructive">{pendingCount} pending</Badge> : undefined} />
       <div className="flex rounded-lg border border-border overflow-hidden w-fit">
         {TABS.map(t => (

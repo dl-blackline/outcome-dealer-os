@@ -25,7 +25,7 @@ export function HouseholdRecordPage() {
   const linkedDeals = dealsQuery.data.filter(d => linkedLeads.some(l => l.id === d.leadId))
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pb-8">
       <Button variant="ghost" size="sm" onClick={() => navigate('/app/records/households')} className="gap-2"><ArrowLeft className="h-4 w-4" /> Households</Button>
       <SectionHeader title={hh.name} description={`Household record • Created ${new Date(hh.createdAt).toLocaleDateString()}`} />
       <div className="grid gap-4 md:grid-cols-4">

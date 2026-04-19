@@ -32,7 +32,7 @@ export function EventExplorerPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pb-8">
       <SectionHeader title="Event Stream" description="Real-time event log for the operating system" action={<div className="flex items-center gap-2"><Lightning className="h-5 w-5 text-primary" /><span className="text-sm text-muted-foreground">{events.data.length} events</span></div>} />
       <div className="flex items-center gap-3">
         <select value={entityFilter} onChange={e => setEntityFilter(e.target.value)} className="h-8 rounded-md border border-input bg-background px-2 text-sm capitalize">

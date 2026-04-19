@@ -134,7 +134,7 @@ export function InquiryPage() {
   }
 
   return (
-    <div className="mx-auto max-w-xl px-2 py-4 sm:px-3">
+    <div className="mx-auto max-w-xl px-3 pb-24 pt-6 sm:px-4 sm:pt-8">
       <div className="vault-panel-soft mb-8 rounded-4xl border border-white/15 p-6 sm:p-7">
         <Button
           variant="ghost"

@@ -137,7 +137,7 @@ export function SchedulePage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl px-2 py-4 sm:px-3">
+    <div className="mx-auto max-w-2xl px-3 pb-24 pt-6 sm:px-4 sm:pt-8">
       <div className="vault-panel-soft mb-8 rounded-4xl border border-white/15 p-6 sm:p-7">
         <Button variant="ghost" size="sm" className="vault-btn-muted mb-4 rounded-full border border-white/15 px-4 text-xs uppercase tracking-[0.14em] text-slate-300" onClick={() => navigate('/shop')}>
           <ArrowLeft size={18} className="mr-1.5" />

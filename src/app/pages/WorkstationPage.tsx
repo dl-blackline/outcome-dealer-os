@@ -54,7 +54,7 @@ export function WorkstationPage() {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6 pb-8">
       <SectionHeader
         title="Workstation"
         description="Your cross-department execution board"

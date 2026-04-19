@@ -206,7 +206,7 @@ export function ShopInventoryPage() {
   }
 
   return (
-    <div className="mx-auto max-w-[88rem] space-y-7 px-2 py-4 sm:px-3 lg:px-4">
+    <div className="mx-auto max-w-[88rem] space-y-8 px-3 pb-24 pt-6 sm:px-4 sm:pt-8 lg:px-6">
       {/* Header */}
       <div className="vault-panel-soft rounded-[1.8rem] border border-white/15 p-7 sm:p-8">
         <p className="vault-title text-[0.62rem] text-slate-400">Vehicle Vault Collection</p>

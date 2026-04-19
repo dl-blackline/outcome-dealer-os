@@ -59,7 +59,7 @@ export function InventoryUnitPage() {
   const coverPhoto = unit.photos[0]
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pb-8">
       <Button variant="ghost" size="sm" onClick={() => navigate('/app/records/inventory')} className="gap-2"><ArrowLeft className="h-4 w-4" /> Inventory</Button>
       <SectionHeader title={`${unit.year} ${unit.make} ${unit.model} ${unit.trim}`} description="Inventory unit record" />
       <div className="grid gap-4 md:grid-cols-4">

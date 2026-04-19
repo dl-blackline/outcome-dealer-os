@@ -17,7 +17,7 @@ export function HouseholdListPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pb-8">
       <SectionHeader title="Households" description="Manage customer households and relationships" />
       <input type="text" placeholder="Search households…" value={search} onChange={e => setSearch(e.target.value)}
         className="h-9 w-64 rounded-md border border-input bg-background px-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />

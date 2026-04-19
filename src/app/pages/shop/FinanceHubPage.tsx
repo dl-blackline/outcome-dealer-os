@@ -81,7 +81,7 @@ export function FinanceHubPage() {
     : 0
 
   return (
-    <div className="mx-auto max-w-6xl space-y-10 px-2 py-4 sm:px-3 lg:px-4">
+    <div className="mx-auto max-w-6xl space-y-12 px-3 pb-24 pt-6 sm:px-4 sm:pt-8 lg:px-6">
       {/* Header */}
       <div className="vault-panel-soft rounded-4xl border border-white/15 p-7 sm:p-8">
         <p className="vault-title text-[0.62rem] text-slate-400">Vehicle Vault Finance</p>

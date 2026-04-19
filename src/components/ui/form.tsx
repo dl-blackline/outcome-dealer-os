@@ -78,7 +78,7 @@ function FormItem({ className, ...props }: ComponentProps<"div">) {
     <FormItemContext.Provider value={{ id }}>
       <div
         data-slot="form-item"
-        className={cn("grid gap-2", className)}
+        className={cn("grid gap-2.5", className)}
         {...props}
       />
     </FormItemContext.Provider>
@@ -145,7 +145,7 @@ function FormMessage({ className, ...props }: ComponentProps<"p">) {
     <p
       data-slot="form-message"
       id={formMessageId}
-      className={cn("text-destructive text-sm", className)}
+      className={cn("mt-1 text-destructive text-sm leading-5", className)}
       {...props}
     >
       {body}

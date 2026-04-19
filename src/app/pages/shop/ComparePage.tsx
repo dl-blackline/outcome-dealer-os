@@ -49,7 +49,7 @@ export function ComparePage() {
   }, [compareUnitIds, publicRecords])
 
   return (
-    <div className="mx-auto max-w-[88rem] space-y-6 px-2 py-4 sm:px-3 lg:px-4">
+    <div className="mx-auto max-w-[88rem] space-y-8 px-3 pb-24 pt-6 sm:px-4 sm:pt-8 lg:px-6">
       <div className="vault-panel-soft rounded-4xl border border-white/15 p-7 sm:p-8">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">

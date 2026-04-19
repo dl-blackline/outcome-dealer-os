@@ -33,7 +33,7 @@ export function DashboardPage() {
   const inboxCards = workstationCards.data.filter(c => c.columnId === 'inbox').length
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-10 pb-8">
       <SectionHeader
         title="Dashboard"
         description={`Welcome back. Here's what's happening across the operation.`}

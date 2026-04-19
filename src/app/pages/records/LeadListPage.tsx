@@ -19,7 +19,7 @@ export function LeadListPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pb-8">
       <SectionHeader title="Leads" description="Track and manage sales leads" />
       <div className="flex items-center gap-4">
         <div className="flex rounded-lg border border-border overflow-hidden">

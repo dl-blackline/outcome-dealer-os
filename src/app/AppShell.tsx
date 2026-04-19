@@ -137,7 +137,7 @@ export function AppShell() {
           onNotificationsOpen={() => setNotificationsOpen(true)}
         />
 
-        <main className="flex-1 overflow-y-auto p-8">
+        <main className="flex-1 overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable] px-3 pb-20 pt-4 sm:px-6 sm:pb-24 sm:pt-6 lg:px-8 lg:pb-28 lg:pt-8 xl:px-10">
           {PageComponent ? (
             <PageComponent />
           ) : isKnownAppRoute ? (

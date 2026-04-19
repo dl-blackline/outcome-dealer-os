@@ -66,7 +66,7 @@ export function DealRecordPage() {
   const currentIdx = STAGES.indexOf(deal.status as typeof STAGES[number])
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pb-8">
       <Button variant="ghost" size="sm" onClick={() => navigate('/app/records/deals')} className="gap-2"><ArrowLeft className="h-4 w-4" /> Deals</Button>
       <SectionHeader title={`${deal.customerName} — ${deal.vehicleDescription}`} description={`Deal record • Created ${new Date(deal.createdAt).toLocaleDateString()}`} />
 

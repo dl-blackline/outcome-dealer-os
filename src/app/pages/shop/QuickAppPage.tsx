@@ -458,7 +458,7 @@ export function QuickAppPage() {
     )
 
     return (
-      <div className="mx-auto max-w-3xl space-y-6 px-2 py-4 sm:px-3">
+      <div className="mx-auto max-w-3xl space-y-8 px-3 pb-24 pt-6 sm:px-4 sm:pt-8">
         <Card className="vault-panel-soft rounded-3xl border-white/15 bg-black/30">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-white">
@@ -572,7 +572,7 @@ export function QuickAppPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6 px-2 py-4 sm:px-3">
+    <div className="mx-auto max-w-3xl space-y-8 px-3 pb-24 pt-6 sm:px-4 sm:pt-8">
       <div className="vault-panel-soft rounded-4xl border border-white/15 p-6 sm:p-7">
         <Button
           variant="ghost"

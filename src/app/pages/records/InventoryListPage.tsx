@@ -21,7 +21,7 @@ export function InventoryListPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pb-8">
       <SectionHeader title="Inventory" description="Active vehicle inventory" />
       <input type="text" placeholder="Search inventory…" value={search} onChange={e => setSearch(e.target.value)}
         className="h-9 w-64 rounded-md border border-input bg-background px-3 text-sm placeholder:text-muted-foreground" />

@@ -22,7 +22,7 @@ export function IntegrationsSettingsPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pb-8">
       <SectionHeader title="Integrations" description="External system connections and sync status" />
 
       <Card className="border-blue-500/20 bg-blue-500/5">
