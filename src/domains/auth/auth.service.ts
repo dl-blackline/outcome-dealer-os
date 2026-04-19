@@ -33,18 +33,14 @@ function storeDemoSession(sessionUser: SessionUser | null) {
 
 /**
  * Safely resolve the Spark authenticated user without throwing.
+ * Assumes the `spark` global is defined (only call this when getRuntimeMode() === 'spark').
  * Returns the user object if Spark has an active session, or null otherwise.
- * This prevents a null-property crash when spark is present but no user is logged in.
+ * This prevents a null-property crash when Spark is present but no user is logged in.
  */
 async function safeGetSparkUser(): Promise<AuthUser | null> {
   try {
     const userInfo = await spark.user()
-    if (
-      !userInfo ||
-      typeof userInfo !== 'object' ||
-      typeof userInfo.id !== 'string' ||
-      !userInfo.id
-    ) {
+    if (!userInfo || !userInfo.id) {
       return null
     }
     return {
