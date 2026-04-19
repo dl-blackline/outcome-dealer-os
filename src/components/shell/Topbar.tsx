@@ -26,7 +26,7 @@ interface TopbarProps {
 
 export function Topbar({ currentRole, userName, allowRoleSwitching, authMode, onRoleChange, onLogout, onCommandPaletteOpen, onNotificationsOpen, theme, onThemeToggle }: TopbarProps) {
   return (
-    <div className="flex h-16 items-center justify-between border-b border-border bg-background px-6">
+    <div className="flex h-16 items-center justify-between border-b border-border bg-card/80 px-6 shadow-[0_1px_2px_color-mix(in_oklab,var(--color-foreground)_5%,transparent)] backdrop-blur-sm">
       <div className="flex items-center gap-4">
         <Button
           variant="ghost"

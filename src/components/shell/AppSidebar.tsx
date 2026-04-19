@@ -140,9 +140,9 @@ export function AppSidebar({ currentPath, currentRole, onNavigate }: AppSidebarP
   const visibleItems = NAV_ITEMS.filter((item) => allowedGroups.includes(item.group))
 
   return (
-    <div className="flex h-screen w-64 flex-col border-r border-border bg-card">
-      <div className="flex h-16 items-center px-6 border-b border-border">
-        <h1 className="text-xl font-bold tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+    <div className="flex h-screen w-64 flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
+      <div className="flex h-16 items-center px-6 border-b border-sidebar-border">
+        <h1 className="text-[0.92rem] font-bold tracking-[0.04em] text-sidebar-foreground/90" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
           Outcome Dealer OS
         </h1>
       </div>
@@ -160,8 +160,8 @@ export function AppSidebar({ currentPath, currentRole, onNavigate }: AppSidebarP
               className={cn(
                 'flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200',
                 isActive
-                  ? 'bg-primary/10 text-primary ring-1 ring-primary/20'
-                  : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground'
+                  ? 'bg-sidebar-accent text-sidebar-primary ring-1 ring-sidebar-primary/30'
+                  : 'text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground'
               )}
             >
               <Icon className="h-5 w-5 shrink-0" />
@@ -171,8 +171,8 @@ export function AppSidebar({ currentPath, currentRole, onNavigate }: AppSidebarP
         })}
       </nav>
 
-      <div className="border-t border-border p-4">
-        <div className="text-xs text-muted-foreground">
+      <div className="border-t border-sidebar-border p-4">
+        <div className="text-xs text-sidebar-foreground/50">
           Logged in as {currentRole}
         </div>
       </div>
