@@ -1,8 +1,9 @@
 import { useRouter, matchRoute } from '@/app/router'
-import { Heart, ArrowRight, ShieldCheck, List, Phone, Envelope, MapPin, Moon, Sun } from '@phosphor-icons/react'
+import { Heart, ArrowRight, ShieldCheck, List, Phone, Envelope, MapPin, Moon, Sun, LockKey } from '@phosphor-icons/react'
 import { DEALER } from '@/lib/dealer.constants'
 import { RouteNotFound } from '@/components/shell/RouteNotFound'
 import { useTheme } from '@/domains/theme'
+import { hasWholesaleAccess } from '@/domains/wholesale/wholesaleAccess'
 
 // Buyer hub pages
 import { HomePage } from '@/app/pages/shop/HomePage'
@@ -17,6 +18,9 @@ import { SchedulePage } from '@/app/pages/shop/SchedulePage'
 import { NextStepsPage } from '@/app/pages/shop/NextStepsPage'
 import { InquiryPage } from '@/app/pages/shop/InquiryPage'
 import { LoginPage } from '@/app/pages/auth/LoginPage'
+import { WholesaleInventoryPage } from '@/app/pages/wholesale/WholesaleInventoryPage'
+import { WholesaleVehicleDetailPage } from '@/app/pages/wholesale/WholesaleVehicleDetailPage'
+import { WholesaleGatePage } from '@/app/pages/wholesale/WholesaleGatePage'
 
 const BUYER_ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/': HomePage,
@@ -31,6 +35,8 @@ const BUYER_ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/trade': TradeInPage,
   '/schedule': SchedulePage,
   '/my-next-steps': NextStepsPage,
+  '/wholesale': WholesaleInventoryPage,
+  '/wholesale/:unitId': WholesaleVehicleDetailPage,
 }
 
 function resolveBuyerPage(currentPath: string): React.ComponentType | null {
@@ -53,6 +59,8 @@ export function BuyerHubShell() {
   const { theme, toggleTheme } = useTheme()
   const PageComponent = resolveBuyerPage(currentPath)
   const isUtilityPage = currentPath === '/login'
+  const isWholesaleRoute = currentPath === '/wholesale' || currentPath.startsWith('/wholesale/')
+  const wholesaleAccessGranted = hasWholesaleAccess()
   const isDark = theme === 'dark'
 
   if (isUtilityPage) {
@@ -116,6 +124,13 @@ export function BuyerHubShell() {
               <List size={18} />
             </button>
             <button
+              onClick={() => navigate('/wholesale')}
+              className={`hidden rounded-full border px-4 py-2 text-xs font-semibold tracking-[0.15em] uppercase transition-all md:inline-flex ${isDark ? 'border-blue-200/35 bg-blue-200/12 text-blue-100 hover:border-blue-200/60 hover:bg-blue-200/20' : 'border-blue-400/40 bg-blue-50 text-blue-700 hover:border-blue-500/55 hover:bg-blue-100'}`}
+            >
+              <LockKey size={14} className="mr-1.5" />
+              Wholesale
+            </button>
+            <button
               onClick={() => navigate('/login')}
               className={`hidden rounded-full border px-4 py-2 text-xs font-semibold tracking-[0.15em] uppercase transition-all md:inline-flex ${isDark ? 'border-white/15 bg-white/3 text-slate-300 hover:border-white/30 hover:bg-white/8 hover:text-white' : 'border-slate-300/80 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50'}`}
             >
@@ -153,7 +168,9 @@ export function BuyerHubShell() {
 
       {/* Main Content */}
       <main className="ods-shell-main mx-auto w-full max-w-[88rem] flex-1 px-4 pb-24 pt-6 sm:px-6 sm:pb-28 sm:pt-8 lg:px-8 lg:pb-32">
-        {PageComponent ? (
+        {isWholesaleRoute && !wholesaleAccessGranted ? (
+          <WholesaleGatePage onAccessGranted={() => navigate('/wholesale')} />
+        ) : PageComponent ? (
           <PageComponent />
         ) : (
           <RouteNotFound

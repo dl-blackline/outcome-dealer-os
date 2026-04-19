@@ -73,6 +73,10 @@ interface UnitFormState {
   mileage: string
   bodyStyle: string
   price: string
+  wholesalePrice: string
+  isWholesaleVisible: boolean
+  wholesaleStatus: string
+  wholesaleNotes: string
   status: string
   color: string
   condition: string
@@ -116,6 +120,10 @@ const BLANK_FORM: UnitFormState = {
   mileage: '',
   bodyStyle: '',
   price: '',
+  wholesalePrice: '',
+  isWholesaleVisible: false,
+  wholesaleStatus: '',
+  wholesaleNotes: '',
   status: 'inventory',
   color: '',
   condition: 'pre-owned',
@@ -140,6 +148,10 @@ function recordToForm(r: InventoryRecord): UnitFormState {
     mileage: r.mileage > 0 ? String(r.mileage) : '',
     bodyStyle: r.bodyStyle || '',
     price: r.price > 0 ? String(r.price) : '',
+    wholesalePrice: r.wholesalePrice && r.wholesalePrice > 0 ? String(r.wholesalePrice) : '',
+    isWholesaleVisible: Boolean(r.isWholesaleVisible),
+    wholesaleStatus: r.wholesaleStatus || '',
+    wholesaleNotes: r.wholesaleNotes || '',
     status: r.status || 'inventory',
     color: r.color || '',
     condition: r.condition || 'pre-owned',
@@ -162,6 +174,7 @@ function validateForm(f: UnitFormState): string[] {
   if (isNaN(yr) || yr < 1900 || yr > new Date().getFullYear() + 2)
     errors.push('Year must be a valid model year')
   if (f.price && isNaN(parseFloat(f.price))) errors.push('Price must be a number')
+  if (f.wholesalePrice && isNaN(parseFloat(f.wholesalePrice))) errors.push('Wholesale price must be a number')
   if (f.mileage && isNaN(parseInt(f.mileage, 10))) errors.push('Mileage must be a number')
   return errors
 }
@@ -177,6 +190,10 @@ function formToCreateInput(f: UnitFormState): InventoryRecordCreateInput {
     mileage: f.mileage ? parseInt(f.mileage, 10) : 0,
     bodyStyle: f.bodyStyle || undefined,
     price: f.price ? parseFloat(f.price) : 0,
+    wholesalePrice: f.wholesalePrice ? parseFloat(f.wholesalePrice) : undefined,
+    isWholesaleVisible: f.isWholesaleVisible,
+    wholesaleStatus: f.wholesaleStatus || undefined,
+    wholesaleNotes: f.wholesaleNotes || undefined,
     status: f.status,
     available: f.available,
     isPublished: f.isPublished,
@@ -205,6 +222,10 @@ function formToFullUpdate(f: UnitFormState): InventoryRecordFullUpdate {
     mileage: f.mileage ? parseInt(f.mileage, 10) : 0,
     bodyStyle: f.bodyStyle || undefined,
     price: f.price ? parseFloat(f.price) : 0,
+    wholesalePrice: f.wholesalePrice ? parseFloat(f.wholesalePrice) : undefined,
+    isWholesaleVisible: f.isWholesaleVisible,
+    wholesaleStatus: f.wholesaleStatus || undefined,
+    wholesaleNotes: f.wholesaleNotes || undefined,
     status: f.status,
     available: f.available,
     isPublished: f.isPublished,
@@ -803,6 +824,7 @@ function UnitForm({ mode, record, isSupabaseBacked, onSave, onCancel, toast }: U
           <Toggle checked={form.available} onChange={(v) => set('available', v)} label="Available" />
           <Toggle checked={form.isPublished} onChange={(v) => set('isPublished', v)} label="Published" />
           <Toggle checked={form.isFeatured} onChange={(v) => set('isFeatured', v)} label="Featured" />
+          <Toggle checked={form.isWholesaleVisible} onChange={(v) => set('isWholesaleVisible', v)} label="Wholesale Visible" />
         </div>
       </div>
 
@@ -847,6 +869,7 @@ function UnitForm({ mode, record, isSupabaseBacked, onSave, onCancel, toast }: U
             <Toggle checked={form.available} onChange={(v) => set('available', v)} label="Available" />
             <Toggle checked={form.isPublished} onChange={(v) => set('isPublished', v)} label="Published" />
             <Toggle checked={form.isFeatured} onChange={(v) => set('isFeatured', v)} label="Featured" />
+            <Toggle checked={form.isWholesaleVisible} onChange={(v) => set('isWholesaleVisible', v)} label="Wholesale Visible" />
           </div>
 
           <Card className="border-white/10 bg-white/2">
@@ -910,6 +933,12 @@ function UnitForm({ mode, record, isSupabaseBacked, onSave, onCancel, toast }: U
               <FieldRow label="Sale Price ($)">
                 <Input type="number" min="0" placeholder="24900" value={form.price} onChange={(e) => set('price', e.target.value)} />
               </FieldRow>
+              <FieldRow label="Wholesale Price ($)">
+                <Input type="number" min="0" placeholder="21900" value={form.wholesalePrice} onChange={(e) => set('wholesalePrice', e.target.value)} />
+              </FieldRow>
+              <FieldRow label="Wholesale Status">
+                <Input placeholder="ready, hold, pending" value={form.wholesaleStatus} onChange={(e) => set('wholesaleStatus', e.target.value)} />
+              </FieldRow>
               <FieldRow label="Color">
                 <Input placeholder="Midnight Blue" value={form.color} onChange={(e) => set('color', e.target.value)} />
               </FieldRow>
@@ -943,6 +972,16 @@ function UnitForm({ mode, record, isSupabaseBacked, onSave, onCancel, toast }: U
               <FieldRow label="Engine">
                 <Input placeholder="2.5L 4-cylinder" value={form.engine} onChange={(e) => set('engine', e.target.value)} />
               </FieldRow>
+              <div className="sm:col-span-2 lg:col-span-3">
+                <FieldRow label="Wholesale Notes">
+                  <Textarea
+                    rows={2}
+                    placeholder="Optional notes for approved wholesale buyers"
+                    value={form.wholesaleNotes}
+                    onChange={(e) => set('wholesaleNotes', e.target.value)}
+                  />
+                </FieldRow>
+              </div>
             </CardContent>
           </Card>
 
@@ -1109,6 +1148,7 @@ function InventoryList({ records, loading, onAdd, onEdit }: InventoryListProps) 
                   <TableHead className="hidden md:table-cell">VIN / Stock</TableHead>
                   <TableHead className="hidden sm:table-cell text-right">Miles</TableHead>
                   <TableHead className="text-right">Price</TableHead>
+                  <TableHead className="hidden lg:table-cell text-right">Wholesale</TableHead>
                   <TableHead className="hidden lg:table-cell">Status</TableHead>
                   <TableHead className="hidden md:table-cell">Visibility</TableHead>
                   <TableHead className="w-8 text-center">Photos</TableHead>
@@ -1156,6 +1196,18 @@ function InventoryList({ records, loading, onAdd, onEdit }: InventoryListProps) 
                       </TableCell>
                       <TableCell className="text-right font-semibold text-sm">
                         {record.price > 0 ? fmtPrice.format(record.price) : '—'}
+                      </TableCell>
+                      <TableCell className="hidden lg:table-cell text-right">
+                        {record.wholesalePrice && record.wholesalePrice > 0 ? (
+                          <div className="space-y-1">
+                            <p className="text-sm font-semibold">{fmtPrice.format(record.wholesalePrice)}</p>
+                            <Badge className={`rounded-full text-[0.58rem] ${record.isWholesaleVisible ? 'bg-blue-600/25 text-blue-300' : 'bg-white/8 text-muted-foreground'}`}>
+                              {record.isWholesaleVisible ? 'Wholesale On' : 'Wholesale Off'}
+                            </Badge>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        )}
                       </TableCell>
                       <TableCell className="hidden lg:table-cell">
                         <Badge variant="outline" className="text-[0.65rem]">

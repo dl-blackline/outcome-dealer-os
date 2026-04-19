@@ -42,6 +42,10 @@ type ParsedInventoryRow = {
   bodyStyle?: string
   mileage?: number
   price?: number
+  wholesalePrice?: number
+  isWholesaleVisible?: boolean
+  wholesaleStatus?: string
+  wholesaleNotes?: string
   status?: string
   isPublished?: boolean
   isFeatured?: boolean
@@ -83,6 +87,12 @@ const COLUMN_MAP: Record<string, keyof ParsedInventoryRow | 'listPrice'> = {
   internet_price: 'price',
   asking_price: 'price',
   list_price: 'listPrice',
+  wholesale_price: 'wholesalePrice',
+  dealer_price: 'wholesalePrice',
+  wholesale_visible: 'isWholesaleVisible',
+  is_wholesale_visible: 'isWholesaleVisible',
+  wholesale_status: 'wholesaleStatus',
+  wholesale_notes: 'wholesaleNotes',
   status: 'status',
   is_published: 'isPublished',
   is_featured: 'isFeatured',
@@ -92,7 +102,7 @@ const COLUMN_MAP: Record<string, keyof ParsedInventoryRow | 'listPrice'> = {
   public_description: 'description',
 }
 
-const SAMPLE_CSV = `vin,stock_number,year,make,model,trim,body_style,mileage,sale_price,status,is_published,is_featured\n1HGBH41JXMN109186,STK-001,2023,Honda,Accord,Sport,Sedan,12500,28900,frontline,true,false`
+const SAMPLE_CSV = `vin,stock_number,year,make,model,trim,body_style,mileage,sale_price,wholesale_price,wholesale_visible,wholesale_status,status,is_published,is_featured\n1HGBH41JXMN109186,STK-001,2023,Honda,Accord,Sport,Sedan,12500,28900,25100,true,ready,frontline,true,false`
 
 function normalizeKey(value: string): string {
   return value.toLowerCase().replace(/[^a-z0-9]/g, '_')
@@ -161,11 +171,15 @@ function parsePreparedRows(fileRows: Awaited<ReturnType<typeof ingestFile>>): Pa
       if (key === 'year') parsed.year = parseNumber(value)
       else if (key === 'mileage') parsed.mileage = parseNumber(value)
       else if (key === 'price') parsed.price = parseNumber(value)
+      else if (key === 'wholesalePrice') parsed.wholesalePrice = parseNumber(value)
       else if (key === 'listPrice' && parsed.price === undefined) parsed.price = parseNumber(value)
       else if (key === 'isPublished') parsed.isPublished = parseBoolean(value)
       else if (key === 'isFeatured') parsed.isFeatured = parseBoolean(value)
       else if (key === 'available') parsed.available = parseBoolean(value)
+      else if (key === 'isWholesaleVisible') parsed.isWholesaleVisible = parseBoolean(value)
       else if (key === 'status') parsed.status = normalizeStatus(value)
+      else if (key === 'wholesaleStatus') parsed.wholesaleStatus = value
+      else if (key === 'wholesaleNotes') parsed.wholesaleNotes = value
       else if (key === 'vin') parsed.vin = value.toUpperCase()
       else if (key === 'stockNumber') parsed.stockNumber = value.toUpperCase()
       else if (key === 'make') parsed.make = value
@@ -274,7 +288,10 @@ function buildUpdatePayload(existing: InventoryRecord, row: ParsedInventoryRow):
   maybeSet('bodyStyle', row.bodyStyle, existing.bodyStyle)
   maybeSet('mileage', row.mileage, existing.mileage)
   maybeSet('price', row.price, existing.price)
+  maybeSet('wholesalePrice', row.wholesalePrice, existing.wholesalePrice)
   maybeSet('status', row.status, existing.status)
+  maybeSet('wholesaleStatus', row.wholesaleStatus, existing.wholesaleStatus)
+  maybeSet('wholesaleNotes', row.wholesaleNotes, existing.wholesaleNotes)
   maybeSet('description', row.description, existing.description)
 
   if (row.available !== undefined && row.available !== existing.available) {
@@ -287,6 +304,10 @@ function buildUpdatePayload(existing: InventoryRecord, row: ParsedInventoryRow):
   }
   if (row.isFeatured !== undefined && row.isFeatured !== existing.isFeatured) {
     payload.isFeatured = row.isFeatured
+    hasChanges = true
+  }
+  if (row.isWholesaleVisible !== undefined && row.isWholesaleVisible !== existing.isWholesaleVisible) {
+    payload.isWholesaleVisible = row.isWholesaleVisible
     hasChanges = true
   }
 
@@ -310,6 +331,10 @@ function buildCreatePayload(row: ParsedInventoryRow): InventoryRecordCreateInput
     bodyStyle: row.bodyStyle,
     mileage: row.mileage,
     price: row.price,
+    wholesalePrice: row.wholesalePrice,
+    isWholesaleVisible: row.isWholesaleVisible ?? false,
+    wholesaleStatus: row.wholesaleStatus,
+    wholesaleNotes: row.wholesaleNotes,
     status: row.status || 'inventory',
     available: row.available ?? true,
     isPublished: row.isPublished ?? false,

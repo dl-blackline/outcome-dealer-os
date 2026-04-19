@@ -40,6 +40,10 @@ export interface InventoryRecord {
   bodyStyle: string
   mileage: number
   price: number
+  wholesalePrice?: number
+  isWholesaleVisible?: boolean
+  wholesaleStatus?: string
+  wholesaleNotes?: string
   status: string
   available: boolean
   isPublished: boolean
@@ -60,6 +64,10 @@ export interface InventoryRecord {
 
 export interface InventoryRecordUpdate {
   price?: number
+  wholesalePrice?: number
+  isWholesaleVisible?: boolean
+  wholesaleStatus?: string
+  wholesaleNotes?: string
   status?: string
   available?: boolean
   isPublished?: boolean
@@ -73,7 +81,7 @@ export interface InventoryRecordUpdate {
   transmission?: string
 }
 
-type LocalInventoryOverride = Partial<InventoryRecordUpdate>
+type LocalInventoryOverride = Partial<InventoryRecordFullUpdate>
 
 export interface InventoryRecordCreateInput {
   stockNumber?: string
@@ -85,6 +93,10 @@ export interface InventoryRecordCreateInput {
   mileage?: number
   bodyStyle?: string
   price?: number
+  wholesalePrice?: number
+  isWholesaleVisible?: boolean
+  wholesaleStatus?: string
+  wholesaleNotes?: string
   status?: string
   available?: boolean
   isPublished?: boolean
@@ -111,6 +123,10 @@ interface SupabaseInventoryUnitRow {
   body_style?: string | null
   sale_price?: number | null
   list_price?: number | null
+  wholesale_price?: number | null
+  wholesale_visible?: boolean | null
+  wholesale_status?: string | null
+  wholesale_notes?: string | null
   status?: string | null
   aging_days?: number | null
   public_description?: string | null
@@ -153,6 +169,10 @@ export interface InventoryRecordFullUpdate {
   mileage?: number
   bodyStyle?: string
   price?: number
+  wholesalePrice?: number
+  isWholesaleVisible?: boolean
+  wholesaleStatus?: string
+  wholesaleNotes?: string
   status?: string
   available?: boolean
   isPublished?: boolean
@@ -411,6 +431,10 @@ function mapSeedInventoryToRecord(unit: (typeof BUYER_HUB_INVENTORY)[number]): I
     bodyStyle: unit.bodyStyle,
     mileage: unit.mileage,
     price: unit.askingPrice,
+    wholesalePrice: undefined,
+    isWholesaleVisible: false,
+    wholesaleStatus: unit.status === 'wholesale' ? 'ready' : undefined,
+    wholesaleNotes: undefined,
     status: unit.status,
     available: unit.available,
     isPublished: unit.available,
@@ -540,6 +564,10 @@ async function loadSupabaseInventoryRecords(): Promise<InventoryRecord[] | null>
       bodyStyle: row.body_style || 'Vehicle',
       mileage: row.mileage || 0,
       price: row.sale_price || row.list_price || 0,
+      wholesalePrice: row.wholesale_price ?? undefined,
+      isWholesaleVisible: row.wholesale_visible ?? false,
+      wholesaleStatus: row.wholesale_status || undefined,
+      wholesaleNotes: row.wholesale_notes || undefined,
       status: row.status || 'inventory',
       available: row.available_publicly ?? true,
       isPublished: row.is_published ?? true,
@@ -559,13 +587,33 @@ async function loadSupabaseInventoryRecords(): Promise<InventoryRecord[] | null>
 }
 
 export async function listRuntimeInventoryRecords(): Promise<InventoryRecord[]> {
+  const overrides = readOverrides()
+
   if (isSupabaseConfigured()) {
     const supabaseRecords = await loadSupabaseInventoryRecords()
-    if (supabaseRecords && supabaseRecords.length > 0) return supabaseRecords
+    if (supabaseRecords && supabaseRecords.length > 0) {
+      const merged = supabaseRecords.map((record) => applyOverride(record, overrides[record.id]))
+      return applyPhotoOverrides(merged)
+    }
   }
 
   const base = mergeLocalRuntimeRecords(getSeedInventoryRecords())
   return applyPhotoOverrides(base)
+}
+
+function persistWholesaleOverride(
+  id: string,
+  values: Pick<InventoryRecordFullUpdate, 'wholesalePrice' | 'isWholesaleVisible' | 'wholesaleStatus' | 'wholesaleNotes'>,
+) {
+  const hasWholesaleData = Object.values(values).some((value) => value !== undefined)
+  if (!hasWholesaleData) return
+
+  const overrides = readOverrides()
+  overrides[id] = {
+    ...overrides[id],
+    ...values,
+  }
+  writeOverrides(overrides)
 }
 
 function createLocalRuntimeRecord(input: InventoryRecordCreateInput): InventoryRecord {
@@ -584,6 +632,10 @@ function createLocalRuntimeRecord(input: InventoryRecordCreateInput): InventoryR
     bodyStyle: input.bodyStyle || 'Vehicle',
     mileage: input.mileage || 0,
     price: input.price || 0,
+    wholesalePrice: input.wholesalePrice,
+    isWholesaleVisible: input.isWholesaleVisible ?? false,
+    wholesaleStatus: input.wholesaleStatus,
+    wholesaleNotes: input.wholesaleNotes,
     status: input.status || 'inventory',
     available: input.available ?? true,
     isPublished: input.isPublished ?? false,
@@ -651,6 +703,12 @@ export async function createRuntimeInventoryRecord(
       .single()
 
     if (!error && data?.id) {
+      persistWholesaleOverride(data.id, {
+        wholesalePrice: input.wholesalePrice,
+        isWholesaleVisible: input.isWholesaleVisible,
+        wholesaleStatus: input.wholesaleStatus,
+        wholesaleNotes: input.wholesaleNotes,
+      })
       emitInventoryUpdate()
       const records = await listRuntimeInventoryRecords()
       return records.find((record) => record.id === data.id) || null
@@ -668,6 +726,13 @@ export async function updateRuntimeInventoryRecord(
   updates: InventoryRecordUpdate,
 ): Promise<InventoryRecord | null> {
   const client = getSupabaseBrowserClient()
+
+  persistWholesaleOverride(id, {
+    wholesalePrice: updates.wholesalePrice,
+    isWholesaleVisible: updates.isWholesaleVisible,
+    wholesaleStatus: updates.wholesaleStatus,
+    wholesaleNotes: updates.wholesaleNotes,
+  })
 
   if (client) {
     const payload = {
@@ -720,6 +785,13 @@ export async function updateRuntimeInventoryRecordFull(
 ): Promise<InventoryRecord | null> {
   const client = getSupabaseBrowserClient()
 
+  persistWholesaleOverride(id, {
+    wholesalePrice: updates.wholesalePrice,
+    isWholesaleVisible: updates.isWholesaleVisible,
+    wholesaleStatus: updates.wholesaleStatus,
+    wholesaleNotes: updates.wholesaleNotes,
+  })
+
   if (client) {
     const payload: Record<string, unknown> = {}
     if (updates.stockNumber !== undefined) payload.stock_number = updates.stockNumber
@@ -768,6 +840,10 @@ export async function updateRuntimeInventoryRecordFull(
       mileage: updates.mileage ?? existing.mileage,
       bodyStyle: updates.bodyStyle ?? existing.bodyStyle,
       price: updates.price ?? existing.price,
+      wholesalePrice: updates.wholesalePrice ?? existing.wholesalePrice,
+      isWholesaleVisible: updates.isWholesaleVisible ?? existing.isWholesaleVisible,
+      wholesaleStatus: updates.wholesaleStatus ?? existing.wholesaleStatus,
+      wholesaleNotes: updates.wholesaleNotes ?? existing.wholesaleNotes,
       status: updates.status ?? existing.status,
       available: updates.available ?? existing.available,
       isPublished: updates.isPublished ?? existing.isPublished,
@@ -1066,9 +1142,22 @@ export function useInventoryCatalog() {
     [publicRecords],
   )
 
+  const wholesaleRecords = useMemo(
+    () =>
+      records.filter(
+        (record) =>
+          Boolean(record.available) &&
+          Boolean(record.isWholesaleVisible) &&
+          typeof record.wholesalePrice === 'number' &&
+          record.wholesalePrice > 0,
+      ),
+    [records],
+  )
+
   return {
     records,
     publicRecords,
+    wholesaleRecords,
     featuredRecords,
     loading,
     refresh,

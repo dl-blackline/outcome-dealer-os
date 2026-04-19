@@ -46,4 +46,6 @@ export const APP_ROUTES: RouteDefinition[] = [
   { path: '/trade', label: 'Trade-In', component: 'TradeInPage', group: 'buyer_hub' },
   { path: '/schedule', label: 'Schedule', component: 'SchedulePage', group: 'buyer_hub' },
   { path: '/my-next-steps', label: 'My Next Steps', component: 'NextStepsPage', group: 'buyer_hub' },
+  { path: '/wholesale', label: 'Wholesale Inventory', component: 'WholesaleInventoryPage', group: 'buyer_hub' },
+  { path: '/wholesale/:unitId', label: 'Wholesale Unit Detail', component: 'WholesaleVehicleDetailPage', group: 'buyer_hub' },
 ]
