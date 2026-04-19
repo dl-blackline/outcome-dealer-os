@@ -83,7 +83,7 @@ export function LoginPage() {
               <p className="text-sm text-slate-400">
                 {mode === 'supabase'
                   ? 'Use your Supabase staff credentials.'
-                  : 'Running in local mode. Use any email and password to sign in with a demo session.'}
+                  : 'Local-mode sign-in is active. Demo credentials are stored in this browser for protected app access.'}
               </p>
             </CardHeader>
             <CardContent className="space-y-5">
@@ -105,7 +105,7 @@ export function LoginPage() {
                     <p className="mt-1">
                       {mode === 'supabase'
                         ? 'Sessions persist through Supabase auth and route protection is enforced for private pages.'
-                        : 'This environment uses a local demo session. Sessions are stored in localStorage until you sign out.'}
+                        : 'Spark/demo local auth fallback is active and uses browser-stored demo sessions when no hosted auth session is available.'}
                     </p>
                   </div>
                 </div>
