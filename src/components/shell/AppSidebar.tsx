@@ -5,6 +5,7 @@ import {
   Gauge,
   Gear,
   ChartLine,
+  ChartBar,
   Wrench,
   CurrencyDollar,
   Kanban,
@@ -101,6 +102,12 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Operating Review',
     href: '/app/ops/operating-review',
     icon: WarningDiamond,
+    group: 'operations',
+  },
+  {
+    label: 'Reports',
+    href: '/app/ops/reports',
+    icon: ChartBar,
     group: 'operations',
   },
   {

@@ -29,6 +29,7 @@ import { AuditExplorerPage } from '@/app/pages/ops/AuditExplorerPage'
 import { AssistantOpsPage } from '@/app/pages/ops/AssistantOpsPage'
 import { IntelligencePage } from '@/app/pages/ops/IntelligencePage'
 import { OperatingReviewPage } from '@/app/pages/ops/OperatingReviewPage'
+import { ReportsPage } from '@/app/pages/ops/ReportsPage'
 import { RolesSettingsPage } from '@/app/pages/settings/RolesSettingsPage'
 import { IntegrationsSettingsPage } from '@/app/pages/settings/IntegrationsSettingsPage'
 import { InventoryImportPage } from '@/app/pages/settings/InventoryImportPage'
@@ -54,6 +55,7 @@ const ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/app/ops/assistant': AssistantOpsPage,
   '/app/ops/intelligence': IntelligencePage,
   '/app/ops/operating-review': OperatingReviewPage,
+  '/app/ops/reports': ReportsPage,
   '/app/settings/roles': RolesSettingsPage,
   '/app/settings/integrations': IntegrationsSettingsPage,
   '/app/settings/inventory-import': InventoryImportPage,
