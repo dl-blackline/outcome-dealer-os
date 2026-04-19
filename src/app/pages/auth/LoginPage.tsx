@@ -83,7 +83,7 @@ export function LoginPage() {
               <p className="text-sm text-slate-400">
                 {mode === 'supabase'
                   ? 'Use your Supabase staff credentials.'
-                  : 'Supabase is not configured yet. Use demo credentials to access the protected app locally.'}
+                  : 'Running in local mode. Use any email and password to sign in with a demo session.'}
               </p>
             </CardHeader>
             <CardContent className="space-y-5">
@@ -105,7 +105,7 @@ export function LoginPage() {
                     <p className="mt-1">
                       {mode === 'supabase'
                         ? 'Sessions persist through Supabase auth and route protection is enforced for private pages.'
-                        : 'This environment uses a safe local fallback until Supabase credentials are added.'}
+                        : 'This environment uses a local demo session. Sessions are stored in localStorage until you sign out.'}
                     </p>
                   </div>
                 </div>

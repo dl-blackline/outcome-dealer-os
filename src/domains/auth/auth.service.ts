@@ -31,7 +31,41 @@ function storeDemoSession(sessionUser: SessionUser | null) {
   window.localStorage.setItem(DEMO_SESSION_KEY, JSON.stringify(sessionUser))
 }
 
+/**
+ * Safely resolve the Spark authenticated user without throwing.
+ * Returns the user object if Spark has an active session, or null otherwise.
+ * This prevents a null-property crash when spark is present but no user is logged in.
+ */
+async function safeGetSparkUser(): Promise<AuthUser | null> {
+  try {
+    const userInfo = await spark.user()
+    if (
+      !userInfo ||
+      typeof userInfo !== 'object' ||
+      typeof userInfo.id !== 'string' ||
+      !userInfo.id
+    ) {
+      return null
+    }
+    return {
+      id: userInfo.id,
+      login: userInfo.login,
+      email: userInfo.email,
+      avatarUrl: userInfo.avatarUrl,
+      isOwner: userInfo.isOwner,
+    }
+  } catch {
+    return null
+  }
+}
+
 export class AuthService {
+  /**
+   * Resolve the active runtime mode in priority order:
+   *   1. supabase  — when VITE_SUPABASE_URL + VITE_SUPABASE_ANON_KEY are set
+   *   2. spark     — when the Spark global is present (may or may not have an active user)
+   *   3. demo      — local-only fallback using localStorage
+   */
   static getRuntimeMode(): AuthRuntimeMode {
     if (isSupabaseConfigured()) return 'supabase'
     if (typeof spark !== 'undefined') return 'spark'
@@ -45,6 +79,7 @@ export class AuthService {
   static async fetchAuthUser(): Promise<AuthUser> {
     const mode = this.getRuntimeMode()
 
+    // --- 1. Supabase auth ---
     if (mode === 'supabase') {
       const client = getSupabaseBrowserClient()
       const { data, error } = await client!.auth.getUser()
@@ -62,24 +97,31 @@ export class AuthService {
       }
     }
 
+    // --- 2. Spark auth (with graceful demo-session fallback) ---
+    // Spark may be present but have no authenticated user (e.g. local dev preview).
+    // In that case we fall through to the stored demo session rather than crashing.
     if (mode === 'spark') {
-      try {
-        const userInfo = await spark.user()
-        if (!userInfo) {
-          throw new Error('No active Spark session')
-        }
-        return {
-          id: userInfo.id,
-          login: userInfo.login,
-          email: userInfo.email,
-          avatarUrl: userInfo.avatarUrl,
-          isOwner: userInfo.isOwner,
-        }
-      } catch (error) {
-        throw new Error(`Failed to fetch authenticated user: ${error}`)
+      const sparkUser = await safeGetSparkUser()
+      if (sparkUser) {
+        return sparkUser
       }
+
+      // Spark is present but has no active user — fall back to demo session
+      const demoSession = getStoredDemoSession()
+      if (demoSession) {
+        return {
+          id: demoSession.id,
+          login: demoSession.login,
+          email: demoSession.email,
+          avatarUrl: demoSession.avatarUrl,
+          isOwner: demoSession.isOwner,
+        }
+      }
+
+      throw new Error('No active demo session')
     }
 
+    // --- 3. Demo / local session ---
     const demoSession = getStoredDemoSession()
     if (!demoSession) {
       throw new Error('No active demo session')
