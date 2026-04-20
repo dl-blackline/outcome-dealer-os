@@ -201,9 +201,13 @@ class SupabaseClient {
 
     if (client) {
       const { data, error } = await client.from(table).select('*')
-      if (!error && data) return data as T[]
+      if (error) {
+        throw new Error(`[DB] Supabase read from "${table}" failed: ${error.message}`)
+      }
+      return (data || []) as T[]
     }
 
+    // Supabase not configured – use local fallback (dev/demo mode only)
     const sparkStore = this.getSparkStore()
     if (sparkStore) {
       const rows = await sparkStore.get<T[]>(`db:${table}`)
@@ -225,9 +229,13 @@ class SupabaseClient {
     const client = getSupabaseBrowserClient()
     if (client) {
       const { data, error } = await client.from(table).insert(fullRow).select().single()
-      if (!error && data) return data as T
+      if (error || !data) {
+        throw new Error(`[DB] Supabase insert into "${table}" failed: ${error?.message ?? 'no data returned'}`)
+      }
+      return data as T
     }
 
+    // Supabase not configured – use local fallback (dev/demo mode only)
     const sparkStore = this.getSparkStore()
     if (sparkStore) {
       const tableKey = `db:${table}`
@@ -252,9 +260,13 @@ class SupabaseClient {
     if (client) {
       const payload = { ...updates, updated_at: new Date().toISOString() }
       const { data, error } = await client.from(table).update(payload).eq('id', id).select().single()
-      if (!error && data) return data as T
+      if (error || !data) {
+        throw new Error(`[DB] Supabase update on "${table}" (id: ${id}) failed: ${error?.message ?? 'no data returned'}`)
+      }
+      return data as T
     }
 
+    // Supabase not configured – use local fallback (dev/demo mode only)
     const sparkStore = this.getSparkStore()
     if (sparkStore) {
       const tableKey = `db:${table}`
@@ -306,9 +318,13 @@ class SupabaseClient {
     const client = getSupabaseBrowserClient()
     if (client) {
       const { error } = await client.from(table).delete().eq('id', id)
-      if (!error) return true
+      if (error) {
+        throw new Error(`[DB] Supabase delete from "${table}" (id: ${id}) failed: ${error.message}`)
+      }
+      return true
     }
 
+    // Supabase not configured – use local fallback (dev/demo mode only)
     const sparkStore = this.getSparkStore()
     if (sparkStore) {
       const tableKey = `db:${table}`
