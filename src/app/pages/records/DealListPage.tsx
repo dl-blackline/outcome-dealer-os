@@ -34,15 +34,19 @@ export function DealListPage() {
             <th className="px-4 py-3 text-left font-medium">Status</th>
             <th className="px-4 py-3 text-right font-medium">Created</th>
           </tr></thead>
-          <tbody>{filtered.map(deal => (
-            <tr key={deal.id} className="border-b border-border last:border-0 cursor-pointer hover:bg-accent/30 transition-colors" onClick={() => navigate(`/app/records/deals/${deal.id}`)}>
-              <td className="px-4 py-3 font-medium">{deal.customerName}</td>
-              <td className="px-4 py-3 text-muted-foreground">{deal.vehicleDescription}</td>
-              <td className="px-4 py-3 text-right font-semibold">${deal.amount.toLocaleString()}</td>
-              <td className="px-4 py-3"><StatusPill variant={deal.status === 'funded' ? 'success' : deal.status === 'signed' ? 'info' : deal.status === 'quoted' ? 'warning' : 'neutral'}>{deal.status}</StatusPill></td>
-              <td className="px-4 py-3 text-right text-muted-foreground">{new Date(deal.createdAt).toLocaleDateString()}</td>
-            </tr>
-          ))}</tbody>
+          <tbody>
+            {filtered.length === 0 ? (
+              <tr><td colSpan={5} className="px-4 py-12 text-center text-sm text-muted-foreground">No deals yet. Deals will appear here once they are created.</td></tr>
+            ) : filtered.map(deal => (
+              <tr key={deal.id} className="border-b border-border last:border-0 cursor-pointer hover:bg-accent/30 transition-colors" onClick={() => navigate(`/app/records/deals/${deal.id}`)}>
+                <td className="px-4 py-3 font-medium">{deal.customerName}</td>
+                <td className="px-4 py-3 text-muted-foreground">{deal.vehicleDescription}</td>
+                <td className="px-4 py-3 text-right font-semibold">${deal.amount.toLocaleString()}</td>
+                <td className="px-4 py-3"><StatusPill variant={deal.status === 'funded' ? 'success' : deal.status === 'signed' ? 'info' : deal.status === 'quoted' ? 'warning' : 'neutral'}>{deal.status}</StatusPill></td>
+                <td className="px-4 py-3 text-right text-muted-foreground">{new Date(deal.createdAt).toLocaleDateString()}</td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       </div>
     </div>

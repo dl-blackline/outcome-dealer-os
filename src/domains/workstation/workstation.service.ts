@@ -2,7 +2,6 @@ import { ServiceResult, ok, fail, UUID } from '@/types/common'
 import { WorkstationCard, WorkstationColumnId } from './workstation.types'
 import { DbRow } from '@/lib/db/supabase'
 import { db } from '@/lib/db/supabase'
-import { MOCK_WORKSTATION_CARDS } from './workstation.mock'
 
 const TABLE = 'workstation_cards'
 
@@ -61,19 +60,8 @@ function cardToRow(card: Omit<WorkstationCard, 'id' | 'createdAt' | 'updatedAt'>
   }
 }
 
-/** Seed mock data into KV if the table is empty */
-async function ensureSeeded(): Promise<void> {
-  const existing = await db.findMany<WorkstationCardRow>(TABLE)
-  if (existing.length > 0) return
-
-  for (const card of MOCK_WORKSTATION_CARDS) {
-    await db.insert<WorkstationCardRow>(TABLE, cardToRow(card))
-  }
-}
-
 export async function listWorkstationCards(): Promise<ServiceResult<WorkstationCard[]>> {
   try {
-    await ensureSeeded()
     const rows = await db.findMany<WorkstationCardRow>(TABLE)
     return ok(rows.map(rowToCard))
   } catch (error) {

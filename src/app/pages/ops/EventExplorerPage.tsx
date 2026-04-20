@@ -44,7 +44,9 @@ export function EventExplorerPage() {
       </div>
       <Card><CardContent className="p-0">
         <div className="divide-y divide-border">
-          {filtered.map(evt => {
+          {filtered.length === 0 ? (
+            <div className="px-4 py-12 text-center text-sm text-muted-foreground">No events yet. System and user events will appear here in real time.</div>
+          ) : filtered.map(evt => {
             const ActorIcon = ACTOR_ICON[evt.actorType] ?? Gear
             const severity = eventSeverityVariant(evt.eventName)
             return (

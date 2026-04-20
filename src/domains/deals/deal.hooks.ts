@@ -1,8 +1,7 @@
 /**
  * Deal domain runtime hooks — backed by deal.service.ts (KV store).
  *
- * Seeds MOCK_DEALS into KV on first load, then any newly created deals
- * (e.g. converted from leads) persist across page reloads.
+ * Newly created deals (e.g. converted from leads) persist across page reloads.
  */
 import { useState, useEffect, useCallback } from 'react'
 import { type QueryResult } from '@/hooks/useQueryResult'

@@ -2,7 +2,6 @@ import { useRef, useEffect } from 'react'
 import { SectionHeader } from '@/components/core/SectionHeader'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import {
@@ -17,8 +16,6 @@ import {
   Car,
   UserCircle,
   Lightning,
-  Play,
-  ArrowClockwise,
   CheckCircle,
   Warning,
   SpinnerGap,
@@ -280,7 +277,7 @@ function IngestionFeedItem({ event }: { event: IngestionEvent }) {
 }
 
 function LiveIngestionPanel() {
-  const { events, jobState, startJob, resetJob } = useIngestionStream()
+  const { events, jobState } = useIngestionStream()
   const feedRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -305,27 +302,12 @@ function LiveIngestionPanel() {
             <Lightning className="h-5 w-5 text-primary" />
             Live Ingestion Stream
           </CardTitle>
-          <div className="flex gap-2">
-            {jobState.status === 'idle' || jobState.status === 'complete' || jobState.status === 'error' ? (
-              <>
-                {jobState.status !== 'idle' && (
-                  <Button variant="outline" size="sm" onClick={resetJob} className="gap-1.5">
-                    <ArrowClockwise className="h-3.5 w-3.5" />
-                    Reset
-                  </Button>
-                )}
-                <Button size="sm" onClick={startJob} className="gap-1.5">
-                  <Play className="h-3.5 w-3.5" />
-                  Run Demo Job
-                </Button>
-              </>
-            ) : (
-              <Badge className="gap-1.5 bg-primary/10 text-primary border-primary/20">
-                <SpinnerGap className="h-3 w-3 animate-spin" />
-                Running — {jobState.rowsPerSecond} rows/sec
-              </Badge>
-            )}
-          </div>
+          {jobState.status === 'running' && (
+            <Badge className="gap-1.5 bg-primary/10 text-primary border-primary/20">
+              <SpinnerGap className="h-3 w-3 animate-spin" />
+              Running — {jobState.rowsPerSecond} rows/sec
+            </Badge>
+          )}
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -399,7 +381,7 @@ function LiveIngestionPanel() {
           >
             {events.length === 0 ? (
               <p className="text-xs text-muted-foreground py-6 text-center">
-                Click &quot;Run Demo Job&quot; to see the live ingestion stream in action.
+                No ingestion jobs running. Connect a data source to see the live pipeline stream.
               </p>
             ) : (
               events.map((event) => (

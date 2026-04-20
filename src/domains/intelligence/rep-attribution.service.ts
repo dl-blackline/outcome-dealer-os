@@ -226,30 +226,9 @@ async function rebuildRepPerformance(repId: string, repName?: string): Promise<v
 }
 
 /**
- * Seed demo rep attributions so the UI has something to show immediately.
+ * Seed attribution data is no longer seeded automatically.
+ * Attribution records are created as real deals are processed.
  */
-let seededAttribution = false
-
 export async function ensureRepAttributionSeeded(): Promise<void> {
-  if (seededAttribution) return
-  seededAttribution = true
-
-  const existing = await db.findMany<DealAttributionRow>(ATTRIBUTION_TABLE)
-  if (existing.length > 0) return
-
-  const demoAttributions: Array<{
-    dealId: string
-    repId: string
-    repName: string
-    type: AttributionType
-  }> = [
-    { dealId: 'deal-001', repId: 'rep-john-smith', repName: 'John Smith', type: 'CLOSE' },
-    { dealId: 'deal-001', repId: 'rep-lisa-chen', repName: 'Lisa Chen', type: 'ASSIST' },
-    { dealId: 'deal-002', repId: 'rep-john-smith', repName: 'John Smith', type: 'SOURCE' },
-    { dealId: 'deal-002', repId: 'rep-mike-torres', repName: 'Mike Torres', type: 'FOLLOW_UP' },
-  ]
-
-  for (const attr of demoAttributions) {
-    await addDealAttribution(attr.dealId, attr.repId, attr.type, attr.repName)
-  }
+  // No-op: demo seeding removed. Attribution is created via real deal processing.
 }

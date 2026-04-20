@@ -2,8 +2,7 @@
  * Deal domain KV-backed service.
  *
  * Stores MockDeal records in the KV store so that newly created deals
- * (e.g. converted from leads) survive a page reload. Seeds MOCK_DEALS
- * into KV on the first call if the table is empty.
+ * (e.g. converted from leads) survive a page reload.
  *
  * After every deal create/update the service fires the intelligence pipeline:
  *   1. CLV recalc for the customer
@@ -12,7 +11,7 @@
  */
 import { ServiceResult, ok, fail, UUID } from '@/types/common'
 import { db, DbRow } from '@/lib/db/supabase'
-import { MOCK_DEALS, type MockDeal } from '@/lib/mockData'
+import { type MockDeal } from '@/lib/mockData'
 import { recalcCustomerCLV } from '@/domains/intelligence/clv.service'
 import { addDealAttribution } from '@/domains/intelligence/rep-attribution.service'
 import { scoreCloseProbability, sourceQualityScore } from '@/domains/intelligence/close-probability.service'
@@ -39,27 +38,8 @@ function rowToDeal(row: MockDealRow): MockDeal {
   }
 }
 
-let seeded = false
-
-async function ensureSeeded(): Promise<void> {
-  if (seeded) return
-  seeded = true
-  const existing = await db.findMany<MockDealRow>(TABLE)
-  if (existing.length > 0) return
-  for (const deal of MOCK_DEALS) {
-    await db.insert<MockDealRow>(TABLE, {
-      lead_id: deal.leadId,
-      customer_name: deal.customerName,
-      vehicle_description: deal.vehicleDescription,
-      status: deal.status,
-      amount: deal.amount,
-    })
-  }
-}
-
 export async function listDeals(): Promise<ServiceResult<MockDeal[]>> {
   try {
-    await ensureSeeded()
     const rows = await db.findMany<MockDealRow>(TABLE)
     return ok(rows.map(rowToDeal))
   } catch (error) {
@@ -69,7 +49,6 @@ export async function listDeals(): Promise<ServiceResult<MockDeal[]>> {
 
 export async function getDeal(id: UUID): Promise<ServiceResult<MockDeal | null>> {
   try {
-    await ensureSeeded()
     const row = await db.findById<MockDealRow>(TABLE, id)
     return ok(row ? rowToDeal(row) : null)
   } catch (error) {
@@ -81,7 +60,6 @@ export async function createDeal(
   input: Omit<MockDeal, 'id' | 'createdAt'>
 ): Promise<ServiceResult<MockDeal>> {
   try {
-    await ensureSeeded()
     const row = await db.insert<MockDealRow>(TABLE, {
       lead_id: input.leadId,
       customer_name: input.customerName,

@@ -204,54 +204,9 @@ export async function listVinEnrichments(): Promise<ServiceResult<VinEnrichment[
 }
 
 /**
- * Seed VIN enrichment for demo inventory items.
+ * VIN enrichment data is no longer seeded automatically with demo units.
+ * Enrichment is triggered when real inventory is imported.
  */
-let seededVin = false
-
 export async function ensureVinEnrichmentSeeded(): Promise<void> {
-  if (seededVin) return
-  seededVin = true
-
-  const existing = await db.findMany<VinEnrichmentRow>(TABLE)
-  if (existing.length > 0) return
-
-  const demoUnits = [
-    {
-      id: 'inv-001',
-      vin: '1HGCM82633A123456',
-      year: 2023,
-      make: 'Honda',
-      model: 'Accord',
-      trim: 'Sport',
-      listPrice: 29995,
-    },
-    {
-      id: 'inv-002',
-      vin: '1FTFW1ET5EKD12345',
-      year: 2024,
-      make: 'Ford',
-      model: 'F-150',
-      trim: 'XLT',
-      listPrice: 54990,
-    },
-    {
-      id: 'inv-003',
-      vin: '5YJSA1E26HF123456',
-      year: 2020,
-      make: 'Tesla',
-      model: 'Model S',
-      trim: 'Long Range',
-      listPrice: 62500,
-    },
-  ]
-
-  for (const unit of demoUnits) {
-    await enrichVin(unit.id, unit.vin, {
-      year: unit.year,
-      make: unit.make,
-      model: unit.model,
-      trim: unit.trim,
-      listPrice: unit.listPrice,
-    })
-  }
+  // No-op: demo seeding removed. VIN enrichment is triggered via real inventory import.
 }

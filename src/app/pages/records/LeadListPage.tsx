@@ -39,15 +39,19 @@ export function LeadListPage() {
             <th className="px-4 py-3 text-left font-medium">Status</th>
             <th className="px-4 py-3 text-right font-medium">Created</th>
           </tr></thead>
-          <tbody>{filtered.map(lead => (
-            <tr key={lead.id} className="border-b border-border last:border-0 cursor-pointer hover:bg-accent/30 transition-colors" onClick={() => navigate(`/app/records/leads/${lead.id}`)}>
-              <td className="px-4 py-3 font-medium">{lead.customerName}</td>
-              <td className="px-4 py-3 text-muted-foreground">{lead.source}</td>
-              <td className="px-4 py-3"><div className="flex items-center gap-2"><div className="h-2 w-16 rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${lead.score}%` }} /></div><span className="text-xs">{lead.score}</span></div></td>
-              <td className="px-4 py-3"><StatusPill variant={lead.status === 'converted' ? 'success' : lead.status === 'qualified' ? 'info' : lead.status === 'contacted' ? 'warning' : 'neutral'}>{lead.status}</StatusPill></td>
-              <td className="px-4 py-3 text-right text-muted-foreground">{new Date(lead.createdAt).toLocaleDateString()}</td>
-            </tr>
-          ))}</tbody>
+          <tbody>
+            {filtered.length === 0 ? (
+              <tr><td colSpan={5} className="px-4 py-12 text-center text-sm text-muted-foreground">No leads yet. Leads will appear here once they are created.</td></tr>
+            ) : filtered.map(lead => (
+              <tr key={lead.id} className="border-b border-border last:border-0 cursor-pointer hover:bg-accent/30 transition-colors" onClick={() => navigate(`/app/records/leads/${lead.id}`)}>
+                <td className="px-4 py-3 font-medium">{lead.customerName}</td>
+                <td className="px-4 py-3 text-muted-foreground">{lead.source}</td>
+                <td className="px-4 py-3"><div className="flex items-center gap-2"><div className="h-2 w-16 rounded-full bg-muted"><div className="h-full rounded-full bg-primary" style={{ width: `${lead.score}%` }} /></div><span className="text-xs">{lead.score}</span></div></td>
+                <td className="px-4 py-3"><StatusPill variant={lead.status === 'converted' ? 'success' : lead.status === 'qualified' ? 'info' : lead.status === 'contacted' ? 'warning' : 'neutral'}>{lead.status}</StatusPill></td>
+                <td className="px-4 py-3 text-right text-muted-foreground">{new Date(lead.createdAt).toLocaleDateString()}</td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       </div>
     </div>

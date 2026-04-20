@@ -1,24 +1,19 @@
-import { useState, useEffect, useCallback, useRef } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { CustomerIntelligence, RepPerformance, CloseProbability, VinEnrichment, IngestionEvent, IngestionJobState } from './intelligence.types'
 import { listCustomerIntelligence } from './clv.service'
 import {
   listRepPerformances,
-  ensureRepAttributionSeeded,
 } from './rep-attribution.service'
 import {
   listCloseProbabilities,
-  ensureCloseProbabilitySeeded,
 } from './close-probability.service'
 import {
   listVinEnrichments,
-  ensureVinEnrichmentSeeded,
 } from './vin-enrichment.service'
 import {
   onIngestionEvent,
   onJobStateChange,
   getCurrentJobState,
-  runDemoIngestionJob,
-  resetDemoJob,
 } from './ingestion-stream.service'
 
 // ─── CLV hook ─────────────────────────────────────────────────────────────────
@@ -48,7 +43,6 @@ export function useRepPerformances() {
   const [loading, setLoading] = useState(true)
 
   const refresh = useCallback(async () => {
-    await ensureRepAttributionSeeded()
     const result = await listRepPerformances()
     setData(result.ok ? result.value : [])
     setLoading(false)
@@ -68,7 +62,6 @@ export function useCloseProbabilities() {
   const [loading, setLoading] = useState(true)
 
   const refresh = useCallback(async () => {
-    await ensureCloseProbabilitySeeded()
     const result = await listCloseProbabilities()
     setData(result.ok ? result.value : [])
     setLoading(false)
@@ -88,7 +81,6 @@ export function useVinEnrichments() {
   const [loading, setLoading] = useState(true)
 
   const refresh = useCallback(async () => {
-    await ensureVinEnrichmentSeeded()
     const result = await listVinEnrichments()
     setData(result.ok ? result.value : [])
     setLoading(false)
@@ -108,7 +100,6 @@ const MAX_FEED_EVENTS = 100
 export function useIngestionStream() {
   const [events, setEvents] = useState<IngestionEvent[]>([])
   const [jobState, setJobState] = useState<IngestionJobState>(getCurrentJobState)
-  const runningRef = useRef(false)
 
   useEffect(() => {
     const unsubEvent = onIngestionEvent((event) => {
@@ -123,21 +114,5 @@ export function useIngestionStream() {
     }
   }, [])
 
-  const startJob = useCallback(async () => {
-    if (runningRef.current) return
-    runningRef.current = true
-    setEvents([])
-    void runDemoIngestionJob().finally(() => {
-      runningRef.current = false
-    })
-  }, [])
-
-  const resetJob = useCallback(() => {
-    runningRef.current = false
-    setEvents([])
-    resetDemoJob()
-    setJobState(getCurrentJobState())
-  }, [])
-
-  return { events, jobState, startJob, resetJob }
+  return { events, jobState }
 }

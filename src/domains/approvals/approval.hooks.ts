@@ -1,45 +1,15 @@
 /**
  * Approval domain runtime hooks.
  *
- * Seeds MOCK_APPROVALS into the in-memory store on first load,
- * then queries through the approval service layer.
+ * Queries the approval store through the approval service layer.
  */
 import { useState, useEffect, useCallback } from 'react'
 import type { QueryResult } from '@/hooks/useQueryResult'
-import { MOCK_APPROVALS, type MockApproval } from '@/lib/mockData'
+import { type MockApproval } from '@/lib/mockData'
 import { ApprovalRow } from '@/lib/db/supabase'
-import { insert, findMany, update } from '@/lib/db/helpers'
+import { findMany, update } from '@/lib/db/helpers'
 import { publishEvent } from '@/domains/events/event.publisher'
 import { writeAuditLog } from '@/domains/audit/audit.service'
-
-/* ── Seed helpers ── */
-
-let seeded = false
-
-async function seedApprovalsIfNeeded(): Promise<void> {
-  if (seeded) return
-  seeded = true
-  const existing = await findMany<ApprovalRow>('approvals')
-  if (existing.length > 0) return
-  for (const a of MOCK_APPROVALS) {
-    await insert<ApprovalRow>('approvals', {
-      type: a.type,
-      requested_by_user_id: undefined,
-      requested_by_agent: undefined,
-      requested_by_role: undefined,
-      linked_entity_type: 'deal',
-      linked_entity_id: a.id,
-      description: a.description,
-      status: a.status,
-      approved_by_user_id: undefined,
-      approved_by_role: a.resolvedBy,
-      resolved_at: a.resolvedAt,
-      resolution_notes: a.resolutionNotes,
-    } as Omit<ApprovalRow, 'id' | 'created_at' | 'updated_at'>)
-  }
-}
-
-void seedApprovalsIfNeeded()
 
 /* ── Row → MockApproval mapping ── */
 
@@ -65,8 +35,7 @@ export function useApprovals(): QueryResult<MockApproval[]> {
 
   useEffect(() => {
     let cancelled = false
-    seedApprovalsIfNeeded().then(async () => {
-      const rows = await findMany<ApprovalRow>('approvals')
+    findMany<ApprovalRow>('approvals').then((rows) => {
       if (!cancelled) {
         setData(rows.map(rowToMockApproval))
         setLoading(false)
@@ -93,7 +62,7 @@ export function useApprovalMutations(): ApprovalMutations {
   }, [])
 
   useEffect(() => {
-    seedApprovalsIfNeeded().then(refresh)
+    void refresh()
   }, [refresh])
 
   const ctx = { actorType: 'user' as const, actorId: 'user-mgr-01', actorRole: 'sales_manager', source: 'approval_queue' }

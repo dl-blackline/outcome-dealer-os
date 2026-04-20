@@ -31,16 +31,20 @@ export function HouseholdListPage() {
             <th className="px-4 py-3 text-right font-medium">Members</th>
             <th className="px-4 py-3 text-right font-medium">Created</th>
           </tr></thead>
-          <tbody>{filtered.map(hh => (
-            <tr key={hh.id} className="border-b border-border last:border-0 cursor-pointer hover:bg-accent/30 transition-colors" onClick={() => navigate(`/app/records/households/${hh.id}`)}>
-              <td className="px-4 py-3 font-medium">{hh.name}</td>
-              <td className="px-4 py-3 text-muted-foreground">{hh.primaryContact}</td>
-              <td className="px-4 py-3 text-right font-semibold">${hh.lifetimeValue.toLocaleString()}</td>
-              <td className="px-4 py-3 text-right"><StatusPill variant={hh.loyaltyScore >= 80 ? 'success' : hh.loyaltyScore >= 40 ? 'info' : 'neutral'} dot={false}>{hh.loyaltyScore}</StatusPill></td>
-              <td className="px-4 py-3 text-right">{hh.members}</td>
-              <td className="px-4 py-3 text-right text-muted-foreground">{new Date(hh.createdAt).toLocaleDateString()}</td>
-            </tr>
-          ))}</tbody>
+          <tbody>
+            {filtered.length === 0 ? (
+              <tr><td colSpan={6} className="px-4 py-12 text-center text-sm text-muted-foreground">No households yet. Customer households will appear here once they are created.</td></tr>
+            ) : filtered.map(hh => (
+              <tr key={hh.id} className="border-b border-border last:border-0 cursor-pointer hover:bg-accent/30 transition-colors" onClick={() => navigate(`/app/records/households/${hh.id}`)}>
+                <td className="px-4 py-3 font-medium">{hh.name}</td>
+                <td className="px-4 py-3 text-muted-foreground">{hh.primaryContact}</td>
+                <td className="px-4 py-3 text-right font-semibold">${hh.lifetimeValue.toLocaleString()}</td>
+                <td className="px-4 py-3 text-right"><StatusPill variant={hh.loyaltyScore >= 80 ? 'success' : hh.loyaltyScore >= 40 ? 'info' : 'neutral'} dot={false}>{hh.loyaltyScore}</StatusPill></td>
+                <td className="px-4 py-3 text-right">{hh.members}</td>
+                <td className="px-4 py-3 text-right text-muted-foreground">{new Date(hh.createdAt).toLocaleDateString()}</td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       </div>
     </div>
