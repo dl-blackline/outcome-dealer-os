@@ -1,5 +1,6 @@
 import { ServiceContext, ServiceResult, ok, fail, UUID } from '@/types/common'
 import { findById, findMany, insert, update, deleteById } from '@/lib/db/helpers'
+import { getSupabaseBrowserClient, getSupabaseStorageBucket } from '@/lib/supabase/client'
 import { hasPermission } from '@/domains/roles/policy'
 import { publishEvent } from '@/domains/events/event.publisher'
 import { writeAuditLog } from '@/domains/audit/audit.service'
@@ -396,4 +397,24 @@ export async function listFinanceDocumentsByApplication(
   } catch (error) {
     return fail({ code: 'LIST_FINANCE_DOCS_FAILED', message: 'Failed to list finance documents', details: { error: String(error) } })
   }
+}
+
+/**
+ * Generate a time-limited signed URL for downloading an uploaded document.
+ * Falls back to the public URL if signed URL creation fails.
+ */
+export async function getFinanceDocumentDownloadUrl(
+  storageRef: string,
+): Promise<string | null> {
+  const client = getSupabaseBrowserClient()
+  if (!client) return null
+
+  const bucket = getSupabaseStorageBucket()
+
+  const { data, error } = await client.storage.from(bucket).createSignedUrl(storageRef, 60 * 60)
+  if (!error && data?.signedUrl) return data.signedUrl
+
+  // Fallback: try public URL (works if the bucket is public)
+  const { data: publicData } = client.storage.from(bucket).getPublicUrl(storageRef)
+  return publicData?.publicUrl || null
 }

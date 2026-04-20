@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { SectionHeader } from '@/components/core/SectionHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
@@ -11,8 +11,9 @@ import { useRouter } from '@/app/router'
 import { useRouteParam, hasRouteParam } from '@/app/router/routeParams'
 import { PageErrorState, PageLoadingState, PageNotFoundState } from '@/components/core/PageStates'
 import { useFinanceApplication, useFinanceApplicationDocuments, useFinanceApplicationMutations } from '@/domains/credit/financeApplication.hooks'
+import { getFinanceDocumentDownloadUrl } from '@/domains/credit/financeApplication.service'
 import { CREDIT_SCORE_LABELS, DOCUMENT_LABELS, maskSSNForDisplay } from '@/domains/credit/financeApplication.rules'
-import { ArrowLeft, Trash, SpinnerGap } from '@phosphor-icons/react'
+import { ArrowLeft, DownloadSimple, Printer, Trash, SpinnerGap } from '@phosphor-icons/react'
 
 export function CreditApplicationRecordPage() {
   const { navigate } = useRouter()
@@ -23,6 +24,48 @@ export function CreditApplicationRecordPage() {
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [downloadingDocId, setDownloadingDocId] = useState<string | null>(null)
+
+  const handleDownloadDoc = useCallback(async (docId: string, storageRef: string, fileName: string) => {
+    setDownloadingDocId(docId)
+    try {
+      const url = await getFinanceDocumentDownloadUrl(storageRef)
+      if (url) {
+        const a = document.createElement('a')
+        a.href = url
+        a.download = fileName
+        a.rel = 'noopener'
+        document.body.appendChild(a)
+        a.click()
+        a.remove()
+      }
+    } finally {
+      setDownloadingDocId(null)
+    }
+  }, [])
+
+  const handlePrint = useCallback(() => {
+    const styleId = 'credit-app-print-styles'
+    let style = document.getElementById(styleId) as HTMLStyleElement | null
+    if (!style) {
+      style = document.createElement('style')
+      style.id = styleId
+      document.head.appendChild(style)
+    }
+
+    style.textContent = `
+      @media print {
+        body > * { display: none !important; }
+        #credit-app-print-root { display: block !important; position: static !important; }
+        #credit-app-print-root * { color-adjust: exact; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+        .no-print { display: none !important; }
+      }
+    `
+    window.print()
+    const cleanup = () => { style?.remove(); window.removeEventListener('afterprint', cleanup) }
+    window.addEventListener('afterprint', cleanup)
+    setTimeout(cleanup, 10000)
+  }, [])
 
   if (!hasRouteParam(appId)) {
     return <PageNotFoundState title="Credit Application Missing" message="No application id was provided in this route." />
@@ -52,19 +95,24 @@ export function CreditApplicationRecordPage() {
   }
 
   return (
-    <div className="ods-page ods-flow-lg">
-      <div className="flex items-center justify-between gap-4 flex-wrap">
+    <div id="credit-app-print-root" className="ods-page ods-flow-lg">
+      <div className="no-print flex items-center justify-between gap-4 flex-wrap">
         <Button variant="ghost" size="sm" onClick={() => navigate('/app/records/credit-applications')} className="gap-2">
           <ArrowLeft className="h-4 w-4" /> Credit Applications
         </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          className="gap-2 text-destructive hover:text-destructive border-destructive/30"
-          onClick={() => setShowDeleteDialog(true)}
-        >
-          <Trash className="h-4 w-4" /> Delete Application
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-2" onClick={handlePrint}>
+            <Printer className="h-4 w-4" /> Print Application
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 text-destructive hover:text-destructive border-destructive/30"
+            onClick={() => setShowDeleteDialog(true)}
+          >
+            <Trash className="h-4 w-4" /> Delete Application
+          </Button>
+        </div>
       </div>
 
       <SectionHeader
@@ -130,13 +178,13 @@ export function CreditApplicationRecordPage() {
             <div>
               <p className="font-medium">Current residence</p>
               <p className="text-muted-foreground">{application.currentResidence.addressLine1}{application.currentResidence.addressLine2 ? `, ${application.currentResidence.addressLine2}` : ''}, {application.currentResidence.city}, {application.currentResidence.state} {application.currentResidence.zip}</p>
-              <p className="text-muted-foreground">{application.currentResidence.housingStatus} • {application.currentResidence.timeAtResidence.years}y {application.currentResidence.timeAtResidence.months}m</p>
+              <p className="text-muted-foreground">{application.currentResidence.housingStatus} • {application.currentResidence.timeAtResidence.years}y {application.currentResidence.timeAtResidence.months}m{application.currentResidence.monthlyHousingPayment != null ? ` • $${application.currentResidence.monthlyHousingPayment.toLocaleString()}/mo` : ''}</p>
             </div>
             {application.previousResidence && (
               <div>
                 <p className="font-medium">Previous residence</p>
                 <p className="text-muted-foreground">{application.previousResidence.addressLine1}{application.previousResidence.addressLine2 ? `, ${application.previousResidence.addressLine2}` : ''}, {application.previousResidence.city}, {application.previousResidence.state} {application.previousResidence.zip}</p>
-                <p className="text-muted-foreground">{application.previousResidence.housingStatus} • {application.previousResidence.timeAtResidence.years}y {application.previousResidence.timeAtResidence.months}m</p>
+                <p className="text-muted-foreground">{application.previousResidence.housingStatus} • {application.previousResidence.timeAtResidence.years}y {application.previousResidence.timeAtResidence.months}m{application.previousResidence.monthlyHousingPayment != null ? ` • $${application.previousResidence.monthlyHousingPayment.toLocaleString()}/mo` : ''}</p>
               </div>
             )}
           </CardContent>
@@ -149,12 +197,26 @@ export function CreditApplicationRecordPage() {
               <p className="font-medium">Current employment</p>
               <p className="text-muted-foreground">{application.currentEmployment.employerName} • {application.currentEmployment.occupationTitle}</p>
               <p className="text-muted-foreground">{application.currentEmployment.employmentStatus} • {application.currentEmployment.timeAtEmployer.years}y {application.currentEmployment.timeAtEmployer.months}m</p>
+              {(application.currentEmployment.grossMonthlyIncome != null || application.currentEmployment.annualIncome != null) && (
+                <p className="text-muted-foreground">
+                  {application.currentEmployment.grossMonthlyIncome != null ? `$${application.currentEmployment.grossMonthlyIncome.toLocaleString()}/mo` : ''}
+                  {application.currentEmployment.grossMonthlyIncome != null && application.currentEmployment.annualIncome != null ? ' • ' : ''}
+                  {application.currentEmployment.annualIncome != null ? `$${application.currentEmployment.annualIncome.toLocaleString()}/yr` : ''}
+                </p>
+              )}
             </div>
             {application.previousEmployment && (
               <div>
                 <p className="font-medium">Previous employment</p>
                 <p className="text-muted-foreground">{application.previousEmployment.employerName} • {application.previousEmployment.occupationTitle}</p>
                 <p className="text-muted-foreground">{application.previousEmployment.timeAtEmployer.years}y {application.previousEmployment.timeAtEmployer.months}m</p>
+                {(application.previousEmployment.grossMonthlyIncome != null || application.previousEmployment.annualIncome != null) && (
+                  <p className="text-muted-foreground">
+                    {application.previousEmployment.grossMonthlyIncome != null ? `$${application.previousEmployment.grossMonthlyIncome.toLocaleString()}/mo` : ''}
+                    {application.previousEmployment.grossMonthlyIncome != null && application.previousEmployment.annualIncome != null ? ' • ' : ''}
+                    {application.previousEmployment.annualIncome != null ? `$${application.previousEmployment.annualIncome.toLocaleString()}/yr` : ''}
+                  </p>
+                )}
               </div>
             )}
           </CardContent>
@@ -183,10 +245,24 @@ export function CreditApplicationRecordPage() {
               <p className="text-muted-foreground">No documents uploaded yet.</p>
             ) : (
               docsQuery.data.map((doc) => (
-                <div key={doc.id} className="rounded-md border border-border px-3 py-2">
-                  <p className="font-medium">{DOCUMENT_LABELS[doc.documentType]}</p>
-                  <p className="text-muted-foreground">{doc.fileName} • {(doc.fileSizeBytes / 1024).toFixed(1)} KB</p>
-                  <p className="text-xs text-muted-foreground">Uploaded {new Date(doc.createdAt).toLocaleString()} • {doc.uploadStatus}</p>
+                <div key={doc.id} className="flex items-center justify-between rounded-md border border-border px-3 py-2">
+                  <div>
+                    <p className="font-medium">{DOCUMENT_LABELS[doc.documentType]}</p>
+                    <p className="text-muted-foreground">{doc.fileName} • {(doc.fileSizeBytes / 1024).toFixed(1)} KB</p>
+                    <p className="text-xs text-muted-foreground">Uploaded {new Date(doc.createdAt).toLocaleString()} • {doc.uploadStatus}</p>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="no-print h-8 w-8 shrink-0"
+                    title={`Download ${doc.fileName}`}
+                    disabled={downloadingDocId === doc.id}
+                    onClick={() => handleDownloadDoc(doc.id, doc.storageRef, doc.fileName)}
+                  >
+                    {downloadingDocId === doc.id
+                      ? <SpinnerGap className="h-4 w-4 animate-spin" />
+                      : <DownloadSimple className="h-4 w-4" />}
+                  </Button>
                 </div>
               ))
             )}
