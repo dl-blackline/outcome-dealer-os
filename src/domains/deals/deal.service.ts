@@ -16,7 +16,7 @@ import { recalcCustomerCLV } from '@/domains/intelligence/clv.service'
 import { addDealAttribution } from '@/domains/intelligence/rep-attribution.service'
 import { scoreCloseProbability, sourceQualityScore } from '@/domains/intelligence/close-probability.service'
 
-const TABLE = 'mock_deals'
+const TABLE = 'deals'
 
 interface MockDealRow extends DbRow {
   lead_id: UUID
@@ -121,7 +121,7 @@ async function runIntelligencePipeline(deal: MockDeal): Promise<void> {
     interface MockLeadRow extends DbRow {
       source?: string
     }
-    const leadRow = await db.findById<MockLeadRow>('mock_leads', deal.leadId)
+    const leadRow = await db.findById<MockLeadRow>('leads', deal.leadId)
     await scoreCloseProbability(deal.id, {
       repPerformanceScore: 0.70,
       customerHistoryScore: 0.60,
