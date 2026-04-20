@@ -1,5 +1,6 @@
 import { SectionHeader } from '@/components/core/SectionHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { StatusPill } from '@/components/core/StatusPill'
 import { useLeads } from '@/domains/leads/lead.hooks'
 import { useDeals } from '@/domains/deals/deal.hooks'
@@ -7,7 +8,7 @@ import { useApprovals } from '@/domains/approvals/approval.hooks'
 import { useInventory } from '@/domains/inventory/inventory.hooks'
 import { useTasks } from '@/domains/tasks/task.hooks'
 import { useWorkstationCards } from '@/domains/workstation/workstation.hooks'
-import { TrendUp, CheckCircle, Clock, Warning, SpinnerGap, Kanban } from '@phosphor-icons/react'
+import { TrendUp, CheckCircle, Clock, Warning, SpinnerGap, Kanban, UserPlus, FileText, CurrencyDollar } from '@phosphor-icons/react'
 import { useRouter } from '@/app/router'
 
 export function DashboardPage() {
@@ -38,6 +39,25 @@ export function DashboardPage() {
         title="Dashboard"
         description={`Welcome back. Here's what's happening across the operation.`}
       />
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Quick Actions</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-3">
+            <Button onClick={() => navigate('/app/records/leads/new')} className="gap-2">
+              <UserPlus className="h-4 w-4" /> New Lead
+            </Button>
+            <Button variant="outline" onClick={() => navigate('/app/records/credit-applications/new')} className="gap-2">
+              <FileText className="h-4 w-4" /> New Credit App
+            </Button>
+            <Button variant="outline" onClick={() => navigate('/app/records/deals/new')} className="gap-2">
+              <CurrencyDollar className="h-4 w-4" /> New Deal
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card className="cursor-pointer hover:ring-1 hover:ring-primary/30 transition-all" onClick={() => navigate('/app/records/leads')}>
