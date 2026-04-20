@@ -4,7 +4,7 @@ import { ApprovalType } from '@/domains/roles/policy'
 
 export interface MockLead {
   id: UUID
-  householdId: UUID
+  householdId?: UUID
   customerName: string
   firstName?: string
   lastName?: string
@@ -26,7 +26,7 @@ export interface MockLead {
 
 export interface MockDeal {
   id: UUID
-  leadId: UUID
+  leadId?: UUID
   customerName: string
   coBuyer?: string
   vehicleDescription: string

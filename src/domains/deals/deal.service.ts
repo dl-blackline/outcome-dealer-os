@@ -41,7 +41,7 @@ interface MockDealRow extends DbRow {
 function rowToDeal(row: MockDealRow): MockDeal {
   return {
     id: row.id,
-    leadId: row.lead_id,
+    leadId: row.lead_id || undefined,
     customerName: row.customer_name,
     coBuyer: row.co_buyer,
     vehicleDescription: row.vehicle_description,
@@ -86,7 +86,7 @@ export async function createDeal(
 ): Promise<ServiceResult<MockDeal>> {
   try {
     const row = await db.insert<MockDealRow>(TABLE, {
-      lead_id: input.leadId,
+      lead_id: input.leadId || '',
       customer_name: input.customerName,
       co_buyer: input.coBuyer,
       vehicle_description: input.vehicleDescription,

@@ -239,7 +239,9 @@ export function DealRecordPage() {
             <AlertDialogDescription>
               Permanently delete the deal for <strong>{deal.customerName} — {deal.vehicleDescription}</strong>?
               {deal.status === 'funded' && (
-                <span className="block mt-2 text-amber-600 font-medium">⚠ This deal is funded. Ensure deletion is intentional.</span>
+                <span className="block mt-2 font-medium text-amber-600">
+                  <Warning className="inline h-4 w-4 mr-1" aria-hidden="true" />This deal is funded. Ensure deletion is intentional.
+                </span>
               )}
               {' '}This action cannot be undone.
             </AlertDialogDescription>

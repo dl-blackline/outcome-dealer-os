@@ -10,7 +10,7 @@ import {
 import { useRouter } from '@/app/router'
 import { useDeals, useDealMutations } from '@/domains/deals/deal.hooks'
 import { type MockDeal } from '@/lib/mockData'
-import { Plus, PencilSimple, Trash, SpinnerGap } from '@phosphor-icons/react'
+import { Plus, PencilSimple, Trash, SpinnerGap, Warning } from '@phosphor-icons/react'
 
 const STATUSES = ['all', 'structured', 'quoted', 'signed', 'funded'] as const
 
@@ -102,7 +102,9 @@ export function DealListPage() {
             <AlertDialogDescription>
               Permanently delete the deal for <strong>{deleteTarget?.customerName}</strong>{deleteTarget?.vehicleDescription ? ` — ${deleteTarget.vehicleDescription}` : ''}?
               {deleteTarget?.status === 'funded' && (
-                <span className="block mt-2 text-amber-600 font-medium">⚠ This deal is funded. Ensure deletion is intentional.</span>
+                <span className="block mt-2 font-medium text-amber-600">
+                  <Warning className="inline h-4 w-4 mr-1" aria-hidden="true" />This deal is funded. Ensure deletion is intentional.
+                </span>
               )}
               {' '}This action cannot be undone.
             </AlertDialogDescription>

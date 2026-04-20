@@ -123,7 +123,7 @@ export function DealFormPage() {
       lender: form.lender.trim() || undefined,
       amountFinanced: toNum(form.amountFinanced),
       notes: form.notes.trim() || undefined,
-      leadId: dealQuery.data?.leadId || '',
+      leadId: dealQuery.data?.leadId || undefined,
     }
 
     try {

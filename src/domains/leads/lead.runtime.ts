@@ -35,7 +35,7 @@ interface MockLeadRow extends DbRow {
 function rowToLead(row: MockLeadRow): MockLead {
   return {
     id: row.id,
-    householdId: row.household_id || '',
+    householdId: row.household_id || undefined,
     customerName: row.customer_name,
     firstName: row.first_name,
     lastName: row.last_name,
