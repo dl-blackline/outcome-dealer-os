@@ -380,7 +380,7 @@ const coBuyerInformationSheet: DealFormTemplate = {
   category: 'buyer_information',
   description: 'Full co-buyer/joint applicant profile.',
   version: '1.0',
-  printOrder: 4,
+  printOrder: 5,
   sections: ['Co-Buyer Identity', 'Contact', 'Employment & Income'],
   fields: [
     field('cb-full-name', 'Co-Buyer Full Name', 'coBuyerFullName', 'Co-Buyer Identity', { required: true, width: 'half' }),

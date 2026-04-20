@@ -67,7 +67,10 @@ const STEPS: { id: WorkflowStep; label: string; icon: React.ReactNode }[] = [
 function formatFieldValue(field: GeneratedFormField): string {
   if (!field.finalValue) return ''
   if (field.def.type === 'currency') return `$${field.finalValue}`
-  if (field.def.type === 'masked') return `***-**-${field.finalValue.replace(/\D/g, '').slice(-4)}`
+  if (field.def.type === 'masked') {
+    const digits = field.finalValue.replace(/\D/g, '')
+    return digits.length >= 4 ? `***-**-${digits.slice(-4)}` : `***-**-${digits.padStart(4, '*')}`
+  }
   return field.finalValue
 }
 
@@ -570,8 +573,14 @@ function PrintSaveStep({
       `
     }
     window.print()
-    // Cleanup after print dialog
-    setTimeout(() => style?.remove(), 2000)
+    // Cleanup after print dialog closes using the afterprint event
+    const cleanup = () => {
+      style?.remove()
+      window.removeEventListener('afterprint', cleanup)
+    }
+    window.addEventListener('afterprint', cleanup)
+    // Fallback cleanup if afterprint doesn't fire (e.g., some mobile browsers)
+    setTimeout(cleanup, 10000)
   }, [printMode])
 
   const handleSave = useCallback(async () => {
