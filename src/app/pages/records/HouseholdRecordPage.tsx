@@ -6,7 +6,7 @@ import { useRouter } from '@/app/router'
 import { useHousehold } from '@/domains/households/household.hooks'
 import { useLeads } from '@/domains/leads/lead.hooks'
 import { useDeals } from '@/domains/deals/deal.hooks'
-import { ArrowLeft, CurrencyDollar, Star, UsersThree, SpinnerGap } from '@phosphor-icons/react'
+import { ArrowLeft, CurrencyDollar, Star, UsersThree, SpinnerGap, Printer } from '@phosphor-icons/react'
 
 export function HouseholdRecordPage() {
   const { params, navigate } = useRouter()
@@ -47,10 +47,16 @@ export function HouseholdRecordPage() {
             </div>))}</div>)}</CardContent></Card>
         <Card><CardHeader><CardTitle>Linked Deals</CardTitle></CardHeader><CardContent>{linkedDeals.length === 0 ? <p className="text-sm text-muted-foreground">No deals.</p> : (
           <div className="space-y-3">{linkedDeals.map(d => (
-            <div key={d.id} className="flex items-center justify-between border-b border-border pb-2 last:border-0 cursor-pointer hover:bg-accent/30 rounded px-2 -mx-2" onClick={() => navigate(`/app/records/deals/${d.id}`)}>
-              <div><p className="font-medium">{d.customerName}</p><p className="text-xs text-muted-foreground">{d.vehicleDescription}</p></div>
-              <div className="text-right"><p className="font-semibold">${d.amount.toLocaleString()}</p><StatusPill variant={d.status === 'funded' ? 'success' : 'info'}>{d.status}</StatusPill></div>
-            </div>))}</div>)}</CardContent></Card>
+            <div key={d.id} className="flex items-center justify-between border-b border-border pb-2 last:border-0">
+              <div className="flex-1 cursor-pointer hover:bg-accent/30 rounded px-2 -mx-2 py-1" onClick={() => navigate(`/app/records/deals/${d.id}`)}>
+                <p className="font-medium">{d.customerName}</p><p className="text-xs text-muted-foreground">{d.vehicleDescription}</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="text-right"><p className="font-semibold text-sm">${d.amount.toLocaleString()}</p><StatusPill variant={d.status === 'funded' ? 'success' : 'info'}>{d.status}</StatusPill></div>
+                <Button variant="ghost" size="sm" className="gap-1 text-xs shrink-0" title="Print Deal Forms" onClick={() => navigate(`/app/records/deals/${d.id}/forms`)}><Printer className="h-3.5 w-3.5" /></Button>
+              </div>
+            </div>
+          ))}</div>)}</CardContent></Card>
       </div>
       <Card><CardHeader><CardTitle>Audit Trail</CardTitle></CardHeader><CardContent><p className="text-sm text-muted-foreground">Audit history will appear here when connected to the event stream.</p></CardContent></Card>
     </div>
