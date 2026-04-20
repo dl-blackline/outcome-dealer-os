@@ -43,6 +43,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
+import { StickyTableShell } from '@/components/core/StickyTableShell'
 import { useBackOfficeRuntime } from '@/domains/back-office/backOffice.runtime'
 import {
   FUNDING_STATUS_LABELS,
@@ -281,9 +282,8 @@ function FundingQueueTab({ onSelectDeal }: { onSelectDeal: (r: BackOfficeDealRec
           </SelectContent>
         </Select>
       </div>
-      <Card>
-        <CardContent className="p-0">
-          <Table>
+      <StickyTableShell scrollOffset="22rem">
+        <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Deal #</TableHead>
@@ -320,8 +320,7 @@ function FundingQueueTab({ onSelectDeal }: { onSelectDeal: (r: BackOfficeDealRec
               )}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+      </StickyTableShell>
     </div>
   )
 }
@@ -333,9 +332,8 @@ function TitleRegistrationTab({ onSelectDeal }: { onSelectDeal: (r: BackOfficeDe
   const queue = records.filter((r) => r.status === 'active')
 
   return (
-    <Card>
-      <CardContent className="p-0">
-        <Table>
+    <StickyTableShell scrollOffset="20rem">
+      <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Deal #</TableHead>
@@ -370,8 +368,7 @@ function TitleRegistrationTab({ onSelectDeal }: { onSelectDeal: (r: BackOfficeDe
             ))}
           </TableBody>
         </Table>
-      </CardContent>
-    </Card>
+    </StickyTableShell>
   )
 }
 
@@ -381,9 +378,8 @@ function PayoffQueueTab({ onSelectDeal }: { onSelectDeal: (r: BackOfficeDealReco
   const { payoffQueue, updateRecord } = useBackOfficeRuntime()
 
   return (
-    <Card>
-      <CardContent className="p-0">
-        <Table>
+    <StickyTableShell scrollOffset="20rem">
+      <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Deal #</TableHead>
@@ -423,8 +419,7 @@ function PayoffQueueTab({ onSelectDeal }: { onSelectDeal: (r: BackOfficeDealReco
             )}
           </TableBody>
         </Table>
-      </CardContent>
-    </Card>
+    </StickyTableShell>
   )
 }
 
@@ -515,9 +510,8 @@ function ExceptionsTab({ onSelectDeal }: { onSelectDeal: (r: BackOfficeDealRecor
           </SelectContent>
         </Select>
       </div>
-      <Card>
-        <CardContent className="p-0">
-          <Table>
+      <StickyTableShell scrollOffset="22rem">
+        <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Deal #</TableHead>
@@ -568,8 +562,7 @@ function ExceptionsTab({ onSelectDeal }: { onSelectDeal: (r: BackOfficeDealRecor
               )}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+      </StickyTableShell>
     </div>
   )
 }

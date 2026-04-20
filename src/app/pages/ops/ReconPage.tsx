@@ -44,6 +44,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
+import { StickyTableShell } from '@/components/core/StickyTableShell'
 import { useReconRuntime } from '@/domains/recon/recon.runtime'
 import {
   RECON_STAGES,
@@ -229,7 +230,7 @@ function OverviewTab({
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-0">
+        <StickyTableShell scrollOffset="30rem" className="border-0 rounded-none bg-transparent">
           <Table>
             <TableHeader>
               <TableRow>
@@ -282,7 +283,7 @@ function OverviewTab({
               )}
             </TableBody>
           </Table>
-        </CardContent>
+        </StickyTableShell>
       </Card>
     </div>
   )
@@ -628,9 +629,8 @@ function IssuesQueueTab() {
           </SelectContent>
         </Select>
       </div>
-      <Card>
-        <CardContent className="p-0">
-          <Table>
+      <StickyTableShell scrollOffset="22rem">
+        <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Unit</TableHead>
@@ -679,8 +679,7 @@ function IssuesQueueTab() {
               )}
             </TableBody>
           </Table>
-        </CardContent>
-      </Card>
+        </StickyTableShell>
     </div>
   )
 }
@@ -751,7 +750,7 @@ function CostSummaryTab() {
 
       <Card>
         <CardHeader className="pb-3"><CardTitle className="text-sm">Unit Cost Breakdown</CardTitle></CardHeader>
-        <CardContent className="p-0">
+        <StickyTableShell scrollOffset="28rem" className="border-0 rounded-none bg-transparent">
           <Table>
             <TableHeader>
               <TableRow>
@@ -778,7 +777,7 @@ function CostSummaryTab() {
               ))}
             </TableBody>
           </Table>
-        </CardContent>
+        </StickyTableShell>
       </Card>
     </div>
   )

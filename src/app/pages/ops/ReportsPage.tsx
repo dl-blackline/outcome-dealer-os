@@ -62,6 +62,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { cn } from '@/lib/utils'
+import { StickyTableShell } from '@/components/core/StickyTableShell'
 import { useReportingRuntime } from '@/domains/reporting/reporting.runtime'
 import { REPORT_TEMPLATES, TEMPLATES_BY_CATEGORY } from '@/domains/reporting/reporting.templates'
 import type {
@@ -462,7 +463,7 @@ function ReportResultDialog({ open, onClose, reportName, source, columns }: Repo
             {rows.length} records returned · Generated {new Date().toLocaleString()}
           </DialogDescription>
         </DialogHeader>
-        <div className="flex-1 overflow-auto">
+        <StickyTableShell scrollOffset="14rem" className="flex-1">
           <Table>
             <TableHeader>
               <TableRow>
@@ -493,7 +494,7 @@ function ReportResultDialog({ open, onClose, reportName, source, columns }: Repo
               ))}
             </TableBody>
           </Table>
-        </div>
+        </StickyTableShell>
         <DialogFooter>
           <Button variant="outline" size="sm" onClick={() => exportToCsv(rows, displayColumns, reportName)}>
             <Download className="h-4 w-4 mr-1.5" />
@@ -1092,7 +1093,8 @@ function SchedulesTab({
           <p className="text-sm text-muted-foreground mt-1">Create a schedule to automatically deliver reports</p>
         </div>
       ) : (
-        <Table>
+        <StickyTableShell scrollOffset="22rem">
+          <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Report</TableHead>
@@ -1131,6 +1133,7 @@ function SchedulesTab({
             ))}
           </TableBody>
         </Table>
+        </StickyTableShell>
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
@@ -1259,7 +1262,8 @@ function DeliveryHistoryTab({
           <p className="text-sm text-muted-foreground mt-1">Click "Send Test" to generate a test record</p>
         </div>
       ) : (
-        <Table>
+        <StickyTableShell scrollOffset="22rem">
+          <Table>
           <TableHeader>
             <TableRow>
               <TableHead>Report</TableHead>
@@ -1291,6 +1295,7 @@ function DeliveryHistoryTab({
             ))}
           </TableBody>
         </Table>
+        </StickyTableShell>
       )}
     </div>
   )

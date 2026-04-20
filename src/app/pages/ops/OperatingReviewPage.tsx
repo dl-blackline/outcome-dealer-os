@@ -41,6 +41,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
+import { StickyTableShell } from '@/components/core/StickyTableShell'
 import {
   ACTION_ITEM_STATUSES,
   OPERATING_REVIEW_CATEGORIES,
@@ -716,48 +717,50 @@ export function OperatingReviewPage() {
                 No observations match these filters. Add one from the top-right button.
               </div>
             ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Category</TableHead>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Severity</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Owner</TableHead>
-                    <TableHead>Follow-up</TableHead>
-                    <TableHead>Reviewed</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredRecords.map((item) => (
-                    <TableRow key={item.id} className={cn(item.pinned && 'bg-primary/5')}>
-                      <TableCell>{formatDate(item.dateObserved)}</TableCell>
-                      <TableCell>{item.category}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1.5">
-                          {item.pinned && <PushPin size={14} className="text-amber-500" />}
-                          <span className="font-medium">{item.title}</span>
-                        </div>
-                      </TableCell>
-                      <TableCell><Badge variant={badgeTone(item.severity)}>{item.severity}</Badge></TableCell>
-                      <TableCell><Badge variant={badgeTone(item.status)}>{item.status}</Badge></TableCell>
-                      <TableCell>{item.ownerAccountable || '-'}</TableCell>
-                      <TableCell>{item.followUpDate ? formatDate(item.followUpDate) : '-'}</TableCell>
-                      <TableCell>{item.reviewedWithOwner ? <CheckCircle size={18} className="text-emerald-500" /> : '-'}</TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <Button variant="outline" size="sm" onClick={() => openEdit(item)}>Edit</Button>
-                          {viewMode === 'review' && !item.reviewedWithOwner && (
-                            <Button size="sm" onClick={() => void quickMarkReviewed(item)}>Mark Reviewed</Button>
-                          )}
-                        </div>
-                      </TableCell>
+              <StickyTableShell scrollOffset="26rem">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Title</TableHead>
+                      <TableHead>Severity</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Owner</TableHead>
+                      <TableHead>Follow-up</TableHead>
+                      <TableHead>Reviewed</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredRecords.map((item) => (
+                      <TableRow key={item.id} className={cn(item.pinned && 'bg-primary/5')}>
+                        <TableCell>{formatDate(item.dateObserved)}</TableCell>
+                        <TableCell>{item.category}</TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1.5">
+                            {item.pinned && <PushPin size={14} className="text-amber-500" />}
+                            <span className="font-medium">{item.title}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell><Badge variant={badgeTone(item.severity)}>{item.severity}</Badge></TableCell>
+                        <TableCell><Badge variant={badgeTone(item.status)}>{item.status}</Badge></TableCell>
+                        <TableCell>{item.ownerAccountable || '-'}</TableCell>
+                        <TableCell>{item.followUpDate ? formatDate(item.followUpDate) : '-'}</TableCell>
+                        <TableCell>{item.reviewedWithOwner ? <CheckCircle size={18} className="text-emerald-500" /> : '-'}</TableCell>
+                        <TableCell className="text-right">
+                          <div className="flex justify-end gap-2">
+                            <Button variant="outline" size="sm" onClick={() => openEdit(item)}>Edit</Button>
+                            {viewMode === 'review' && !item.reviewedWithOwner && (
+                              <Button size="sm" onClick={() => void quickMarkReviewed(item)}>Mark Reviewed</Button>
+                            )}
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </StickyTableShell>
             )}
           </CardContent>
         </Card>

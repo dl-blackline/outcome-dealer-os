@@ -36,6 +36,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
+import { StickyTableShell } from '@/components/core/StickyTableShell'
 import {
   Plus,
   ArrowLeft,
@@ -1139,7 +1140,7 @@ function InventoryList({ records, loading, onAdd, onEdit }: InventoryListProps) 
             {search ? `No results for "${search}"` : 'No inventory units yet. Click Add New Unit to get started.'}
           </CardContent>
         ) : (
-          <div className="overflow-x-auto">
+          <StickyTableShell scrollOffset="20rem">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -1255,7 +1256,7 @@ function InventoryList({ records, loading, onAdd, onEdit }: InventoryListProps) 
                 })}
               </TableBody>
             </Table>
-          </div>
+          </StickyTableShell>
         )}
       </Card>
     </div>
