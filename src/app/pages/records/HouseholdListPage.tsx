@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { SectionHeader } from '@/components/core/SectionHeader'
+import { StickyTableShell } from '@/components/core/StickyTableShell'
 import { Card, CardContent } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { useRouter } from '@/app/router'
@@ -19,11 +20,13 @@ export function HouseholdListPage() {
   return (
     <div className="ods-page ods-flow-lg">
       <SectionHeader title="Households" description="Manage customer households and relationships" />
-      <input type="text" placeholder="Search households…" value={search} onChange={e => setSearch(e.target.value)}
-        className="h-9 w-64 rounded-md border border-input bg-background px-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
-      <div className="rounded-lg border border-border">
+      <div className="ods-toolbar ods-sticky-toolbar">
+        <input type="text" placeholder="Search households…" value={search} onChange={e => setSearch(e.target.value)}
+          className="h-9 w-64 rounded-md border border-input bg-background px-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary" />
+      </div>
+      <StickyTableShell scrollOffset="17rem">
         <table className="w-full text-sm">
-          <thead><tr className="border-b border-border bg-muted/30">
+          <thead><tr className="border-b border-border">
             <th className="px-4 py-3 text-left font-medium"><div className="flex items-center gap-2"><UsersThree className="h-4 w-4" /> Name</div></th>
             <th className="px-4 py-3 text-left font-medium">Primary Contact</th>
             <th className="px-4 py-3 text-right font-medium"><div className="flex items-center justify-end gap-1"><CurrencyDollar className="h-4 w-4" /> Lifetime Value</div></th>
@@ -46,7 +49,7 @@ export function HouseholdListPage() {
             ))}
           </tbody>
         </table>
-      </div>
+      </StickyTableShell>
     </div>
   )
 }

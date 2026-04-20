@@ -34,7 +34,7 @@ export function EventExplorerPage() {
   return (
     <div className="ods-page ods-flow-lg">
       <SectionHeader title="Event Stream" description="Real-time event log for the operating system" action={<div className="flex items-center gap-2"><Lightning className="h-5 w-5 text-primary" /><span className="text-sm text-muted-foreground">{events.data.length} events</span></div>} />
-      <div className="flex items-center gap-3">
+      <div className="ods-toolbar ods-sticky-toolbar flex items-center gap-3">
         <select value={entityFilter} onChange={e => setEntityFilter(e.target.value)} className="h-8 rounded-md border border-input bg-background px-2 text-sm capitalize">
           {entities.map(e => <option key={e} value={e}>{e === 'all' ? 'All entities' : e}</option>)}
         </select>
@@ -42,25 +42,32 @@ export function EventExplorerPage() {
           {actors.map(a => <option key={a} value={a}>{a === 'all' ? 'All actors' : a}</option>)}
         </select>
       </div>
-      <Card><CardContent className="p-0">
-        <div className="divide-y divide-border">
-          {filtered.length === 0 ? (
-            <div className="px-4 py-12 text-center text-sm text-muted-foreground">No events yet. System and user events will appear here in real time.</div>
-          ) : filtered.map(evt => {
-            const ActorIcon = ACTOR_ICON[evt.actorType] ?? Gear
-            const severity = eventSeverityVariant(evt.eventName)
-            return (
-              <div key={evt.id} className="flex items-center gap-4 px-4 py-3 hover:bg-accent/20 transition-colors">
-                <span className="text-xs text-muted-foreground whitespace-nowrap w-36">{new Date(evt.timestamp).toLocaleString()}</span>
-                <StatusPill variant={severity} dot={false} className="whitespace-nowrap">{evt.eventName.replace(/_/g, ' ')}</StatusPill>
-                <EntityBadge variant={ENTITY_VARIANT[evt.entityType] ?? 'lead'}>{evt.entityType}</EntityBadge>
-                <span className="font-mono text-xs text-muted-foreground">{evt.entityId}</span>
-                <div className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground"><ActorIcon className="h-3.5 w-3.5" />{evt.actorType}</div>
-              </div>
-            )
-          })}
-        </div>
-      </CardContent></Card>
+      <Card>
+        <CardContent className="p-0">
+          <div
+            className="ods-table-scroll rounded-[inherit]"
+            style={{ '--ods-scroll-offset': '17rem' } as React.CSSProperties}
+          >
+            <div className="divide-y divide-border">
+              {filtered.length === 0 ? (
+                <div className="px-4 py-12 text-center text-sm text-muted-foreground">No events yet. System and user events will appear here in real time.</div>
+              ) : filtered.map(evt => {
+                const ActorIcon = ACTOR_ICON[evt.actorType] ?? Gear
+                const severity = eventSeverityVariant(evt.eventName)
+                return (
+                  <div key={evt.id} className="flex items-center gap-4 px-4 py-3 hover:bg-accent/20 transition-colors">
+                    <span className="text-xs text-muted-foreground whitespace-nowrap w-36">{new Date(evt.timestamp).toLocaleString()}</span>
+                    <StatusPill variant={severity} dot={false} className="whitespace-nowrap">{evt.eventName.replace(/_/g, ' ')}</StatusPill>
+                    <EntityBadge variant={ENTITY_VARIANT[evt.entityType] ?? 'lead'}>{evt.entityType}</EntityBadge>
+                    <span className="font-mono text-xs text-muted-foreground">{evt.entityId}</span>
+                    <div className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground"><ActorIcon className="h-3.5 w-3.5" />{evt.actorType}</div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }

@@ -83,6 +83,53 @@
     overflow: clip;
   }
 
+  /* ── Frozen-header / scroll-body table pattern ──────────────────────────── */
+
+  /*
+   * Self-contained scroll container for sticky table headers.
+   * max-height uses a CSS variable so each usage site can tune
+   * the offset to match its surrounding layout.
+   */
+  .ods-table-scroll {
+    overflow: auto;
+    max-height: calc(100svh - var(--ods-scroll-offset, 17rem));
+    border: 1px solid color-mix(in oklab, var(--color-border) 86%, transparent);
+    border-radius: 1rem;
+    background: color-mix(in oklab, var(--color-card) 92%, transparent);
+    scrollbar-gutter: stable;
+  }
+
+  /* Sticky header row inside the scroll container */
+  .ods-table-scroll thead {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--color-card);
+    /* Solid bottom divider that stays visible as rows scroll under the header */
+    box-shadow: 0 1px 0 color-mix(in oklab, var(--color-border) 90%, transparent);
+  }
+
+  /*
+   * When the shadcn Table component (which wraps <table> in .ods-table-wrap)
+   * is placed inside .ods-table-scroll, neutralise the inner container so
+   * we don't end up with nested borders, backgrounds, or overflow contexts.
+   */
+  .ods-table-scroll .ods-table-wrap {
+    overflow: visible;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+  }
+
+  /* Sticky toolbar/filter bar — keeps controls accessible while tables scroll */
+  .ods-sticky-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
   .ods-form-stack {
     display: flex;
     flex-direction: column;
@@ -275,6 +322,16 @@
   :root[data-theme='light'] .ods-table-wrap {
     border-color: rgba(28, 66, 122, 0.16);
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(240, 248, 255, 0.7));
+  }
+
+  :root[data-theme='light'] .ods-table-scroll {
+    border-color: rgba(28, 66, 122, 0.16);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(240, 248, 255, 0.7));
+  }
+
+  :root[data-theme='light'] .ods-table-scroll thead {
+    background: var(--color-card);
+    box-shadow: 0 1px 0 color-mix(in oklab, var(--color-border) 80%, transparent);
   }
 
   :root[data-theme='light'] .ods-state-frame {

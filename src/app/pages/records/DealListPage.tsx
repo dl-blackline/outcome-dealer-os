@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { SectionHeader } from '@/components/core/SectionHeader'
+import { StickyTableShell } from '@/components/core/StickyTableShell'
 import { StatusPill } from '@/components/core/StatusPill'
 import { useRouter } from '@/app/router'
 import { useDeals } from '@/domains/deals/deal.hooks'
@@ -20,14 +21,14 @@ export function DealListPage() {
   return (
     <div className="ods-page ods-flow-lg">
       <SectionHeader title="Deals" description="Active and completed deal pipeline" />
-      <div className="flex rounded-lg border border-border overflow-hidden w-fit">
+      <div className="ods-toolbar ods-sticky-toolbar w-fit gap-0 overflow-hidden rounded-lg p-0">
         {STATUSES.map(s => (
           <button key={s} onClick={() => setTab(s)} className={`px-3 py-1.5 text-sm capitalize ${tab === s ? 'bg-primary text-primary-foreground' : 'hover:bg-accent/50 text-muted-foreground'}`}>{s}</button>
         ))}
       </div>
-      <div className="rounded-lg border border-border">
+      <StickyTableShell scrollOffset="17rem">
         <table className="w-full text-sm">
-          <thead><tr className="border-b border-border bg-muted/30">
+          <thead><tr className="border-b border-border">
             <th className="px-4 py-3 text-left font-medium">Customer</th>
             <th className="px-4 py-3 text-left font-medium">Vehicle</th>
             <th className="px-4 py-3 text-right font-medium">Amount</th>
@@ -48,7 +49,7 @@ export function DealListPage() {
             ))}
           </tbody>
         </table>
-      </div>
+      </StickyTableShell>
     </div>
   )
 }

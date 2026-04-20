@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { SectionHeader } from '@/components/core/SectionHeader'
+import { StickyTableShell } from '@/components/core/StickyTableShell'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Badge } from '@/components/ui/badge'
@@ -59,7 +60,7 @@ export function InventoryListPage() {
     <div className="ods-page ods-flow-md">
       <SectionHeader title="Inventory" description="Active vehicle inventory" />
 
-      <div className="ods-toolbar justify-between px-3 py-3 sm:px-4">
+      <div className="ods-toolbar ods-sticky-toolbar justify-between px-3 py-3 sm:px-4">
         <div className="flex flex-1 flex-wrap items-center gap-2">
           <input
             type="text"
@@ -184,53 +185,51 @@ export function InventoryListPage() {
       )}
 
       {hasInventory && filtered.length > 0 && viewMode === 'list' && (
-        <Card>
-          <CardContent className="p-0">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Year</TableHead>
-                  <TableHead>Make</TableHead>
-                  <TableHead>Model</TableHead>
-                  <TableHead>Trim</TableHead>
-                  <TableHead>VIN / Stock</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Days</TableHead>
-                  <TableHead className="text-right">Price</TableHead>
-                  <TableHead>Visibility</TableHead>
-                  <TableHead>Featured</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((unit) => {
-                  const statusVariant = unit.status === 'frontline' ? 'success' as const : unit.status === 'recon' ? 'warning' as const : unit.status === 'aging' ? 'danger' as const : 'neutral' as const
-                  return (
-                    <TableRow
-                      key={unit.id}
-                      className="cursor-pointer"
-                      onClick={() => navigate(`/app/records/inventory/${unit.id}`)}
-                    >
-                      <TableCell>{unit.year}</TableCell>
-                      <TableCell><ManufacturerMark make={unit.make} size="sm" showLabel /></TableCell>
-                      <TableCell>{unit.model}</TableCell>
-                      <TableCell className="text-muted-foreground">{unit.trim || '—'}</TableCell>
-                      <TableCell className="font-mono text-xs text-muted-foreground">{unit.vin || unit.stockNumber || 'No VIN / stock'}</TableCell>
-                      <TableCell><StatusPill variant={statusVariant}>{unit.status}</StatusPill></TableCell>
-                      <TableCell>{unit.daysInStock}</TableCell>
-                      <TableCell className="text-right font-semibold">${unit.price.toLocaleString()}</TableCell>
-                      <TableCell>
-                        <Badge variant={unit.isPublished ? 'secondary' : 'outline'}>
-                          {unit.isPublished ? 'Public' : 'Hidden'}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{unit.isFeatured ? <Badge variant="secondary">Featured</Badge> : <span className="text-muted-foreground">—</span>}</TableCell>
-                    </TableRow>
-                  )
-                })}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
+        <StickyTableShell scrollOffset="18rem">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Year</TableHead>
+                <TableHead>Make</TableHead>
+                <TableHead>Model</TableHead>
+                <TableHead>Trim</TableHead>
+                <TableHead>VIN / Stock</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Days</TableHead>
+                <TableHead className="text-right">Price</TableHead>
+                <TableHead>Visibility</TableHead>
+                <TableHead>Featured</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filtered.map((unit) => {
+                const statusVariant = unit.status === 'frontline' ? 'success' as const : unit.status === 'recon' ? 'warning' as const : unit.status === 'aging' ? 'danger' as const : 'neutral' as const
+                return (
+                  <TableRow
+                    key={unit.id}
+                    className="cursor-pointer"
+                    onClick={() => navigate(`/app/records/inventory/${unit.id}`)}
+                  >
+                    <TableCell>{unit.year}</TableCell>
+                    <TableCell><ManufacturerMark make={unit.make} size="sm" showLabel /></TableCell>
+                    <TableCell>{unit.model}</TableCell>
+                    <TableCell className="text-muted-foreground">{unit.trim || '—'}</TableCell>
+                    <TableCell className="font-mono text-xs text-muted-foreground">{unit.vin || unit.stockNumber || 'No VIN / stock'}</TableCell>
+                    <TableCell><StatusPill variant={statusVariant}>{unit.status}</StatusPill></TableCell>
+                    <TableCell>{unit.daysInStock}</TableCell>
+                    <TableCell className="text-right font-semibold">${unit.price.toLocaleString()}</TableCell>
+                    <TableCell>
+                      <Badge variant={unit.isPublished ? 'secondary' : 'outline'}>
+                        {unit.isPublished ? 'Public' : 'Hidden'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{unit.isFeatured ? <Badge variant="secondary">Featured</Badge> : <span className="text-muted-foreground">—</span>}</TableCell>
+                  </TableRow>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </StickyTableShell>
       )}
     </div>
   )

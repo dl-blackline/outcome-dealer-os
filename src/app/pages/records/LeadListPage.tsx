@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { SectionHeader } from '@/components/core/SectionHeader'
+import { StickyTableShell } from '@/components/core/StickyTableShell'
 import { StatusPill } from '@/components/core/StatusPill'
 import { useRouter } from '@/app/router'
 import { useLeads } from '@/domains/leads/lead.hooks'
@@ -21,18 +22,20 @@ export function LeadListPage() {
   return (
     <div className="ods-page ods-flow-lg">
       <SectionHeader title="Leads" description="Track and manage sales leads" />
-      <div className="flex items-center gap-4">
-        <div className="flex rounded-lg border border-border overflow-hidden">
-          {STATUSES.map(s => (
-            <button key={s} onClick={() => setTab(s)} className={`px-3 py-1.5 text-sm capitalize ${tab === s ? 'bg-primary text-primary-foreground' : 'hover:bg-accent/50 text-muted-foreground'}`}>{s}</button>
-          ))}
+      <div className="ods-toolbar ods-sticky-toolbar justify-between">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex rounded-lg border border-border overflow-hidden">
+            {STATUSES.map(s => (
+              <button key={s} onClick={() => setTab(s)} className={`px-3 py-1.5 text-sm capitalize ${tab === s ? 'bg-primary text-primary-foreground' : 'hover:bg-accent/50 text-muted-foreground'}`}>{s}</button>
+            ))}
+          </div>
+          <input type="text" placeholder="Search leads…" value={search} onChange={e => setSearch(e.target.value)}
+            className="h-8 w-48 rounded-md border border-input bg-background px-3 text-sm placeholder:text-muted-foreground" />
         </div>
-        <input type="text" placeholder="Search leads…" value={search} onChange={e => setSearch(e.target.value)}
-          className="h-8 w-48 rounded-md border border-input bg-background px-3 text-sm placeholder:text-muted-foreground" />
       </div>
-      <div className="rounded-lg border border-border">
+      <StickyTableShell scrollOffset="18rem">
         <table className="w-full text-sm">
-          <thead><tr className="border-b border-border bg-muted/30">
+          <thead><tr className="border-b border-border">
             <th className="px-4 py-3 text-left font-medium">Customer</th>
             <th className="px-4 py-3 text-left font-medium">Source</th>
             <th className="px-4 py-3 text-left font-medium">Score</th>
@@ -53,7 +56,7 @@ export function LeadListPage() {
             ))}
           </tbody>
         </table>
-      </div>
+      </StickyTableShell>
     </div>
   )
 }
