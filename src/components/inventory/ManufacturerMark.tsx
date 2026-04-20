@@ -24,7 +24,7 @@ export function ManufacturerMark({ make, size = 'md', className, showLabel = fal
       >
         {branding.mark}
       </span>
-      {showLabel ? <span className="text-xs font-medium text-slate-200">{branding.shortLabel}</span> : null}
+      {showLabel ? <span className="text-xs font-medium text-muted-foreground">{branding.shortLabel}</span> : null}
     </span>
   )
 }

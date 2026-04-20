@@ -370,6 +370,43 @@
     color: #3f628f !important;
   }
 
+  /* Blue accent text — flip light-mode tints to dark readable navy-blue */
+  :root[data-theme='light'] .vault-shell .text-blue-100,
+  :root[data-theme='light'] .vault-shell .text-blue-200 {
+    color: #1e5bb8 !important;
+  }
+
+  :root[data-theme='light'] .vault-shell .text-blue-300 {
+    color: #1a4fa5 !important;
+  }
+
+  /* Red / rose accent text — flip to readable dark-rose */
+  :root[data-theme='light'] .vault-shell .text-red-200,
+  :root[data-theme='light'] .vault-shell .text-red-300 {
+    color: #b91c1c !important;
+  }
+
+  :root[data-theme='light'] .vault-shell .text-red-400 {
+    color: #dc2626 !important;
+  }
+
+  /* Sky/cyan text accent */
+  :root[data-theme='light'] .vault-shell .text-sky-200,
+  :root[data-theme='light'] .vault-shell .text-sky-300 {
+    color: #0369a1 !important;
+  }
+
+  /* Rose accent text */
+  :root[data-theme='light'] .vault-shell .text-rose-100,
+  :root[data-theme='light'] .vault-shell .text-rose-200 {
+    color: #be123c !important;
+  }
+
+  /* Preserve white text on colored gradient badges (e.g. ManufacturerMark) */
+  :root[data-theme='light'] .vault-shell [class*="bg-linear-to"] {
+    color: white !important;
+  }
+
   :root[data-theme='light'] .vault-shell .bg-black\/25,
   :root[data-theme='light'] .vault-shell .bg-black\/30,
   :root[data-theme='light'] .vault-shell .bg-black\/35,
@@ -394,12 +431,41 @@
     background-color: rgba(231, 243, 255, 0.62) !important;
   }
 
+  /* Semi-transparent blue accent bgs — swap to light-safe tinted panels */
+  :root[data-theme='light'] .vault-shell .bg-blue-200\/12,
+  :root[data-theme='light'] .vault-shell .bg-blue-200\/20,
+  :root[data-theme='light'] .vault-shell .bg-blue-300\/20 {
+    background-color: rgba(191, 219, 254, 0.45) !important;
+  }
+
+  /* Semi-transparent red/rose accent bgs */
+  :root[data-theme='light'] .vault-shell .bg-red-500\/10,
+  :root[data-theme='light'] .vault-shell .bg-rose-400\/20,
+  :root[data-theme='light'] .vault-shell .bg-rose-500\/10 {
+    background-color: rgba(254, 226, 226, 0.6) !important;
+  }
+
   :root[data-theme='light'] .vault-shell .border-white\/10,
   :root[data-theme='light'] .vault-shell .border-white\/12,
   :root[data-theme='light'] .vault-shell .border-white\/15,
   :root[data-theme='light'] .vault-shell .border-white\/20,
   :root[data-theme='light'] .vault-shell .border-white\/30 {
     border-color: rgba(40, 76, 130, 0.26) !important;
+  }
+
+  /* Blue accent borders — swap to darker navy borders */
+  :root[data-theme='light'] .vault-shell .border-blue-200\/35,
+  :root[data-theme='light'] .vault-shell .border-blue-200\/40,
+  :root[data-theme='light'] .vault-shell .border-blue-200\/45,
+  :root[data-theme='light'] .vault-shell .border-blue-300\/50 {
+    border-color: rgba(37, 99, 235, 0.35) !important;
+  }
+
+  /* Red/rose accent borders */
+  :root[data-theme='light'] .vault-shell .border-red-400\/30,
+  :root[data-theme='light'] .vault-shell .border-rose-200\/50,
+  :root[data-theme='light'] .vault-shell .border-rose-400\/45 {
+    border-color: rgba(220, 38, 38, 0.35) !important;
   }
 }
 

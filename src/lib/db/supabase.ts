@@ -196,6 +196,33 @@ class SupabaseClient {
     window.localStorage.setItem(this.getTableKey(table), JSON.stringify(rows))
   }
 
+  private async readFallbackRows<T extends DbRow>(table: string): Promise<T[]> {
+    // localStorage is the canonical browser fallback because it is shared across
+    // tabs and auth state changes in the same origin.
+    const localRows = this.readLocalTable<T>(table)
+    if (localRows.length > 0) return localRows
+
+    // Spark KV can be session/user scoped. Use it only as a secondary source,
+    // then hydrate localStorage for stable cross-login behavior.
+    const sparkStore = this.getSparkStore()
+    if (!sparkStore) return localRows
+
+    const sparkRows = (await sparkStore.get<T[]>(`db:${table}`)) || []
+    if (sparkRows.length > 0) {
+      this.writeLocalTable(table, sparkRows)
+    }
+    return sparkRows
+  }
+
+  private async writeFallbackRows<T extends DbRow>(table: string, rows: T[]): Promise<void> {
+    this.writeLocalTable(table, rows)
+
+    const sparkStore = this.getSparkStore()
+    if (!sparkStore) return
+
+    await sparkStore.set(`db:${table}`, rows)
+  }
+
   private async loadRows<T extends DbRow>(table: string): Promise<T[]> {
     const client = getSupabaseBrowserClient()
 
@@ -207,14 +234,8 @@ class SupabaseClient {
       return (data || []) as T[]
     }
 
-    // Supabase not configured – use local fallback (dev/demo mode only)
-    const sparkStore = this.getSparkStore()
-    if (sparkStore) {
-      const rows = await sparkStore.get<T[]>(`db:${table}`)
-      return rows || []
-    }
-
-    return this.readLocalTable<T>(table)
+    // Supabase not configured – use browser fallback store.
+    return this.readFallbackRows<T>(table)
   }
 
   async insert<T extends DbRow>(table: string, row: Omit<T, 'id' | 'created_at' | 'updated_at'>): Promise<T> {
@@ -239,19 +260,10 @@ class SupabaseClient {
       return fullRow
     }
 
-    // Supabase not configured – use local fallback (dev/demo mode only)
-    const sparkStore = this.getSparkStore()
-    if (sparkStore) {
-      const tableKey = `db:${table}`
-      const existingRows = (await sparkStore.get<T[]>(tableKey)) || []
-      existingRows.push(fullRow)
-      await sparkStore.set(tableKey, existingRows)
-      return fullRow
-    }
-
-    const existingRows = this.readLocalTable<T>(table)
+    // Supabase not configured – use browser fallback store.
+    const existingRows = await this.readFallbackRows<T>(table)
     existingRows.push(fullRow)
-    this.writeLocalTable(table, existingRows)
+    await this.writeFallbackRows(table, existingRows)
     return fullRow
   }
 
@@ -270,26 +282,8 @@ class SupabaseClient {
       return data as T
     }
 
-    // Supabase not configured – use local fallback (dev/demo mode only)
-    const sparkStore = this.getSparkStore()
-    if (sparkStore) {
-      const tableKey = `db:${table}`
-      const existingRows = (await sparkStore.get<T[]>(tableKey)) || []
-      const index = existingRows.findIndex((row) => row.id === id)
-      if (index === -1) return null
-
-      const updatedRow = {
-        ...existingRows[index],
-        ...updates,
-        updated_at: new Date().toISOString(),
-      }
-
-      existingRows[index] = updatedRow
-      await sparkStore.set(tableKey, existingRows)
-      return updatedRow as T
-    }
-
-    const existingRows = this.readLocalTable<T>(table)
+    // Supabase not configured – use browser fallback store.
+    const existingRows = await this.readFallbackRows<T>(table)
     const index = existingRows.findIndex((row) => row.id === id)
     if (index === -1) return null
 
@@ -300,7 +294,7 @@ class SupabaseClient {
     } as T
 
     existingRows[index] = updatedRow
-    this.writeLocalTable(table, existingRows)
+    await this.writeFallbackRows(table, existingRows)
     return updatedRow
   }
 
@@ -328,21 +322,11 @@ class SupabaseClient {
       return true
     }
 
-    // Supabase not configured – use local fallback (dev/demo mode only)
-    const sparkStore = this.getSparkStore()
-    if (sparkStore) {
-      const tableKey = `db:${table}`
-      const rows = (await sparkStore.get<DbRow[]>(tableKey)) || []
-      const filtered = rows.filter((row) => row.id !== id)
-      if (filtered.length === rows.length) return false
-      await sparkStore.set(tableKey, filtered)
-      return true
-    }
-
-    const rows = this.readLocalTable<DbRow>(table)
+    // Supabase not configured – use browser fallback store.
+    const rows = await this.readFallbackRows<DbRow>(table)
     const filtered = rows.filter((row) => row.id !== id)
     if (filtered.length === rows.length) return false
-    this.writeLocalTable(table, filtered)
+    await this.writeFallbackRows(table, filtered)
     return true
   }
 
