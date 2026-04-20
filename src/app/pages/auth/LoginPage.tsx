@@ -78,7 +78,7 @@ export function LoginPage() {
         <section className="flex items-center justify-center">
           <Card className={`w-full max-w-md shadow-2xl ${theme === 'dark' ? 'border-white/10 bg-slate-950/80 text-slate-50 shadow-sky-950/40' : 'border-slate-300/70 bg-white/95 text-slate-900 shadow-slate-300/40'}`}>
             <CardHeader className="space-y-3">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-500/15 text-sky-300">
+              <div className={`flex h-12 w-12 items-center justify-center rounded-2xl bg-sky-500/15 ${theme === 'dark' ? 'text-sky-300' : 'text-sky-600'}`}>
                 <ShieldCheck size={26} />
               </div>
               <CardTitle className="text-2xl">Staff Login</CardTitle>
@@ -91,17 +91,17 @@ export function LoginPage() {
             <CardContent className="space-y-5">
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} className="bg-slate-950/60" />
+                <Input id="email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} className={theme === 'dark' ? 'bg-slate-950/60' : 'bg-white'} />
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="bg-slate-950/60" />
+                <Input id="password" type="password" value={password} onChange={(event) => setPassword(event.target.value)} className={theme === 'dark' ? 'bg-slate-950/60' : 'bg-white'} />
               </div>
 
               <div className={`rounded-2xl border p-4 text-sm ${theme === 'dark' ? 'border-white/10 bg-white/5 text-slate-300' : 'border-slate-300/70 bg-slate-50 text-slate-700'}`}>
                 <div className="flex items-start gap-3">
-                  <LockKey size={18} className="mt-0.5 text-sky-300" />
+                  <LockKey size={18} className={`mt-0.5 ${theme === 'dark' ? 'text-sky-300' : 'text-sky-600'}`} />
                   <div>
                     <p className={`font-medium ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>Runtime mode: {mode}</p>
                     <p className="mt-1">
@@ -114,7 +114,7 @@ export function LoginPage() {
               </div>
 
               {(localError || error) && (
-                <div className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+                <div className={`rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm ${theme === 'dark' ? 'text-rose-200' : 'text-rose-700'}`}>
                   {localError || error}
                 </div>
               )}
@@ -124,7 +124,7 @@ export function LoginPage() {
                 {!submitting && <ArrowRight size={16} />}
               </Button>
 
-              <Button variant="ghost" onClick={() => navigate('/')} className="w-full text-slate-300">
+              <Button variant="ghost" onClick={() => navigate('/')} className={`w-full ${theme === 'dark' ? 'text-slate-300' : 'text-slate-600'}`}>
                 Return to Public Site
               </Button>
             </CardContent>

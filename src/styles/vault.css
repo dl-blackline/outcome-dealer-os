@@ -314,6 +314,20 @@
     color: #1d3d69;
   }
 
+  :root[data-theme='light'] .vault-edge {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      inset 0 -1px 0 rgba(55, 90, 145, 0.08),
+      0 0 0 1px rgba(55, 90, 145, 0.07);
+  }
+
+  :root[data-theme='light'] .vault-image-frame {
+    border: 1px solid rgba(55, 100, 160, 0.2);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.8),
+      0 16px 38px rgba(44, 89, 149, 0.16);
+  }
+
   :root[data-theme='light'] .ods-toolbar {
     border-color: rgba(35, 74, 132, 0.17);
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(239, 247, 255, 0.72));
@@ -358,8 +372,18 @@
 
   :root[data-theme='light'] .vault-shell .bg-black\/25,
   :root[data-theme='light'] .vault-shell .bg-black\/30,
-  :root[data-theme='light'] .vault-shell .bg-black\/35 {
+  :root[data-theme='light'] .vault-shell .bg-black\/35,
+  :root[data-theme='light'] .vault-shell .bg-black\/40,
+  :root[data-theme='light'] .vault-shell .bg-black\/50 {
     background-color: rgba(245, 251, 255, 0.76) !important;
+  }
+
+  :root[data-theme='light'] .vault-shell .bg-black\/95 {
+    background-color: rgba(248, 252, 255, 0.96) !important;
+  }
+
+  :root[data-theme='light'] .vault-shell .hover\:bg-black\/55:hover {
+    background-color: rgba(230, 240, 252, 0.88) !important;
   }
 
   :root[data-theme='light'] .vault-shell .bg-white\/3,
