@@ -1,13 +1,18 @@
+import { useState } from 'react'
 import { SectionHeader } from '@/components/core/SectionHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { EntityBadge } from '@/components/core/EntityBadge'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import {
+  AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter,
+  AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction,
+} from '@/components/ui/alert-dialog'
 import { useRouter } from '@/app/router'
 import { useRouteParam, hasRouteParam } from '@/app/router/routeParams'
 import { PageLoadingState, PageNotFoundState } from '@/components/core/PageStates'
-import { useDeal } from '@/domains/deals/deal.hooks'
+import { useDeal, useDealMutations } from '@/domains/deals/deal.hooks'
 import { useApprovals } from '@/domains/approvals/approval.hooks'
 import { useEntityEvents } from '@/domains/events/event.hooks'
 import { useLeads } from '@/domains/leads/lead.hooks'
@@ -23,6 +28,9 @@ import {
   FileText,
   Warning,
   Printer,
+  PencilSimple,
+  Trash,
+  SpinnerGap,
 } from '@phosphor-icons/react'
 
 const STAGES = ['structured', 'quoted', 'signed', 'funded', 'delivered'] as const
@@ -54,6 +62,10 @@ export function DealRecordPage() {
   const eventsQuery = useEntityEvents(dealId)
   const leadsQuery = useLeads()
   const inventoryQuery = useInventory()
+  const mutations = useDealMutations()
+
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   if (!hasRouteParam(dealId)) {
     return <PageNotFoundState title="Deal Missing" message="No deal id was provided in this route." />
@@ -74,16 +86,31 @@ export function DealRecordPage() {
   const matchingInventory = inventoryQuery.data.find(u => deal.vehicleDescription.includes(u.make) && deal.vehicleDescription.includes(u.model))
   const currentIdx = STAGES.indexOf(deal.status as typeof STAGES[number])
 
+  async function handleDelete() {
+    setDeleting(true)
+    await mutations.deleteDeal(dealId)
+    setDeleting(false)
+    setShowDeleteDialog(false)
+    navigate('/app/records/deals')
+  }
+
   return (
     <div className="ods-page ods-flow-lg">
       <Button variant="ghost" size="sm" onClick={() => navigate('/app/records/deals')} className="gap-2"><ArrowLeft className="h-4 w-4" /> Deals</Button>
-      <SectionHeader title={`${deal.customerName} — ${deal.vehicleDescription}`} description={`Deal record • Created ${new Date(deal.createdAt).toLocaleDateString()}`}
-        action={
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <SectionHeader title={`${deal.customerName} — ${deal.vehicleDescription}`} description={`Deal record • Created ${new Date(deal.createdAt).toLocaleDateString()}`} />
+        <div className="flex items-center gap-2 shrink-0 flex-wrap">
+          <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate(`/app/records/deals/${dealId}/edit`)}>
+            <PencilSimple className="h-4 w-4" /> Edit
+          </Button>
+          <Button variant="outline" size="sm" className="gap-2 text-destructive hover:text-destructive border-destructive/30" onClick={() => setShowDeleteDialog(true)}>
+            <Trash className="h-4 w-4" /> Delete
+          </Button>
           <Button onClick={() => navigate(`/app/records/deals/${dealId}/forms`)} className="gap-2">
             <Printer className="h-4 w-4" /> Print Deal Forms
           </Button>
-        }
-      />
+        </div>
+      </div>
 
       <Card><CardContent className="py-4"><div className="flex items-center justify-between">
         {STAGES.map((s, i) => (
@@ -204,6 +231,31 @@ export function DealRecordPage() {
           </CardContent>
         </Card>
       </div>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={open => { if (!open) setShowDeleteDialog(false) }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Deal</AlertDialogTitle>
+            <AlertDialogDescription>
+              Permanently delete the deal for <strong>{deal.customerName} — {deal.vehicleDescription}</strong>?
+              {deal.status === 'funded' && (
+                <span className="block mt-2 text-amber-600 font-medium">⚠ This deal is funded. Ensure deletion is intentional.</span>
+              )}
+              {' '}This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleting}
+              onClick={handleDelete}
+            >
+              {deleting ? <SpinnerGap className="h-4 w-4 animate-spin" /> : 'Delete Deal'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

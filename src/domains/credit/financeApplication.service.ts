@@ -1,5 +1,5 @@
 import { ServiceContext, ServiceResult, ok, fail, UUID } from '@/types/common'
-import { findById, findMany, insert, update } from '@/lib/db/helpers'
+import { findById, findMany, insert, update, deleteById } from '@/lib/db/helpers'
 import { hasPermission } from '@/domains/roles/policy'
 import { publishEvent } from '@/domains/events/event.publisher'
 import { writeAuditLog } from '@/domains/audit/audit.service'
@@ -334,6 +334,36 @@ export async function getFinanceCreditApplicationById(
     return ok(mapFinanceCreditApplicationRowToDomain(row))
   } catch (error) {
     return fail({ code: 'GET_FINANCE_APP_FAILED', message: 'Failed to get finance application', details: { error: String(error) } })
+  }
+}
+
+export async function deleteFinanceCreditApplication(
+  id: UUID,
+  ctx: ServiceContext
+): Promise<ServiceResult<boolean>> {
+  try {
+    const canEdit = await enforceEditPermission(ctx)
+    if (!canEdit.ok) return canEdit
+
+    const existing = await findById<FinanceCreditApplicationRow>(APPLICATION_TABLE, id)
+    if (!existing) return fail({ code: 'NOT_FOUND', message: 'Finance application not found' })
+
+    const deleted = await deleteById(APPLICATION_TABLE, id)
+    if (!deleted) return fail({ code: 'DELETE_FAILED', message: 'Failed to delete finance application' })
+
+    await writeAuditLog({
+      action: 'finance_credit_application.delete',
+      objectType: 'credit_app',
+      objectId: id,
+      before: { id },
+      userId: ctx.actorId,
+      userRole: ctx.actorRole,
+      source: ctx.source,
+    })
+
+    return ok(true)
+  } catch (error) {
+    return fail({ code: 'DELETE_FINANCE_APP_FAILED', message: 'Failed to delete finance application', details: { error: String(error) } })
   }
 }
 

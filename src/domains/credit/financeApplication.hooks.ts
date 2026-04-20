@@ -9,6 +9,7 @@ import type {
 } from './financeApplication.types'
 import {
   createFinanceCreditApplication,
+  deleteFinanceCreditApplication,
   getFinanceCreditApplicationById,
   listFinanceCreditApplications,
   listFinanceDocumentsByApplication,
@@ -24,14 +25,18 @@ function buildContext(actorType: 'user' | 'system', actorId?: string, actorRole?
   }
 }
 
-export function useFinanceApplications(): QueryResult<FinanceCreditApplication[]> {
+export function useFinanceApplications(): QueryResult<FinanceCreditApplication[]> & { refresh: () => void } {
   const { user } = useAuth()
   const [data, setData] = useState<FinanceCreditApplication[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [version, setVersion] = useState(0)
+
+  const refresh = useCallback(() => setVersion(v => v + 1), [])
 
   useEffect(() => {
     let cancelled = false
+    setLoading(true)
     const ctx = buildContext('user', user?.id, user?.role)
 
     listFinanceCreditApplications(ctx).then((result) => {
@@ -48,9 +53,9 @@ export function useFinanceApplications(): QueryResult<FinanceCreditApplication[]
     })
 
     return () => { cancelled = true }
-  }, [user?.id, user?.role])
+  }, [user?.id, user?.role, version])
 
-  return { data, loading, error }
+  return { data, loading, error, refresh }
 }
 
 export function useFinanceApplication(id: string): QueryResult<FinanceCreditApplication | null> {
@@ -134,6 +139,15 @@ export function useFinanceApplicationMutations() {
     })
   }, [])
 
+  const createInternalApplication = useCallback(async (input: CreateFinanceApplicationInput) => {
+    return createFinanceCreditApplication(input, {
+      actorType: 'user',
+      actorId: user?.id,
+      actorRole: user?.role,
+      source: 'internal_ui',
+    })
+  }, [user?.id, user?.role])
+
   const uploadPublicDocument = useCallback(async (input: UploadFinanceDocumentInput) => {
     return uploadFinanceApplicationDocument(input, {
       actorType: 'system',
@@ -151,9 +165,20 @@ export function useFinanceApplicationMutations() {
     })
   }, [user?.id, user?.role])
 
+  const deleteApplication = useCallback(async (id: string) => {
+    return deleteFinanceCreditApplication(id, {
+      actorType: 'user',
+      actorId: user?.id,
+      actorRole: user?.role,
+      source: 'internal_ui',
+    })
+  }, [user?.id, user?.role])
+
   return {
     createPublicApplication,
+    createInternalApplication,
     uploadPublicDocument,
     uploadInternalDocument,
+    deleteApplication,
   }
 }

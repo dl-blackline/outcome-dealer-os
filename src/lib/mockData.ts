@@ -6,22 +6,45 @@ export interface MockLead {
   id: UUID
   householdId: UUID
   customerName: string
+  firstName?: string
+  lastName?: string
   email: string
   phone: string
+  address?: string
+  city?: string
+  state?: string
+  zip?: string
   source: string
   score: number
   status: 'new' | 'contacted' | 'qualified' | 'converted'
+  assignedTo?: string
+  notes?: string
+  interestedVehicle?: string
   createdAt: string
+  updatedAt?: string
 }
 
 export interface MockDeal {
   id: UUID
   leadId: UUID
   customerName: string
+  coBuyer?: string
   vehicleDescription: string
+  stockNumber?: string
+  vin?: string
   status: 'structured' | 'quoted' | 'signed' | 'funded'
   amount: number
+  saleDate?: string
+  salesperson?: string
+  fiManager?: string
+  downPayment?: number
+  tradeAmount?: number
+  payoff?: number
+  lender?: string
+  amountFinanced?: number
+  notes?: string
   createdAt: string
+  updatedAt?: string
 }
 
 export interface MockInventoryUnit {
