@@ -1,19 +1,28 @@
+import { useState } from 'react'
 import { SectionHeader } from '@/components/core/SectionHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Button } from '@/components/ui/button'
+import {
+  AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter,
+  AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction,
+} from '@/components/ui/alert-dialog'
 import { useRouter } from '@/app/router'
 import { useRouteParam, hasRouteParam } from '@/app/router/routeParams'
 import { PageErrorState, PageLoadingState, PageNotFoundState } from '@/components/core/PageStates'
-import { useFinanceApplication, useFinanceApplicationDocuments } from '@/domains/credit/financeApplication.hooks'
+import { useFinanceApplication, useFinanceApplicationDocuments, useFinanceApplicationMutations } from '@/domains/credit/financeApplication.hooks'
 import { CREDIT_SCORE_LABELS, DOCUMENT_LABELS, maskSSNForDisplay } from '@/domains/credit/financeApplication.rules'
-import { ArrowLeft } from '@phosphor-icons/react'
+import { ArrowLeft, Trash, SpinnerGap } from '@phosphor-icons/react'
 
 export function CreditApplicationRecordPage() {
   const { navigate } = useRouter()
   const appId = useRouteParam('id')
   const appQuery = useFinanceApplication(appId)
   const docsQuery = useFinanceApplicationDocuments(appId)
+  const mutations = useFinanceApplicationMutations()
+
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   if (!hasRouteParam(appId)) {
     return <PageNotFoundState title="Credit Application Missing" message="No application id was provided in this route." />
@@ -34,11 +43,29 @@ export function CreditApplicationRecordPage() {
 
   const uploadedDocTypes = new Set(docsQuery.data.map((doc) => doc.documentType))
 
+  async function handleDelete() {
+    setDeleting(true)
+    await mutations.deleteApplication(appId)
+    setDeleting(false)
+    setShowDeleteDialog(false)
+    navigate('/app/records/credit-applications')
+  }
+
   return (
     <div className="ods-page ods-flow-lg">
-      <Button variant="ghost" size="sm" onClick={() => navigate('/app/records/credit-applications')} className="gap-2">
-        <ArrowLeft className="h-4 w-4" /> Credit Applications
-      </Button>
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <Button variant="ghost" size="sm" onClick={() => navigate('/app/records/credit-applications')} className="gap-2">
+          <ArrowLeft className="h-4 w-4" /> Credit Applications
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          className="gap-2 text-destructive hover:text-destructive border-destructive/30"
+          onClick={() => setShowDeleteDialog(true)}
+        >
+          <Trash className="h-4 w-4" /> Delete Application
+        </Button>
+      </div>
 
       <SectionHeader
         title={`Credit Review: ${application.primaryApplicant.identity.fullLegalName}`}
@@ -166,6 +193,28 @@ export function CreditApplicationRecordPage() {
           </CardContent>
         </Card>
       </div>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={open => { if (!open) setShowDeleteDialog(false) }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Credit Application</AlertDialogTitle>
+            <AlertDialogDescription>
+              Permanently delete the credit application for <strong>{application.primaryApplicant.identity.fullLegalName}</strong>?
+              This will remove the application and its associated data. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleting}
+              onClick={handleDelete}
+            >
+              {deleting ? <SpinnerGap className="h-4 w-4 animate-spin" /> : 'Delete Application'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

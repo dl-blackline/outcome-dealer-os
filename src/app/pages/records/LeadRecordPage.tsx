@@ -6,14 +6,18 @@ import { EntityBadge } from '@/components/core/EntityBadge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import {
+  AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter,
+  AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction,
+} from '@/components/ui/alert-dialog'
 import { useRouter } from '@/app/router'
 import { useRouteParam, hasRouteParam } from '@/app/router/routeParams'
 import { PageLoadingState, PageNotFoundState } from '@/components/core/PageStates'
-import { useLead } from '@/domains/leads/lead.hooks'
+import { useLead, useLeadMutations } from '@/domains/leads/lead.hooks'
 import { useEntityEvents } from '@/domains/events/event.hooks'
 import { useDeals, useDealMutations } from '@/domains/deals/deal.hooks'
 import { useInventoryCatalog } from '@/domains/inventory/inventory.runtime'
-import { ArrowLeft, EnvelopeSimple, Phone, Target, Globe, CaretRight, GitMerge } from '@phosphor-icons/react'
+import { ArrowLeft, EnvelopeSimple, Phone, Target, Globe, CaretRight, GitMerge, PencilSimple, Trash, SpinnerGap } from '@phosphor-icons/react'
 
 export function LeadRecordPage() {
   const { navigate } = useRouter()
@@ -23,11 +27,14 @@ export function LeadRecordPage() {
   const dealsQuery = useDeals()
   const inventoryCatalog = useInventoryCatalog()
   const { convertLeadToDeal } = useDealMutations()
+  const leadMutations = useLeadMutations()
 
   const [showConvert, setShowConvert] = useState(false)
   const [vehicleDesc, setVehicleDesc] = useState('')
   const [converting, setConverting] = useState(false)
   const [convertError, setConvertError] = useState<string | null>(null)
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const [deleting, setDeleting] = useState(false)
 
   if (!hasRouteParam(leadId)) {
     return <PageNotFoundState title="Lead Missing" message="No lead id was provided in this route." />
@@ -70,6 +77,14 @@ export function LeadRecordPage() {
     }
   }
 
+  async function handleDelete() {
+    setDeleting(true)
+    await leadMutations.deleteLead(leadId)
+    setDeleting(false)
+    setShowDeleteDialog(false)
+    navigate('/app/records/leads')
+  }
+
   return (
     <div className="ods-page ods-flow-lg">
       <Button variant="ghost" size="sm" onClick={() => navigate('/app/records/leads')} className="gap-2"><ArrowLeft className="h-4 w-4" /> Leads</Button>
@@ -78,16 +93,19 @@ export function LeadRecordPage() {
           <SectionHeader title={lead.customerName} description={`Lead • ${lead.source}`} />
           <StatusPill variant={sv} className="text-base px-4 py-1">{lead.status}</StatusPill>
         </div>
-        {lead.status !== 'converted' && (
-          <Button
-            size="sm"
-            className="gap-2 shrink-0"
-            onClick={() => setShowConvert(v => !v)}
-          >
-            <GitMerge className="h-4 w-4" />
-            Convert to Deal
+        <div className="flex items-center gap-2 shrink-0 flex-wrap">
+          <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate(`/app/records/leads/${leadId}/edit`)}>
+            <PencilSimple className="h-4 w-4" /> Edit
           </Button>
-        )}
+          <Button variant="outline" size="sm" className="gap-2 text-destructive hover:text-destructive border-destructive/30" onClick={() => setShowDeleteDialog(true)}>
+            <Trash className="h-4 w-4" /> Delete
+          </Button>
+          {lead.status !== 'converted' && (
+            <Button size="sm" className="gap-2" onClick={() => setShowConvert(v => !v)}>
+              <GitMerge className="h-4 w-4" /> Convert to Deal
+            </Button>
+          )}
+        </div>
       </div>
 
       {showConvert && (
@@ -151,12 +169,26 @@ export function LeadRecordPage() {
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Source</CardTitle></CardHeader>
           <CardContent><div className="flex items-center gap-2"><Globe className="h-4 w-4" /><span className="text-sm">{lead.source}</span></div></CardContent></Card>
       </div>
+
+      {(lead.interestedVehicle || lead.notes || lead.assignedTo) && (
+        <Card>
+          <CardHeader><CardTitle>Details</CardTitle></CardHeader>
+          <CardContent className="space-y-2 text-sm">
+            {lead.interestedVehicle && <div className="flex justify-between"><span className="text-muted-foreground">Vehicle of Interest</span><span>{lead.interestedVehicle}</span></div>}
+            {lead.assignedTo && <div className="flex justify-between"><span className="text-muted-foreground">Assigned Rep</span><span>{lead.assignedTo}</span></div>}
+            {lead.notes && <div className="pt-1 text-muted-foreground">{lead.notes}</div>}
+          </CardContent>
+        </Card>
+      )}
+
       <div className="grid gap-6 lg:grid-cols-2">
         <Card><CardHeader><CardTitle>Linked Records</CardTitle></CardHeader><CardContent className="space-y-3">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-2"><EntityBadge variant="household">Household</EntityBadge></div>
-            <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => navigate(`/app/records/households/${lead.householdId}`)}>{lead.householdId} <CaretRight className="h-3 w-3" /></Button>
-          </div>
+          {lead.householdId && (
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2"><EntityBadge variant="household">Household</EntityBadge></div>
+              <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => navigate(`/app/records/households/${lead.householdId}`)}>{lead.householdId} <CaretRight className="h-3 w-3" /></Button>
+            </div>
+          )}
           {linkedDeals.map(d => (
             <div key={d.id} className="flex items-center justify-between text-sm border-t border-border pt-2">
               <div className="flex items-center gap-2">
@@ -178,6 +210,27 @@ export function LeadRecordPage() {
               <span className="text-xs text-muted-foreground">{e.actorType}</span>
             </div>))}</div>)}</CardContent></Card>
       </div>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={open => { if (!open) setShowDeleteDialog(false) }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Lead</AlertDialogTitle>
+            <AlertDialogDescription>
+              Permanently delete lead for <strong>{lead.customerName}</strong>? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              disabled={deleting}
+              onClick={handleDelete}
+            >
+              {deleting ? <SpinnerGap className="h-4 w-4 animate-spin" /> : 'Delete Lead'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
