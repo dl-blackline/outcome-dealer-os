@@ -228,11 +228,15 @@ class SupabaseClient {
 
     const client = getSupabaseBrowserClient()
     if (client) {
-      const { data, error } = await client.from(table).insert(fullRow).select().single()
-      if (error || !data) {
-        throw new Error(`[DB] Supabase insert into "${table}" failed: ${error?.message ?? 'no data returned'}`)
+      // Avoid .select().single() after insert — anon RLS policies may permit
+      // INSERT but not SELECT, which causes PostgREST to roll back the entire
+      // transaction. The client-constructed fullRow already contains the
+      // correct id, created_at, and updated_at so a select-back is unnecessary.
+      const { error } = await client.from(table).insert(fullRow)
+      if (error) {
+        throw new Error(`[DB] Supabase insert into "${table}" failed: ${error.message}`)
       }
-      return data as T
+      return fullRow
     }
 
     // Supabase not configured – use local fallback (dev/demo mode only)
