@@ -10,6 +10,7 @@ import type {
   InventoryEnhancementStatus,
   InventoryPhotoVariant,
 } from '@/domains/inventory-photo/inventoryPhoto.types'
+import { checkInventoryDuplicates, type DuplicateCheckResult } from './inventory.deduplication'
 
 export interface InventoryPhotoRecord {
   id: string
@@ -28,36 +29,79 @@ export interface InventoryPhotoRecord {
   enhancedStoragePath?: string
 }
 
+/**
+ * InventoryRecord is the canonical single-source-of-truth inventory model for the
+ * entire application.  Every consumer — internal lists, public shop, wholesale,
+ * recon/fixed-ops, reporting, and back-office — MUST read from this record.
+ *
+ * No parallel record shapes.  No silent copies.  No drifting sub-objects.
+ */
 export interface InventoryRecord {
+  // ── Identity ────────────────────────────────────────────────────────────────
   id: string
   listingId: string
+  sourceListingId?: string
   stockNumber?: string
   vin?: string
+
+  // ── Vehicle attributes ───────────────────────────────────────────────────────
   year: number
   make: string
   model: string
   trim: string
   bodyStyle: string
   mileage: number
-  price: number
-  wholesalePrice?: number
-  isWholesaleVisible?: boolean
-  wholesaleStatus?: string
-  wholesaleNotes?: string
-  status: string
-  available: boolean
-  isPublished: boolean
-  isFeatured: boolean
-  daysInStock: number
-  description: string
-  features: string[]
+  exteriorColor?: string
+  interiorColor?: string
+  /** @deprecated use exteriorColor; kept for backward compatibility */
   color?: string
   condition?: string
   drivetrain?: string
   engine?: string
   transmission?: string
+
+  // ── Pricing / financials ─────────────────────────────────────────────────────
+  /** Public retail asking price */
+  price: number
+  wholesalePrice?: number
+  isWholesaleVisible?: boolean
+  wholesaleStatus?: string
+  wholesaleNotes?: string
+  /** Original acquisition cost paid to acquire the unit */
+  acquisitionCost?: number
+  /** Dealer pack / administrative cost added to acquisition */
+  dealerPack?: number
+  /** Running total of all recon cost entries */
+  reconCostTotal?: number
+  /** Accrued floor-plan interest cost */
+  floorPlanInterest?: number
+  /**
+   * totalInvestedCost = acquisitionCost + dealerPack + reconCostTotal + floorPlanInterest
+   * Computed by the runtime when cost fields are present; may be stored on DB record too.
+   */
+  totalInvestedCost?: number
+
+  // ── Status / workflow ────────────────────────────────────────────────────────
+  status: string
+  available: boolean
+  isPublished: boolean
+  isFeatured: boolean
+  daysInStock: number
+  /** Current recon/fixed-ops stage for this unit */
+  reconStage?: string
+  /** Known issues for this unit (serialised from recon domain when available) */
+  knownIssues?: string[]
+
+  // ── Public merchandising ─────────────────────────────────────────────────────
+  description: string
+  features: string[]
   photoArchiveStatus?: string
   detailUrl?: string
+
+  // ── Documents ────────────────────────────────────────────────────────────────
+  documentLinks?: Array<{ label: string; url: string }>
+
+  // ── Source / audit ───────────────────────────────────────────────────────────
   source: 'master_sheet' | 'supabase'
   photos: InventoryPhotoRecord[]
 }
@@ -68,17 +112,27 @@ export interface InventoryRecordUpdate {
   isWholesaleVisible?: boolean
   wholesaleStatus?: string
   wholesaleNotes?: string
+  acquisitionCost?: number
+  dealerPack?: number
+  reconCostTotal?: number
+  floorPlanInterest?: number
+  totalInvestedCost?: number
   status?: string
   available?: boolean
   isPublished?: boolean
   isFeatured?: boolean
   description?: string
   features?: string[]
+  exteriorColor?: string
+  interiorColor?: string
   color?: string
   condition?: string
   drivetrain?: string
   engine?: string
   transmission?: string
+  reconStage?: string
+  knownIssues?: string[]
+  documentLinks?: Array<{ label: string; url: string }>
 }
 
 type LocalInventoryOverride = Partial<InventoryRecordFullUpdate>
@@ -86,6 +140,7 @@ type LocalInventoryOverride = Partial<InventoryRecordFullUpdate>
 export interface InventoryRecordCreateInput {
   stockNumber?: string
   vin?: string
+  sourceListingId?: string
   year: number
   make: string
   model: string
@@ -97,17 +152,27 @@ export interface InventoryRecordCreateInput {
   isWholesaleVisible?: boolean
   wholesaleStatus?: string
   wholesaleNotes?: string
+  acquisitionCost?: number
+  dealerPack?: number
+  reconCostTotal?: number
+  floorPlanInterest?: number
+  totalInvestedCost?: number
   status?: string
   available?: boolean
   isPublished?: boolean
   isFeatured?: boolean
   description?: string
   features?: string[]
+  exteriorColor?: string
+  interiorColor?: string
   color?: string
   condition?: string
   drivetrain?: string
   engine?: string
   transmission?: string
+  reconStage?: string
+  knownIssues?: string[]
+  documentLinks?: Array<{ label: string; url: string }>
 }
 
 interface SupabaseInventoryUnitRow {
@@ -127,15 +192,25 @@ interface SupabaseInventoryUnitRow {
   wholesale_visible?: boolean | null
   wholesale_status?: string | null
   wholesale_notes?: string | null
+  acquisition_cost?: number | null
+  dealer_pack?: number | null
+  recon_cost_total?: number | null
+  floor_plan_interest?: number | null
+  total_invested_cost?: number | null
   status?: string | null
   aging_days?: number | null
   public_description?: string | null
   features?: string[] | null
+  exterior_color?: string | null
+  interior_color?: string | null
   color?: string | null
   vehicle_condition?: string | null
   drivetrain?: string | null
   engine?: string | null
   transmission?: string | null
+  recon_stage?: string | null
+  known_issues?: string[] | null
+  document_links?: Array<{ label: string; url: string }> | null
   is_published?: boolean | null
   is_featured?: boolean | null
   available_publicly?: boolean | null
@@ -162,6 +237,7 @@ const PHOTO_META_PREFIX = '__ovmeta:'
 export interface InventoryRecordFullUpdate {
   stockNumber?: string
   vin?: string
+  sourceListingId?: string
   year?: number
   make?: string
   model?: string
@@ -173,17 +249,27 @@ export interface InventoryRecordFullUpdate {
   isWholesaleVisible?: boolean
   wholesaleStatus?: string
   wholesaleNotes?: string
+  acquisitionCost?: number
+  dealerPack?: number
+  reconCostTotal?: number
+  floorPlanInterest?: number
+  totalInvestedCost?: number
   status?: string
   available?: boolean
   isPublished?: boolean
   isFeatured?: boolean
   description?: string
   features?: string[]
+  exteriorColor?: string
+  interiorColor?: string
   color?: string
   condition?: string
   drivetrain?: string
   engine?: string
   transmission?: string
+  reconStage?: string
+  knownIssues?: string[]
+  documentLinks?: Array<{ label: string; url: string }>
 }
 
 function emitInventoryUpdate() {
@@ -555,6 +641,7 @@ async function loadSupabaseInventoryRecords(): Promise<InventoryRecord[] | null>
     return normalizeRecordPhotos({
       id: row.id,
       listingId: row.source_listing_id || row.id,
+      sourceListingId: row.source_listing_id || undefined,
       stockNumber: row.stock_number || undefined,
       vin: row.vin || undefined,
       year: row.year || 0,
@@ -568,6 +655,11 @@ async function loadSupabaseInventoryRecords(): Promise<InventoryRecord[] | null>
       isWholesaleVisible: row.wholesale_visible ?? false,
       wholesaleStatus: row.wholesale_status || undefined,
       wholesaleNotes: row.wholesale_notes || undefined,
+      acquisitionCost: row.acquisition_cost ?? undefined,
+      dealerPack: row.dealer_pack ?? undefined,
+      reconCostTotal: row.recon_cost_total ?? undefined,
+      floorPlanInterest: row.floor_plan_interest ?? undefined,
+      totalInvestedCost: row.total_invested_cost ?? undefined,
       status: row.status || 'inventory',
       available: row.available_publicly ?? true,
       isPublished: row.is_published ?? true,
@@ -575,11 +667,16 @@ async function loadSupabaseInventoryRecords(): Promise<InventoryRecord[] | null>
       daysInStock: row.aging_days || 0,
       description: row.public_description || `${title} ready for your next appointment.`,
       features: Array.isArray(row.features) ? row.features : [],
+      exteriorColor: row.exterior_color || undefined,
+      interiorColor: row.interior_color || undefined,
       color: row.color || undefined,
       condition: row.vehicle_condition || undefined,
       drivetrain: row.drivetrain || undefined,
       engine: row.engine || undefined,
       transmission: row.transmission || undefined,
+      reconStage: row.recon_stage || undefined,
+      knownIssues: Array.isArray(row.known_issues) ? row.known_issues : undefined,
+      documentLinks: Array.isArray(row.document_links) ? row.document_links : undefined,
       source: 'supabase',
       photos,
     })
@@ -623,6 +720,7 @@ function createLocalRuntimeRecord(input: InventoryRecordCreateInput): InventoryR
   return normalizeRecordPhotos({
     id,
     listingId: id,
+    sourceListingId: input.sourceListingId,
     stockNumber: input.stockNumber,
     vin: input.vin,
     year: input.year,
@@ -636,6 +734,11 @@ function createLocalRuntimeRecord(input: InventoryRecordCreateInput): InventoryR
     isWholesaleVisible: input.isWholesaleVisible ?? false,
     wholesaleStatus: input.wholesaleStatus,
     wholesaleNotes: input.wholesaleNotes,
+    acquisitionCost: input.acquisitionCost,
+    dealerPack: input.dealerPack,
+    reconCostTotal: input.reconCostTotal,
+    floorPlanInterest: input.floorPlanInterest,
+    totalInvestedCost: input.totalInvestedCost,
     status: input.status || 'inventory',
     available: input.available ?? true,
     isPublished: input.isPublished ?? false,
@@ -643,11 +746,16 @@ function createLocalRuntimeRecord(input: InventoryRecordCreateInput): InventoryR
     daysInStock: 0,
     description: input.description || `${title} ready for showroom and digital listing workflows.`,
     features: input.features || [],
+    exteriorColor: input.exteriorColor,
+    interiorColor: input.interiorColor,
     color: input.color,
     condition: input.condition,
     drivetrain: input.drivetrain,
     engine: input.engine,
     transmission: input.transmission,
+    reconStage: input.reconStage,
+    knownIssues: input.knownIssues,
+    documentLinks: input.documentLinks,
     source: 'master_sheet',
     photos: [
       {
@@ -666,14 +774,52 @@ function createLocalRuntimeRecord(input: InventoryRecordCreateInput): InventoryR
   })
 }
 
+export interface CreateInventoryRecordResult {
+  /** The newly created or found record (null on hard failure) */
+  record: InventoryRecord | null
+  /** Duplicate check result — always populated for decision transparency */
+  duplicateCheck: DuplicateCheckResult
+}
+
+/**
+ * Create a new canonical inventory record through the one authoritative creation path.
+ *
+ * All inventory creation flows (manual form, import, admin) MUST go through this
+ * function.  It always runs duplicate detection first.
+ *
+ * @param input          - Fields for the new record
+ * @param skipDuplicateCheck - Set true only when the caller has already resolved the
+ *                             duplicate check and explicitly wants to force-create.
+ */
 export async function createRuntimeInventoryRecord(
   input: InventoryRecordCreateInput,
-): Promise<InventoryRecord | null> {
+  skipDuplicateCheck = false,
+): Promise<CreateInventoryRecordResult> {
+  // Run duplicate check against all existing records
+  const existingRecords = await listRuntimeInventoryRecords()
+  const duplicateCheck = checkInventoryDuplicates(
+    {
+      vin: input.vin,
+      stockNumber: input.stockNumber,
+      sourceListingId: input.sourceListingId,
+      year: input.year,
+      make: input.make,
+      model: input.model,
+      mileage: input.mileage,
+    },
+    existingRecords,
+  )
+
+  // Block exact duplicates unless the caller explicitly opts out
+  if (!skipDuplicateCheck && duplicateCheck.confidence === 'exact') {
+    return { record: duplicateCheck.matches[0].record, duplicateCheck }
+  }
+
   const client = getSupabaseBrowserClient()
 
   if (client) {
     const payload = {
-      source_listing_id: input.stockNumber || input.vin || null,
+      source_listing_id: input.sourceListingId || input.stockNumber || input.vin || null,
       stock_number: input.stockNumber,
       vin: input.vin,
       year: input.year,
@@ -683,17 +829,27 @@ export async function createRuntimeInventoryRecord(
       mileage: input.mileage ?? 0,
       body_style: input.bodyStyle || null,
       sale_price: input.price ?? 0,
+      acquisition_cost: input.acquisitionCost ?? null,
+      dealer_pack: input.dealerPack ?? null,
+      recon_cost_total: input.reconCostTotal ?? null,
+      floor_plan_interest: input.floorPlanInterest ?? null,
+      total_invested_cost: input.totalInvestedCost ?? null,
       status: input.status || 'inventory',
       available_publicly: input.available ?? true,
       is_published: input.isPublished ?? false,
       is_featured: input.isFeatured ?? false,
       public_description: input.description || null,
       features: input.features || [],
+      exterior_color: input.exteriorColor || null,
+      interior_color: input.interiorColor || null,
       color: input.color || null,
       vehicle_condition: input.condition || null,
       drivetrain: input.drivetrain || null,
       engine: input.engine || null,
       transmission: input.transmission || null,
+      recon_stage: input.reconStage || null,
+      known_issues: input.knownIssues || null,
+      document_links: input.documentLinks || null,
     }
 
     const { data, error } = await client
@@ -711,14 +867,15 @@ export async function createRuntimeInventoryRecord(
       })
       emitInventoryUpdate()
       const records = await listRuntimeInventoryRecords()
-      return records.find((record) => record.id === data.id) || null
+      const created = records.find((record) => record.id === data.id) || null
+      return { record: created, duplicateCheck }
     }
   }
 
   const localRecord = createLocalRuntimeRecord(input)
   const importedRecords = readImportedRecords()
   writeImportedRecords([...importedRecords, localRecord])
-  return localRecord
+  return { record: localRecord, duplicateCheck }
 }
 
 export async function updateRuntimeInventoryRecord(
@@ -737,17 +894,27 @@ export async function updateRuntimeInventoryRecord(
   if (client) {
     const payload = {
       sale_price: updates.price,
+      acquisition_cost: updates.acquisitionCost,
+      dealer_pack: updates.dealerPack,
+      recon_cost_total: updates.reconCostTotal,
+      floor_plan_interest: updates.floorPlanInterest,
+      total_invested_cost: updates.totalInvestedCost,
       status: updates.status,
       available_publicly: updates.available,
       is_published: updates.isPublished,
       is_featured: updates.isFeatured,
       public_description: updates.description,
       features: updates.features,
+      exterior_color: updates.exteriorColor,
+      interior_color: updates.interiorColor,
       color: updates.color,
       vehicle_condition: updates.condition,
       drivetrain: updates.drivetrain,
       engine: updates.engine,
       transmission: updates.transmission,
+      recon_stage: updates.reconStage,
+      known_issues: updates.knownIssues,
+      document_links: updates.documentLinks,
     }
 
     const { error } = await client.from('inventory_units').update(payload).eq('id', id)
@@ -814,6 +981,17 @@ export async function updateRuntimeInventoryRecordFull(
     if (updates.drivetrain !== undefined) payload.drivetrain = updates.drivetrain
     if (updates.engine !== undefined) payload.engine = updates.engine
     if (updates.transmission !== undefined) payload.transmission = updates.transmission
+    if (updates.sourceListingId !== undefined) payload.source_listing_id = updates.sourceListingId
+    if (updates.acquisitionCost !== undefined) payload.acquisition_cost = updates.acquisitionCost
+    if (updates.dealerPack !== undefined) payload.dealer_pack = updates.dealerPack
+    if (updates.reconCostTotal !== undefined) payload.recon_cost_total = updates.reconCostTotal
+    if (updates.floorPlanInterest !== undefined) payload.floor_plan_interest = updates.floorPlanInterest
+    if (updates.totalInvestedCost !== undefined) payload.total_invested_cost = updates.totalInvestedCost
+    if (updates.exteriorColor !== undefined) payload.exterior_color = updates.exteriorColor
+    if (updates.interiorColor !== undefined) payload.interior_color = updates.interiorColor
+    if (updates.reconStage !== undefined) payload.recon_stage = updates.reconStage
+    if (updates.knownIssues !== undefined) payload.known_issues = updates.knownIssues
+    if (updates.documentLinks !== undefined) payload.document_links = updates.documentLinks
 
     const { error } = await client.from('inventory_units').update(payload).eq('id', id)
     if (!error) {
@@ -831,6 +1009,7 @@ export async function updateRuntimeInventoryRecordFull(
     const existing = importedRecords[importedIndex]
     importedRecords[importedIndex] = {
       ...existing,
+      sourceListingId: updates.sourceListingId ?? existing.sourceListingId,
       stockNumber: updates.stockNumber ?? existing.stockNumber,
       vin: updates.vin ?? existing.vin,
       year: updates.year ?? existing.year,
@@ -844,17 +1023,27 @@ export async function updateRuntimeInventoryRecordFull(
       isWholesaleVisible: updates.isWholesaleVisible ?? existing.isWholesaleVisible,
       wholesaleStatus: updates.wholesaleStatus ?? existing.wholesaleStatus,
       wholesaleNotes: updates.wholesaleNotes ?? existing.wholesaleNotes,
+      acquisitionCost: updates.acquisitionCost ?? existing.acquisitionCost,
+      dealerPack: updates.dealerPack ?? existing.dealerPack,
+      reconCostTotal: updates.reconCostTotal ?? existing.reconCostTotal,
+      floorPlanInterest: updates.floorPlanInterest ?? existing.floorPlanInterest,
+      totalInvestedCost: updates.totalInvestedCost ?? existing.totalInvestedCost,
       status: updates.status ?? existing.status,
       available: updates.available ?? existing.available,
       isPublished: updates.isPublished ?? existing.isPublished,
       isFeatured: updates.isFeatured ?? existing.isFeatured,
       description: updates.description ?? existing.description,
       features: updates.features ?? existing.features,
+      exteriorColor: updates.exteriorColor ?? existing.exteriorColor,
+      interiorColor: updates.interiorColor ?? existing.interiorColor,
       color: updates.color ?? existing.color,
       condition: updates.condition ?? existing.condition,
       drivetrain: updates.drivetrain ?? existing.drivetrain,
       engine: updates.engine ?? existing.engine,
       transmission: updates.transmission ?? existing.transmission,
+      reconStage: updates.reconStage ?? existing.reconStage,
+      knownIssues: updates.knownIssues ?? existing.knownIssues,
+      documentLinks: updates.documentLinks ?? existing.documentLinks,
     }
     writeImportedRecords(importedRecords)
   } else {

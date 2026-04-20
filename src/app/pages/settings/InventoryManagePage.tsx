@@ -753,11 +753,17 @@ function UnitForm({ mode, record, isSupabaseBacked, onSave, onCancel, toast }: U
   const [saving, setSaving] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
   const [currentRecord, setCurrentRecord] = useState<InventoryRecord | null>(record || null)
+  const [duplicateWarning, setDuplicateWarning] = useState<string | null>(null)
+  const [forceCreate, setForceCreate] = useState(false)
   const { refresh } = useInventoryCatalog()
 
   function set<K extends keyof UnitFormState>(key: K, value: UnitFormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }))
     setErrors([])
+    if (key === 'vin' || key === 'stockNumber') {
+      setDuplicateWarning(null)
+      setForceCreate(false)
+    }
   }
 
   async function handleSave() {
@@ -770,10 +776,17 @@ function UnitForm({ mode, record, isSupabaseBacked, onSave, onCancel, toast }: U
     try {
       let saved: InventoryRecord | null = null
       if (mode === 'add') {
-        saved = await createRuntimeInventoryRecord(formToCreateInput(form))
+        const result = await createRuntimeInventoryRecord(formToCreateInput(form), forceCreate)
+        if (result.duplicateCheck.isDuplicate && !forceCreate) {
+          setDuplicateWarning(result.duplicateCheck.summary)
+          setSaving(false)
+          return
+        }
+        saved = result.record
         if (saved) {
           setCurrentRecord(saved)
           setTab('photos')
+          setDuplicateWarning(null)
           toast('Unit created — add photos below')
         } else {
           toast('Failed to create unit', 'error')
@@ -860,6 +873,26 @@ function UnitForm({ mode, record, isSupabaseBacked, onSave, onCancel, toast }: U
               <Warning size={14} /> {e}
             </p>
           ))}
+        </div>
+      )}
+
+      {/* Duplicate warning */}
+      {duplicateWarning && (
+        <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 space-y-2">
+          <p className="text-sm text-amber-300 flex items-center gap-2 font-medium">
+            <Warning size={15} weight="fill" /> Duplicate Detected
+          </p>
+          <p className="text-xs text-amber-200/80">{duplicateWarning}</p>
+          <p className="text-xs text-amber-200/60">
+            A unit with the same VIN or stock number already exists in inventory. Review the existing record or confirm you want to create a separate entry.
+          </p>
+          <button
+            type="button"
+            onClick={() => { setForceCreate(true); setDuplicateWarning(null) }}
+            className="mt-1 rounded-full border border-amber-500/40 bg-amber-500/15 px-3 py-1 text-xs font-semibold text-amber-200 hover:bg-amber-500/25 transition-colors"
+          >
+            Create anyway
+          </button>
         </div>
       )}
 

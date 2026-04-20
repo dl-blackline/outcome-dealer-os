@@ -46,6 +46,7 @@ import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import { StickyTableShell } from '@/components/core/StickyTableShell'
 import { useReconRuntime } from '@/domains/recon/recon.runtime'
+import { useInventoryCatalog } from '@/domains/inventory/inventory.runtime'
 import {
   RECON_STAGES,
   RECON_STAGE_LABELS,
@@ -787,6 +788,8 @@ function CostSummaryTab() {
 
 function AddUnitTab({ onAdded }: { onAdded: () => void }) {
   const { createUnit } = useReconRuntime()
+  const { records: inventoryRecords } = useInventoryCatalog()
+  const [selectedInventoryId, setSelectedInventoryId] = useState('')
   const [form, setForm] = useState({
     stockNumber: '',
     year: String(new Date().getFullYear()),
@@ -803,9 +806,28 @@ function AddUnitTab({ onAdded }: { onAdded: () => void }) {
   })
   const [saved, setSaved] = useState(false)
 
+  // When a canonical inventory unit is selected, pre-fill the form
+  function handleInventorySelect(id: string) {
+    setSelectedInventoryId(id)
+    if (!id) return
+    const inv = inventoryRecords.find((r) => r.id === id)
+    if (!inv) return
+    setForm((f) => ({
+      ...f,
+      stockNumber: inv.stockNumber || f.stockNumber,
+      year: String(inv.year),
+      make: inv.make,
+      model: inv.model,
+      trim: inv.trim || f.trim,
+      color: inv.exteriorColor || inv.color || f.color,
+      vin: inv.vin || f.vin,
+    }))
+  }
+
   function handleSubmit() {
     if (!form.year || !form.make || !form.model) return
     createUnit({
+      inventoryUnitId: selectedInventoryId || undefined,
       stockNumber: form.stockNumber || undefined,
       year: parseInt(form.year),
       make: form.make,
@@ -828,6 +850,25 @@ function AddUnitTab({ onAdded }: { onAdded: () => void }) {
       <Card>
         <CardHeader className="pb-3"><CardTitle className="text-sm">Add Recon Unit</CardTitle></CardHeader>
         <CardContent className="space-y-4">
+          {/* Canonical inventory link */}
+          <div className="space-y-1">
+            <Label className="text-xs">Link to Canonical Inventory Unit (recommended)</Label>
+            <Select value={selectedInventoryId} onValueChange={handleInventorySelect}>
+              <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select from inventory (auto-fills fields)" /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="" className="text-xs text-muted-foreground">— Enter manually —</SelectItem>
+                {inventoryRecords.map((r) => (
+                  <SelectItem key={r.id} value={r.id} className="text-xs">
+                    {r.year} {r.make} {r.model} {r.trim}{r.stockNumber ? ` [${r.stockNumber}]` : r.vin ? ` [${r.vin}]` : ''}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {selectedInventoryId && (
+              <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">✓ Linked to canonical inventory unit — recon costs will reference the master record.</p>
+            )}
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             {[
               { label: 'Stock Number', key: 'stockNumber', placeholder: 'A1055' },

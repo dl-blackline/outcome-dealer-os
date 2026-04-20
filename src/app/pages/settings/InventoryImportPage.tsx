@@ -475,7 +475,8 @@ export function InventoryImportPage() {
     for (const row of actionable) {
       try {
         if (row.action === 'create' && row.createPayload) {
-          const created = await createRuntimeInventoryRecord(row.createPayload)
+          const result = await createRuntimeInventoryRecord(row.createPayload, true)
+          const created = result.record
           if (!created) throw new Error('Runtime create returned null')
           nextResults.push({ rowIndex: row.parsed.rowIndex, action: 'created', message: `Created ${created.year} ${created.make} ${created.model}` })
         }
