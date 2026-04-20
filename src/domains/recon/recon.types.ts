@@ -79,6 +79,12 @@ export const COST_CATEGORY_LABELS: Record<CostCategory, string> = {
 
 export interface ReconUnit {
   id: string
+  /**
+   * Links this recon unit to the canonical InventoryRecord.
+   * All recon consumers MUST treat this as the single-source-of-truth
+   * reference to the parent inventory unit.
+   */
+  inventoryUnitId?: string
   stockNumber?: string
   year: number
   make: string
@@ -147,6 +153,11 @@ export interface ReconActivity {
 }
 
 export interface CreateReconUnitInput {
+  /**
+   * The canonical inventory record id this recon unit belongs to.
+   * Strongly recommended — links recon cost/stage data back to the master unit.
+   */
+  inventoryUnitId?: string
   stockNumber?: string
   year: number
   make: string

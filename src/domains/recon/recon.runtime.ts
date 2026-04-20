@@ -63,6 +63,7 @@ export function useReconRuntime() {
   const createUnit = useCallback((input: CreateReconUnitInput): ReconUnit => {
     const unit: ReconUnit = {
       id: crypto.randomUUID(),
+      inventoryUnitId: input.inventoryUnitId,
       stockNumber: input.stockNumber,
       year: input.year,
       make: input.make,

@@ -24,6 +24,7 @@ import {
   Image,
   TrendUp,
   Warning,
+  FileText,
 } from '@phosphor-icons/react'
 
 /** Aging price reduction multipliers applied at 30 and 60 days in stock */
@@ -255,6 +256,116 @@ export function InventoryUnitPage() {
           )}
         </CardContent>
       </Card>
+
+      {/* Cost & Investment Breakdown */}
+      {(unit.acquisitionCost || unit.dealerPack || unit.reconCostTotal || unit.floorPlanInterest || unit.totalInvestedCost) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CurrencyDollar className="h-5 w-5" /> Cost &amp; Investment Breakdown
+              <Badge variant="outline" className="ml-auto text-xs font-normal">Internal</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2 text-sm">
+              {unit.acquisitionCost != null && (
+                <div className="flex items-center justify-between border-b border-border pb-1.5">
+                  <span className="text-muted-foreground">Acquisition Cost</span>
+                  <span className="font-semibold">${unit.acquisitionCost.toLocaleString()}</span>
+                </div>
+              )}
+              {unit.dealerPack != null && (
+                <div className="flex items-center justify-between border-b border-border pb-1.5">
+                  <span className="text-muted-foreground">Dealer Pack</span>
+                  <span className="font-semibold">${unit.dealerPack.toLocaleString()}</span>
+                </div>
+              )}
+              {unit.reconCostTotal != null && (
+                <div className="flex items-center justify-between border-b border-border pb-1.5">
+                  <span className="text-muted-foreground">Recon Cost Total</span>
+                  <span className="font-semibold">${unit.reconCostTotal.toLocaleString()}</span>
+                </div>
+              )}
+              {unit.floorPlanInterest != null && (
+                <div className="flex items-center justify-between border-b border-border pb-1.5">
+                  <span className="text-muted-foreground">Floor Plan Interest</span>
+                  <span className="font-semibold">${unit.floorPlanInterest.toLocaleString()}</span>
+                </div>
+              )}
+              {unit.totalInvestedCost != null && (
+                <div className="flex items-center justify-between pt-1">
+                  <span className="font-semibold">Total Invested</span>
+                  <span className="text-lg font-bold">${unit.totalInvestedCost.toLocaleString()}</span>
+                </div>
+              )}
+              {unit.price > 0 && unit.totalInvestedCost != null && unit.totalInvestedCost > 0 && (
+                <div className={`mt-2 flex items-center gap-2 rounded-md px-3 py-2 text-xs ${unit.price >= unit.totalInvestedCost ? 'bg-emerald-50 border border-emerald-200 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-400 dark:border-emerald-800' : 'bg-red-50 border border-red-200 text-red-700 dark:bg-red-900/20 dark:text-red-400 dark:border-red-800'}`}>
+                  {unit.price >= unit.totalInvestedCost ? (
+                    <CheckCircle className="h-3.5 w-3.5 shrink-0" />
+                  ) : (
+                    <Warning className="h-3.5 w-3.5 shrink-0" />
+                  )}
+                  {unit.price >= unit.totalInvestedCost
+                    ? `Gross margin: $${(unit.price - unit.totalInvestedCost).toLocaleString()} over invested cost`
+                    : `Retail price is $${(unit.totalInvestedCost - unit.price).toLocaleString()} below total invested cost`}
+                </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Recon Stage */}
+      {unit.reconStage && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Wrench className="h-5 w-5" /> Recon Stage
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Badge variant="secondary" className="text-sm">{unit.reconStage}</Badge>
+            {unit.knownIssues && unit.knownIssues.length > 0 && (
+              <div className="mt-3 space-y-1">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Known Issues</p>
+                {unit.knownIssues.map((issue, i) => (
+                  <div key={i} className="flex items-start gap-2 text-sm">
+                    <Warning className="h-3.5 w-3.5 mt-0.5 text-amber-500 shrink-0" />
+                    <span>{issue}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Document Links */}
+      {unit.documentLinks && unit.documentLinks.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" /> Documents
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {unit.documentLinks.map((doc, i) => (
+                <a
+                  key={i}
+                  href={doc.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-primary hover:underline"
+                >
+                  <FileText className="h-4 w-4 shrink-0" />
+                  {doc.label}
+                </a>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   )
 }
