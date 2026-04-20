@@ -30,6 +30,9 @@ import { AssistantOpsPage } from '@/app/pages/ops/AssistantOpsPage'
 import { IntelligencePage } from '@/app/pages/ops/IntelligencePage'
 import { OperatingReviewPage } from '@/app/pages/ops/OperatingReviewPage'
 import { ReportsPage } from '@/app/pages/ops/ReportsPage'
+import { ReconPage } from '@/app/pages/ops/ReconPage'
+import { BackOfficePage } from '@/app/pages/ops/BackOfficePage'
+import { DocumentVaultPage } from '@/app/pages/ops/DocumentVaultPage'
 import { RolesSettingsPage } from '@/app/pages/settings/RolesSettingsPage'
 import { IntegrationsSettingsPage } from '@/app/pages/settings/IntegrationsSettingsPage'
 import { InventoryImportPage } from '@/app/pages/settings/InventoryImportPage'
@@ -55,6 +58,9 @@ const ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/app/ops/assistant': AssistantOpsPage,
   '/app/ops/intelligence': IntelligencePage,
   '/app/ops/operating-review': OperatingReviewPage,
+  '/app/ops/recon': ReconPage,
+  '/app/ops/back-office': BackOfficePage,
+  '/app/ops/documents': DocumentVaultPage,
   '/app/ops/reports': ReportsPage,
   '/app/settings/roles': RolesSettingsPage,
   '/app/settings/integrations': IntegrationsSettingsPage,

@@ -14,6 +14,9 @@ import {
   Brain,
   Car,
   WarningDiamond,
+  Buildings,
+  FolderOpen,
+  Toolbox,
 } from '@phosphor-icons/react'
 import { AppRole, ROLE_NAV_GROUPS, type NavGroup } from '@/domains/roles/roles'
 import { cn } from '@/lib/utils'
@@ -105,6 +108,24 @@ const NAV_ITEMS: NavItem[] = [
     group: 'operations',
   },
   {
+    label: 'Fixed Ops / Recon',
+    href: '/app/ops/recon',
+    icon: Toolbox,
+    group: 'operations',
+  },
+  {
+    label: 'Back Office',
+    href: '/app/ops/back-office',
+    icon: Buildings,
+    group: 'operations',
+  },
+  {
+    label: 'Document Vault',
+    href: '/app/ops/documents',
+    icon: FolderOpen,
+    group: 'operations',
+  },
+  {
     label: 'Reports',
     href: '/app/ops/reports',
     icon: ChartBar,
@@ -154,7 +175,7 @@ export function AppSidebar({ currentPath, currentRole, onNavigate }: AppSidebarP
         </h1>
       </div>
 
-      <nav className="flex-1 space-y-1 p-4">
+      <nav className="flex-1 overflow-y-auto space-y-1 p-4 [scrollbar-gutter:stable]">
         {visibleItems.map((item) => {
           const Icon = item.icon
           const isActive = currentPath === item.href || currentPath.startsWith(item.href + '/')
