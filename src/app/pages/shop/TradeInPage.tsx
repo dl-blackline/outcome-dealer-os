@@ -91,6 +91,7 @@ export function TradeInPage() {
     emailValid
 
   async function handleSubmit() {
+    if (submitting) return
     if (!canSubmit) {
       setSubmitError('Complete required fields with valid year, mileage, and email.')
       return

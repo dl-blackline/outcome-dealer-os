@@ -64,6 +64,7 @@ export function InquiryPage() {
   const canSubmit = form.firstName.trim() && form.lastName.trim() && emailValid && phoneValid
 
   async function handleSubmit() {
+    if (submitting) return
     if (!canSubmit) {
       setSubmitError('Complete required fields with a valid email and phone (if phone/SMS is selected).')
       return

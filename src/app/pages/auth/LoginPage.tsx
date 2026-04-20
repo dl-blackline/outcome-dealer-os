@@ -20,15 +20,17 @@ export function LoginPage() {
   useEffect(() => {
     if (status !== 'authenticated') return
 
-    const returnTo = typeof window !== 'undefined'
-      ? window.sessionStorage.getItem('outcome.auth.returnTo')
-      : null
+    const returnTo =
+      typeof window !== 'undefined'
+        ? window.sessionStorage.getItem('outcome.auth.returnTo')
+        : null
 
     if (typeof window !== 'undefined') {
       window.sessionStorage.removeItem('outcome.auth.returnTo')
     }
 
-    navigate(returnTo || '/app/dashboard')
+    const safeReturnTo = returnTo && returnTo.startsWith('/app') ? returnTo : '/app/dashboard'
+    navigate(safeReturnTo)
   }, [navigate, status])
 
   async function handleSubmit() {

@@ -81,6 +81,7 @@ export function SchedulePage() {
   }, [form.unitId, publicRecords])
 
   async function handleSubmit() {
+    if (submitting) return
     if (!canSubmit) {
       setSubmitError('Complete all required fields with a valid email address.')
       return

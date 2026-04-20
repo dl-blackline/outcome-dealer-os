@@ -11,10 +11,27 @@ import { getPremiumPlaceholderByBodyStyle } from '@/domains/inventory-photo/inve
 const SELECTED_UNIT_STORAGE_KEY = 'outcome.buyer-hub.selected-unit-id'
 const SELECTED_UNIT_JOURNEY_KEY = 'outcome.buyer-hub.selected-unit-journey'
 
+const VALID_ENTRY_POINTS = [
+  'shop',
+  'home',
+  'compare',
+  'favorites',
+  'finance',
+  'trade',
+  'schedule',
+  'inquiry',
+] as const
+
+type SelectedVehicleEntryPoint = (typeof VALID_ENTRY_POINTS)[number]
+
 export interface SelectedVehicleJourney {
   unitId: string
-  entryPoint: 'shop' | 'home' | 'compare' | 'favorites' | 'finance' | 'trade' | 'schedule' | 'inquiry'
+  entryPoint: SelectedVehicleEntryPoint
   timestamp: number
+}
+
+function isValidEntryPoint(value: unknown): value is SelectedVehicleEntryPoint {
+  return typeof value === 'string' && VALID_ENTRY_POINTS.includes(value as SelectedVehicleEntryPoint)
 }
 
 /**
@@ -23,19 +40,22 @@ export interface SelectedVehicleJourney {
 export function setSelectedUnit(unitId: string, entryPoint?: string) {
   if (typeof window === 'undefined') return
 
-  try {
-    window.localStorage.setItem(SELECTED_UNIT_STORAGE_KEY, unitId)
+  const trimmedUnitId = unitId.trim()
+  if (!trimmedUnitId) return
 
-    if (entryPoint) {
+  try {
+    window.localStorage.setItem(SELECTED_UNIT_STORAGE_KEY, trimmedUnitId)
+
+    if (entryPoint && isValidEntryPoint(entryPoint)) {
       const journey: SelectedVehicleJourney = {
-        unitId,
-        entryPoint: entryPoint as any,
+        unitId: trimmedUnitId,
+        entryPoint,
         timestamp: Date.now(),
       }
       window.localStorage.setItem(SELECTED_UNIT_JOURNEY_KEY, JSON.stringify(journey))
     }
-  } catch (err) {
-    console.error('Failed to set selected unit:', err)
+  } catch {
+    // Ignore storage errors in private browsing or restricted contexts.
   }
 }
 
@@ -46,9 +66,11 @@ export function getSelectedUnitId(): string | null {
   if (typeof window === 'undefined') return null
 
   try {
-    return window.localStorage.getItem(SELECTED_UNIT_STORAGE_KEY)
-  } catch (err) {
-    console.error('Failed to get selected unit:', err)
+    const value = window.localStorage.getItem(SELECTED_UNIT_STORAGE_KEY)
+    if (!value) return null
+    const trimmed = value.trim()
+    return trimmed.length > 0 ? trimmed : null
+  } catch {
     return null
   }
 }
@@ -61,9 +83,31 @@ export function getSelectedUnitJourney(): SelectedVehicleJourney | null {
 
   try {
     const raw = window.localStorage.getItem(SELECTED_UNIT_JOURNEY_KEY)
-    return raw ? JSON.parse(raw) : null
-  } catch (err) {
-    console.error('Failed to get selected unit journey:', err)
+    if (!raw) return null
+
+    const parsed: unknown = JSON.parse(raw)
+    if (!parsed || typeof parsed !== 'object') return null
+
+    const journey = parsed as Partial<SelectedVehicleJourney>
+    if (
+      typeof journey.unitId !== 'string' ||
+      !journey.unitId.trim() ||
+      !isValidEntryPoint(journey.entryPoint) ||
+      typeof journey.timestamp !== 'number' ||
+      !Number.isFinite(journey.timestamp)
+    ) {
+      return null
+    }
+
+    const maxAgeMs = 1000 * 60 * 60 * 24 * 14
+    if (Date.now() - journey.timestamp > maxAgeMs) return null
+
+    return {
+      unitId: journey.unitId.trim(),
+      entryPoint: journey.entryPoint,
+      timestamp: journey.timestamp,
+    }
+  } catch {
     return null
   }
 }

@@ -29,13 +29,19 @@ function normalizePath(path: string): string {
 function getHashPath(): string {
   const hash = window.location.hash
   if (!hash || hash === '#') return '/'
-  // Supabase auth redirects inject access_token / error_code into the URL
-  // fragment. Don't treat these as router paths — let Supabase's
-  // detectSessionInUrl consume them; redirect to home in the meantime.
+
+  // Supabase auth redirects inject tokens/errors into fragment.
   const fragment = hash.startsWith('#') ? hash.slice(1) : hash
-  if (fragment.includes('access_token=') || fragment.includes('error_code=') || fragment.includes('type=recovery')) {
+  if (
+    fragment.includes('access_token=') ||
+    fragment.includes('error_code=') ||
+    fragment.includes('type=recovery')
+  ) {
     return '/'
   }
+
+  // Malformed fragments should fail safe to root.
+  if (!fragment.startsWith('/')) return '/'
   return normalizePath(fragment)
 }
 
@@ -43,20 +49,28 @@ function setHashPath(path: string): void {
   window.location.hash = normalizePath(path)
 }
 
+function safeDecodePathSegment(value: string): string {
+  try {
+    return decodeURIComponent(value)
+  } catch {
+    return value
+  }
+}
+
 /** Match a pattern like /app/records/leads/:id against a path */
 export function matchRoute(
   pattern: string,
   path: string
 ): Record<string, string> | null {
-  const patternParts = pattern.split('/').filter(Boolean)
-  const pathParts = path.split('/').filter(Boolean)
+  const patternParts = normalizePath(pattern).split('/').filter(Boolean)
+  const pathParts = normalizePath(path).split('/').filter(Boolean)
 
   if (patternParts.length !== pathParts.length) return null
 
   const params: Record<string, string> = {}
   for (let i = 0; i < patternParts.length; i++) {
     if (patternParts[i].startsWith(':')) {
-      params[patternParts[i].slice(1)] = pathParts[i]
+      params[patternParts[i].slice(1)] = safeDecodePathSegment(pathParts[i])
     } else if (patternParts[i] !== pathParts[i]) {
       return null
     }

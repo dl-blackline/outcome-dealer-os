@@ -467,6 +467,7 @@ export function QuickAppPage() {
   }
 
   async function handleSubmit() {
+    if (submitting) return
     setSubmitting(true)
     setSubmitError(null)
 

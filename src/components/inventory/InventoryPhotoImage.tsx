@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { cn } from '@/lib/utils'
 import { getPremiumPlaceholderByBodyStyle } from '@/domains/inventory-photo/inventoryPhoto.placeholder'
 import type { InventoryPhotoRecord, InventoryRecord } from '@/domains/inventory/inventory.runtime'
@@ -32,6 +32,10 @@ export function InventoryPhotoImage({
     if (record) return pickBestInventoryPhoto(record)?.url
     return fallbackUrl
   }, [photo, record, fallbackUrl])
+
+  useEffect(() => {
+    setFailed(false)
+  }, [resolved])
 
   return (
     <img
