@@ -54,6 +54,10 @@ export function getCurrentJobState(): IngestionJobState {
   return { ...currentJobState }
 }
 
+/**
+ * Emit an ingestion event to all subscribers.
+ * Call this from real ingestion pipelines to stream progress to the UI.
+ */
 export function emitIngestionEvent(jobId: string, type: IngestionEventType, message: string, data?: Record<string, unknown>, confidence?: number): void {
   const event: IngestionEvent = {
     id: crypto.randomUUID(),
@@ -69,6 +73,10 @@ export function emitIngestionEvent(jobId: string, type: IngestionEventType, mess
   }
 }
 
+/**
+ * Update the current ingestion job state and notify all subscribers.
+ * Call this from real ingestion pipelines to update progress in the UI.
+ */
 export function updateIngestionJobState(patch: Partial<IngestionJobState>): void {
   currentJobState = { ...currentJobState, ...patch }
   for (const listener of jobStateListeners) {

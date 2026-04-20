@@ -18,6 +18,7 @@ export interface DashboardSignals {
 }
 
 export function getDashboardSignals(_role: AppRole): DashboardSignals {
+  // TODO: derive role-based metrics from real data sources when available
   return {
     metrics: [],
   }
