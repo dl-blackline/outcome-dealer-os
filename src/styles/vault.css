@@ -264,6 +264,18 @@
   }
 
   :root[data-theme='light'] .vault-shell {
+    /* Keep buyer-hub surfaces on a guaranteed light token set. */
+    --background: oklch(0.972 0.01 228);
+    --foreground: oklch(0.18 0.03 240);
+    --card: oklch(0.992 0.004 228);
+    --card-foreground: oklch(0.18 0.03 240);
+    --popover: oklch(0.992 0.004 228);
+    --popover-foreground: oklch(0.18 0.03 240);
+    --muted: oklch(0.942 0.012 228);
+    --muted-foreground: oklch(0.4 0.028 235);
+    --border: oklch(0.84 0.02 228);
+    --input: oklch(0.86 0.016 228);
+
     background:
       radial-gradient(circle at 5% 20%, rgba(119, 160, 215, 0.2), transparent 38%),
       radial-gradient(circle at 96% 2%, rgba(121, 164, 228, 0.18), transparent 32%),
