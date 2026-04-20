@@ -21,10 +21,6 @@ function now(): string {
   return new Date().toISOString()
 }
 
-function today(): string {
-  return new Date().toISOString().slice(0, 10)
-}
-
 function readJson<T>(key: string, fallback: T): T {
   if (typeof window === 'undefined') return fallback
   try {
@@ -42,189 +38,17 @@ function writeJson<T>(key: string, value: T): void {
   window.localStorage.setItem(key, JSON.stringify(value))
 }
 
-const SEED_UNITS: ReconUnit[] = [
-  {
-    id: 'recon-seed-1',
-    stockNumber: 'A1042',
-    year: 2022,
-    make: 'Ford',
-    model: 'F-150',
-    trim: 'XLT',
-    color: 'Oxford White',
-    currentStage: 'mechanical',
-    assignedTech: 'Mike R.',
-    targetDays: 7,
-    daysInRecon: 4,
-    totalReconCost: 1240,
-    floorPlanDailyRate: 12,
-    floorPlanAccrued: 48,
-    notes: 'Waiting on brake pads from vendor',
-    createdAt: now(),
-  },
-  {
-    id: 'recon-seed-2',
-    stockNumber: 'A1039',
-    year: 2021,
-    make: 'Chevrolet',
-    model: 'Silverado 1500',
-    trim: 'LT',
-    color: 'Summit White',
-    currentStage: 'detail',
-    assignedTech: 'Carlos V.',
-    targetDays: 7,
-    daysInRecon: 9,
-    totalReconCost: 2850,
-    floorPlanDailyRate: 14,
-    floorPlanAccrued: 126,
-    createdAt: now(),
-  },
-  {
-    id: 'recon-seed-3',
-    stockNumber: 'A1051',
-    year: 2023,
-    make: 'Toyota',
-    model: 'Camry',
-    trim: 'SE',
-    color: 'Midnight Black',
-    currentStage: 'photos',
-    assignedTech: 'Jess L.',
-    targetDays: 5,
-    daysInRecon: 3,
-    totalReconCost: 490,
-    floorPlanDailyRate: 8,
-    floorPlanAccrued: 24,
-    createdAt: now(),
-  },
-  {
-    id: 'recon-seed-4',
-    stockNumber: 'A1033',
-    year: 2020,
-    make: 'Honda',
-    model: 'CR-V',
-    trim: 'EX',
-    color: 'Lunar Silver',
-    currentStage: 'on_hold',
-    targetDays: 7,
-    daysInRecon: 14,
-    totalReconCost: 3100,
-    floorPlanDailyRate: 10,
-    floorPlanAccrued: 140,
-    notes: 'Waiting on insurance approval for bumper repair',
-    createdAt: now(),
-  },
-]
-
-const SEED_ISSUES: ReconIssue[] = [
-  {
-    id: 'issue-seed-1',
-    reconUnitId: 'recon-seed-1',
-    title: 'Front brake pads worn',
-    category: 'mechanical',
-    severity: 'high',
-    status: 'in_progress',
-    estimatedCost: 320,
-    assignedTo: 'Mike R.',
-    createdAt: now(),
-  },
-  {
-    id: 'issue-seed-2',
-    reconUnitId: 'recon-seed-2',
-    title: 'Minor dent — passenger door',
-    category: 'body',
-    severity: 'medium',
-    status: 'resolved',
-    estimatedCost: 450,
-    actualCost: 420,
-    assignedTo: 'Body Shop',
-    createdAt: now(),
-  },
-  {
-    id: 'issue-seed-3',
-    reconUnitId: 'recon-seed-4',
-    title: 'Rear bumper damage',
-    category: 'body',
-    severity: 'high',
-    status: 'open',
-    estimatedCost: 1200,
-    notes: 'Pending insurance claim',
-    createdAt: now(),
-  },
-]
-
-const SEED_COSTS: ReconCostEntry[] = [
-  {
-    id: 'cost-seed-1',
-    reconUnitId: 'recon-seed-1',
-    category: 'mechanical',
-    description: 'Oil change + inspection',
-    vendor: 'In-House',
-    amount: 120,
-    date: today(),
-    createdAt: now(),
-  },
-  {
-    id: 'cost-seed-2',
-    reconUnitId: 'recon-seed-1',
-    category: 'parts',
-    description: 'Brake pads (front)',
-    vendor: 'AutoZone',
-    amount: 180,
-    date: today(),
-    createdAt: now(),
-  },
-  {
-    id: 'cost-seed-3',
-    reconUnitId: 'recon-seed-2',
-    category: 'body',
-    description: 'Passenger door dent repair',
-    vendor: 'Premier Body Shop',
-    invoiceNumber: 'PB-4421',
-    amount: 420,
-    date: today(),
-    createdAt: now(),
-  },
-  {
-    id: 'cost-seed-4',
-    reconUnitId: 'recon-seed-2',
-    category: 'detail',
-    description: 'Full detail + paint correction',
-    vendor: 'In-House',
-    amount: 280,
-    date: today(),
-    createdAt: now(),
-  },
-  {
-    id: 'cost-seed-5',
-    reconUnitId: 'recon-seed-3',
-    category: 'inspection',
-    description: '150-point inspection',
-    vendor: 'In-House',
-    amount: 95,
-    date: today(),
-    createdAt: now(),
-  },
-]
-
 export function useReconRuntime() {
   const [units, setUnits] = useState<ReconUnit[]>(() => {
-    const stored = readJson<ReconUnit[]>(KEYS.units, [])
-    if (stored.length > 0) return stored
-    writeJson(KEYS.units, SEED_UNITS)
-    return SEED_UNITS
+    return readJson<ReconUnit[]>(KEYS.units, [])
   })
 
   const [issues, setIssues] = useState<ReconIssue[]>(() => {
-    const stored = readJson<ReconIssue[]>(KEYS.issues, [])
-    if (stored.length > 0) return stored
-    writeJson(KEYS.issues, SEED_ISSUES)
-    return SEED_ISSUES
+    return readJson<ReconIssue[]>(KEYS.issues, [])
   })
 
   const [costEntries, setCostEntries] = useState<ReconCostEntry[]>(() => {
-    const stored = readJson<ReconCostEntry[]>(KEYS.costs, [])
-    if (stored.length > 0) return stored
-    writeJson(KEYS.costs, SEED_COSTS)
-    return SEED_COSTS
+    return readJson<ReconCostEntry[]>(KEYS.costs, [])
   })
 
   const [activity, setActivity] = useState<ReconActivity[]>(() =>

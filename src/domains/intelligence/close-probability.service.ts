@@ -147,30 +147,9 @@ export async function listCloseProbabilities(): Promise<ServiceResult<CloseProba
 }
 
 /**
- * Seed demo close probability scores so the UI has something to show.
+ * Close probability scores are no longer seeded automatically with demo data.
+ * Scores are generated as real deals are created and processed.
  */
-let seededProbability = false
-
 export async function ensureCloseProbabilitySeeded(): Promise<void> {
-  if (seededProbability) return
-  seededProbability = true
-
-  const existing = await db.findMany<CloseProbabilityRow>(TABLE)
-  if (existing.length > 0) return
-
-  await scoreCloseProbability('deal-001', {
-    repPerformanceScore: 0.82,
-    customerHistoryScore: 0.70,
-    dealValueScore: 0.75,
-    engagementSpeedScore: 0.90,
-    sourceQualityScore: 0.80,
-  })
-
-  await scoreCloseProbability('deal-002', {
-    repPerformanceScore: 0.65,
-    customerHistoryScore: 0.55,
-    dealValueScore: 0.60,
-    engagementSpeedScore: 0.70,
-    sourceQualityScore: 0.75,
-  })
+  // No-op: demo seeding removed. Scores are generated via real deal processing.
 }

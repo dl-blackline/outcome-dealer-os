@@ -115,23 +115,27 @@ export function DashboardPage() {
             <CardTitle>Recent Leads</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {leads.data.map(lead => (
-                <div key={lead.id} className="flex items-center justify-between border-b border-border pb-3 last:border-0 cursor-pointer hover:bg-accent/20 rounded px-2 -mx-2 transition-colors" onClick={() => navigate(`/app/records/leads/${lead.id}`)}>
-                  <div>
-                    <p className="font-medium">{lead.customerName}</p>
-                    <p className="text-sm text-muted-foreground">{lead.source} • Score: {lead.score}</p>
+            {leads.data.length === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">No leads yet. New leads will appear here.</p>
+            ) : (
+              <div className="space-y-4">
+                {leads.data.map(lead => (
+                  <div key={lead.id} className="flex items-center justify-between border-b border-border pb-3 last:border-0 cursor-pointer hover:bg-accent/20 rounded px-2 -mx-2 transition-colors" onClick={() => navigate(`/app/records/leads/${lead.id}`)}>
+                    <div>
+                      <p className="font-medium">{lead.customerName}</p>
+                      <p className="text-sm text-muted-foreground">{lead.source} • Score: {lead.score}</p>
+                    </div>
+                    <StatusPill variant={
+                      lead.status === 'converted' ? 'success' :
+                      lead.status === 'qualified' ? 'info' :
+                      lead.status === 'contacted' ? 'warning' : 'neutral'
+                    }>
+                      {lead.status}
+                    </StatusPill>
                   </div>
-                  <StatusPill variant={
-                    lead.status === 'converted' ? 'success' :
-                    lead.status === 'qualified' ? 'info' :
-                    lead.status === 'contacted' ? 'warning' : 'neutral'
-                  }>
-                    {lead.status}
-                  </StatusPill>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -140,26 +144,30 @@ export function DashboardPage() {
             <CardTitle>Active Deals</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {deals.data.map(deal => (
-                <div key={deal.id} className="flex items-center justify-between border-b border-border pb-3 last:border-0 cursor-pointer hover:bg-accent/20 rounded px-2 -mx-2 transition-colors" onClick={() => navigate(`/app/records/deals/${deal.id}`)}>
-                  <div>
-                    <p className="font-medium">{deal.customerName}</p>
-                    <p className="text-sm text-muted-foreground">{deal.vehicleDescription}</p>
+            {deals.data.length === 0 ? (
+              <p className="py-6 text-center text-sm text-muted-foreground">No deals yet. Convert a lead to start a deal.</p>
+            ) : (
+              <div className="space-y-4">
+                {deals.data.map(deal => (
+                  <div key={deal.id} className="flex items-center justify-between border-b border-border pb-3 last:border-0 cursor-pointer hover:bg-accent/20 rounded px-2 -mx-2 transition-colors" onClick={() => navigate(`/app/records/deals/${deal.id}`)}>
+                    <div>
+                      <p className="font-medium">{deal.customerName}</p>
+                      <p className="text-sm text-muted-foreground">{deal.vehicleDescription}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-semibold">${deal.amount.toLocaleString()}</p>
+                      <StatusPill variant={
+                        deal.status === 'funded' ? 'success' :
+                        deal.status === 'signed' ? 'info' :
+                        deal.status === 'quoted' ? 'warning' : 'neutral'
+                      }>
+                        {deal.status}
+                      </StatusPill>
+                    </div>
                   </div>
-                  <div className="text-right">
-                    <p className="font-semibold">${deal.amount.toLocaleString()}</p>
-                    <StatusPill variant={
-                      deal.status === 'funded' ? 'success' :
-                      deal.status === 'signed' ? 'info' :
-                      deal.status === 'quoted' ? 'warning' : 'neutral'
-                    }>
-                      {deal.status}
-                    </StatusPill>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -169,29 +177,33 @@ export function DashboardPage() {
           <CardTitle>Your Tasks</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            {tasks.data.map(task => (
-              <div key={task.id} className="flex items-center justify-between p-3 rounded-lg border border-border">
-                <div className="flex items-center gap-3">
-                  <input type="checkbox" checked={task.status === 'completed'} readOnly className="h-4 w-4" />
-                  <div>
-                    <p className={task.status === 'completed' ? 'line-through text-muted-foreground' : 'font-medium'}>
-                      {task.title}
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      Due: {task.dueDate} • {task.assignedTo}
-                    </p>
+          {tasks.data.length === 0 ? (
+            <p className="py-6 text-center text-sm text-muted-foreground">No tasks yet. Tasks assigned to you will appear here.</p>
+          ) : (
+            <div className="space-y-3">
+              {tasks.data.map(task => (
+                <div key={task.id} className="flex items-center justify-between p-3 rounded-lg border border-border">
+                  <div className="flex items-center gap-3">
+                    <input type="checkbox" checked={task.status === 'completed'} readOnly className="h-4 w-4" />
+                    <div>
+                      <p className={task.status === 'completed' ? 'line-through text-muted-foreground' : 'font-medium'}>
+                        {task.title}
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        Due: {task.dueDate} • {task.assignedTo}
+                      </p>
+                    </div>
                   </div>
+                  <StatusPill variant={
+                    task.priority === 'high' ? 'danger' :
+                    task.priority === 'medium' ? 'warning' : 'neutral'
+                  }>
+                    {task.priority}
+                  </StatusPill>
                 </div>
-                <StatusPill variant={
-                  task.priority === 'high' ? 'danger' :
-                  task.priority === 'medium' ? 'warning' : 'neutral'
-                }>
-                  {task.priority}
-                </StatusPill>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
