@@ -22,6 +22,7 @@ import {
   Clock,
   FileText,
   Warning,
+  Printer,
 } from '@phosphor-icons/react'
 
 const STAGES = ['structured', 'quoted', 'signed', 'funded', 'delivered'] as const
@@ -50,7 +51,7 @@ export function DealRecordPage() {
   const dealId = useRouteParam('id')
   const dealQuery = useDeal(dealId)
   const approvalsQuery = useApprovals()
-  const eventsQuery = useEntityEvents(params.id ?? '')
+  const eventsQuery = useEntityEvents(dealId)
   const leadsQuery = useLeads()
   const inventoryQuery = useInventory()
 
@@ -76,7 +77,13 @@ export function DealRecordPage() {
   return (
     <div className="ods-page ods-flow-lg">
       <Button variant="ghost" size="sm" onClick={() => navigate('/app/records/deals')} className="gap-2"><ArrowLeft className="h-4 w-4" /> Deals</Button>
-      <SectionHeader title={`${deal.customerName} — ${deal.vehicleDescription}`} description={`Deal record • Created ${new Date(deal.createdAt).toLocaleDateString()}`} />
+      <SectionHeader title={`${deal.customerName} — ${deal.vehicleDescription}`} description={`Deal record • Created ${new Date(deal.createdAt).toLocaleDateString()}`}
+        action={
+          <Button onClick={() => navigate(`/app/records/deals/${dealId}/forms`)} className="gap-2">
+            <Printer className="h-4 w-4" /> Print Deal Forms
+          </Button>
+        }
+      />
 
       <Card><CardContent className="py-4"><div className="flex items-center justify-between">
         {STAGES.map((s, i) => (
