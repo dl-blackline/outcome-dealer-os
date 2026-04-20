@@ -2,12 +2,6 @@ import { useState, useMemo } from 'react'
 import {
   ChartBar,
   Lightning,
-  Car,
-  CurrencyDollar,
-  Briefcase,
-  Wrench,
-  UsersThree,
-  Globe,
   Plus,
   Play,
   FloppyDisk,
@@ -15,13 +9,8 @@ import {
   Trash,
   PushPin,
   PencilSimple,
-  ArrowDown,
-  ArrowUp,
   BellRinging,
   CheckCircle,
-  WarningCircle,
-  ClockCountdown,
-  Download,
   CalendarBlank,
   Funnel,
   X,
@@ -235,220 +224,16 @@ const HOUR_OPTIONS = Array.from({ length: 24 }, (_, i) => {
   return { value: val, label: `${h}:00 ${ampm}` }
 })
 
-// ─── Mock data generators ─────────────────────────────────────────────────────
-
-function generateMockRows(source: ReportDataSource, count = 8): Record<string, unknown>[] {
-  const makes = ['Toyota', 'Ford', 'Chevrolet', 'Honda', 'Nissan', 'BMW', 'Mercedes']
-  const models = ['Camry', 'F-150', 'Silverado', 'Civic', 'Altima', '3 Series', 'C300']
-  const statuses = ['Active', 'In Recon', 'Pending', 'On Hold']
-  const names = ['James Miller', 'Sarah Johnson', 'Robert Davis', 'Linda Wilson', 'Mike Thompson']
-  const lenders = ['Chase', 'Capital One', 'Ally Financial', 'TD Auto', 'Bank of America']
-  const salespersons = ['Alex Turner', 'Jordan Lee', 'Casey Morgan', 'Taylor Brooks']
-
-  return Array.from({ length: count }, (_, i) => {
-    const make = makes[i % makes.length]
-    const model = models[i % models.length]
-    const vehicle = `202${(i % 5) + 1} ${make} ${model}`
-    const base: Record<string, unknown> = {
-      stock_number: `S${(10000 + i * 137).toString()}`,
-      year_make_model: vehicle,
-      vehicle,
-      make,
-      model,
-      year: 2021 + (i % 5),
-      vin: `1HGCM82633A${(100000 + i * 7).toString()}`,
-      status: statuses[i % statuses.length],
-      days_in_stock: 15 + i * 7,
-      days_in_recon: 3 + i * 2,
-      days_pending: 1 + i * 3,
-      days_no_activity: i * 2,
-      days_overdue: i,
-      days_open: i * 4,
-      list_price: 18000 + i * 1250,
-      cost: 14000 + i * 900,
-      total_invested: 15000 + i * 950,
-      purchase_price: 13500 + i * 800,
-      recon_cost: 800 + i * 150,
-      other_costs: 200 + i * 50,
-      parts_cost: 400 + i * 80,
-      labor_cost: 300 + i * 60,
-      sublet_cost: 100 + i * 20,
-      total_recon: 800 + i * 160,
-      photo_count: i % 4 === 0 ? 2 : 10 + i,
-      mileage: 25000 + i * 3500,
-      color: ['White', 'Black', 'Silver', 'Blue', 'Red'][i % 5],
-      front_gross: 1200 + i * 180,
-      back_gross: 800 + i * 120,
-      total_gross: 2000 + i * 300,
-      deal_number: `D${(20000 + i * 113).toString()}`,
-      customer_name: names[i % names.length],
-      salesperson: salespersons[i % salespersons.length],
-      fi_manager: ['Kim Ross', 'Pat Cruz'][i % 2],
-      sale_date: `2024-0${(i % 9) + 1}-${(i + 10).toString().padStart(2, '0')}`,
-      delivery_date: `2024-0${(i % 9) + 1}-${(i + 12).toString().padStart(2, '0')}`,
-      lender: lenders[i % lenders.length],
-      deal_amount: 22000 + i * 1500,
-      applicant_name: names[i % names.length],
-      submitted_date: `2024-0${(i % 9) + 1}-0${(i % 9) + 1}`,
-      amount_requested: 18000 + i * 1200,
-      rate: 5.9 + i * 0.3,
-      term: [24, 36, 48, 60, 72][i % 5],
-      source: ['Website', 'Phone', 'Walk-in', 'Referral', 'AutoTrader'][i % 5],
-      assigned_to: salespersons[i % salespersons.length],
-      created_date: `2024-0${(i % 9) + 1}-0${(i % 9) + 1}`,
-      vehicle_interest: vehicle,
-      recon_stage: ['Intake', 'Mechanical', 'Cosmetic', 'Detail', 'Photos'][i % 5],
-      technician: ['Jake', 'Maria', 'Sam', 'Chris'][i % 4],
-      estimated_complete: `2024-0${(i % 9) + 2}-0${(i + 1) % 28 + 1}`,
-      title_status: ['Pending', 'Received', 'Cleared'][i % 3],
-      reg_status: ['Pending', 'Submitted', 'Complete'][i % 3],
-      payoff_status: ['Pending', 'Confirmed'][i % 2],
-      exception_type: ['Reserve Diff', 'Missing Sig', 'Stip Needed'][i % 3],
-      amount: 250 + i * 75,
-      missing_docs: ['ID', 'Proof of Income', 'Insurance'][i % 3],
-      task_type: ['Call', 'Email', 'Appointment', 'Follow-Up'][i % 4],
-      due_date: `2024-0${(i % 9) + 1}-${(i + 10).toString().padStart(2, '0')}`,
-      notes: 'Follow up on financing options.',
-      health_score: 60 + i * 4,
-      has_description: i % 3 !== 0,
-      is_listed: i % 5 !== 0,
-      listing_title: `${2021 + (i % 5)} ${make} ${model} — Low Miles, Clean Title`,
-      quality_flags: i % 3 === 0 ? 'Missing Photos' : 'OK',
-      floored_amount: 14000 + i * 900,
-      accrued_interest: 120 + i * 30,
-      total_carrying: 200 + i * 55,
-      is_floored: i % 2 === 0,
-      margin_pct: 8 + i * 1.5,
-      potential_gross: 3000 + i * 300,
-      dealer_pack: 500,
-      fuel_cost: 45 + i * 5,
-      soft_costs: 150 + i * 25,
-      total: 695 + i * 30,
-      age_bucket: ['0-30', '31-60', '61-90', '90+'][i % 4],
-      channel: i % 2 === 0 ? 'Retail' : 'Wholesale',
-      is_featured: i % 3 === 0,
-      journey_stage: ['New Lead', 'Contacted', 'Visited', 'Test Drive', 'Negotiating'][i % 5],
-      days_in_stage: 1 + i * 2,
-      next_step: ['Call back', 'Send proposal', 'Schedule visit', 'Present offer'][i % 4],
-      last_activity: `2024-0${(i % 9) + 1}-0${(i % 9) + 1}`,
-      temp_tag_expiry: `2024-0${(i % 9) + 2}-0${(i + 1) % 28 + 1}`,
-      payoff_amount: 8000 + i * 500,
-      trade_vehicle: `2019 ${makes[(i + 2) % makes.length]} ${models[(i + 2) % models.length]}`,
-      finalize_ready: i % 3 === 0,
-      checklist_status: i % 3 === 0 ? 'Complete' : 'Incomplete',
-      missing_stips: i % 3 === 0 ? 'Proof of Insurance' : '',
-      has_missing_stips: i % 3 === 0,
-      has_missing_docs: i % 4 === 0,
-      exception_reason: i % 3 === 0 ? 'Below Min Margin' : 'OK',
-      recon_status: ['In Progress', 'Completed', 'On Hold'][i % 3],
-      issue_type: ['Mechanical', 'Cosmetic', 'Electrical'][i % 3],
-      severity: ['Low', 'Medium', 'High', 'Critical'][i % 4],
-      issue_status: 'Open',
-      assigned_tech: ['Jake', 'Maria', 'Sam'][i % 3],
-      date_observed: `2024-0${(i % 9) + 1}-0${(i % 9) + 1}`,
-      channel_obs: ['Website', 'Social', 'AutoTrader', 'Email'][i % 4],
-      observation: 'Listing missing price on third-party site',
-      co_applicant: i % 2 === 0 ? names[(i + 1) % names.length] : '',
-    }
-    return base
-  })
-}
-
-// ─── Utility helpers ──────────────────────────────────────────────────────────
-
-function formatCell(value: unknown, format?: ReportColumn['format']): string {
-  if (value === null || value === undefined) return '—'
-  if (format === 'currency') {
-    const num = typeof value === 'number' ? value : parseFloat(String(value))
-    return isNaN(num) ? '—' : `$${num.toLocaleString('en-US', { minimumFractionDigits: 0 })}`
-  }
-  if (format === 'number') {
-    const num = typeof value === 'number' ? value : parseFloat(String(value))
-    return isNaN(num) ? '—' : num.toLocaleString('en-US', { maximumFractionDigits: 1 })
-  }
-  if (format === 'date') {
-    const s = String(value)
-    if (!s || s === 'today' || s === 'week_start' || s === 'month_start') return s
-    try {
-      return new Date(s).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
-    } catch {
-      return s
-    }
-  }
-  return String(value)
-}
-
-function exportToCsv(rows: Record<string, unknown>[], columns: ReportColumn[], name: string) {
-  const header = columns.map((c) => c.label).join(',')
-  const body = rows
-    .map((row) =>
-      columns
-        .map((c) => {
-          const v = row[c.field]
-          const s = formatCell(v, c.format)
-          return `"${s.replace(/"/g, '""')}"`
-        })
-        .join(',')
-    )
-    .join('\n')
-  const csv = `${header}\n${body}`
-  const blob = new Blob([csv], { type: 'text/csv' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `${name.replace(/\s+/g, '_')}.csv`
-  a.click()
-  URL.revokeObjectURL(url)
-}
-
 // ─── Sub-components ───────────────────────────────────────────────────────────
-
-interface MetricCardProps {
-  label: string
-  value: string | number
-  sub?: string
-  variant?: 'default' | 'warning' | 'danger' | 'success'
-  icon: React.ReactNode
-  onClick?: () => void
-}
-
-function MetricCard({ label, value, sub, variant = 'default', icon, onClick }: MetricCardProps) {
-  const variantClass = {
-    default: 'border-border',
-    warning: 'border-yellow-500/40 bg-yellow-500/5',
-    danger: 'border-red-500/40 bg-red-500/5',
-    success: 'border-green-500/40 bg-green-500/5',
-  }[variant]
-
-  return (
-    <Card
-      className={cn('border transition-all', variantClass, onClick && 'cursor-pointer hover:shadow-md')}
-      onClick={onClick}
-    >
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0 flex-1">
-            <p className="text-xs font-medium text-muted-foreground truncate">{label}</p>
-            <p className="mt-1 text-2xl font-bold tabular-nums">{value}</p>
-            {sub && <p className="mt-0.5 text-xs text-muted-foreground">{sub}</p>}
-          </div>
-          <div className="shrink-0 text-muted-foreground/60">{icon}</div>
-        </div>
-      </CardContent>
-    </Card>
-  )
-}
 
 interface ReportResultDialogProps {
   open: boolean
   onClose: () => void
   reportName: string
-  source: ReportDataSource
   columns: ReportColumn[]
 }
 
-function ReportResultDialog({ open, onClose, reportName, source, columns }: ReportResultDialogProps) {
-  const rows = useMemo(() => generateMockRows(source), [source])
+function ReportResultDialog({ open, onClose, reportName, columns }: ReportResultDialogProps) {
   const displayColumns = columns.slice(0, 7)
 
   return (
@@ -460,7 +245,7 @@ function ReportResultDialog({ open, onClose, reportName, source, columns }: Repo
             {reportName}
           </DialogTitle>
           <DialogDescription>
-            {rows.length} records returned · Generated {new Date().toLocaleString()}
+            Generated {new Date().toLocaleString()}
           </DialogDescription>
         </DialogHeader>
         <StickyTableShell scrollOffset="14rem" className="flex-1">
@@ -475,31 +260,15 @@ function ReportResultDialog({ open, onClose, reportName, source, columns }: Repo
               </TableRow>
             </TableHeader>
             <TableBody>
-              {rows.map((row, ri) => (
-                <TableRow key={ri}>
-                  {displayColumns.map((col) => {
-                    const val = row[col.field]
-                    const formatted = formatCell(val, col.format)
-                    return (
-                      <TableCell key={col.field} className="text-xs whitespace-nowrap">
-                        {col.format === 'badge' ? (
-                          <Badge variant="secondary" className="text-xs">{formatted}</Badge>
-                        ) : (
-                          formatted
-                        )}
-                      </TableCell>
-                    )
-                  })}
-                </TableRow>
-              ))}
+              <TableRow>
+                <TableCell colSpan={Math.max(displayColumns.length, 1)} className="py-12 text-center text-sm text-muted-foreground">
+                  No data yet. Records will appear here once data is available.
+                </TableCell>
+              </TableRow>
             </TableBody>
           </Table>
         </StickyTableShell>
         <DialogFooter>
-          <Button variant="outline" size="sm" onClick={() => exportToCsv(rows, displayColumns, reportName)}>
-            <Download className="h-4 w-4 mr-1.5" />
-            Export CSV
-          </Button>
           <Button size="sm" onClick={onClose}>Close</Button>
         </DialogFooter>
       </DialogContent>
@@ -510,19 +279,6 @@ function ReportResultDialog({ open, onClose, reportName, source, columns }: Repo
 // ─── Dashboard Tab ────────────────────────────────────────────────────────────
 
 function DashboardTab({ onRunTemplate }: { onRunTemplate: (templateId: string) => void }) {
-  const metrics: MetricCardProps[] = [
-    { label: 'Total Active Inventory', value: 142, sub: '12 added this week', variant: 'default', icon: <Car className="h-6 w-6" /> },
-    { label: 'Aged Inventory (30+ days)', value: 38, sub: '26.8% of total', variant: 'warning', icon: <ClockCountdown className="h-6 w-6" /> },
-    { label: 'Units In Recon', value: 17, sub: 'Avg 5.2 days', variant: 'default', icon: <Wrench className="h-6 w-6" /> },
-    { label: 'Open Title Exceptions', value: 9, sub: '3 over 30 days', variant: 'danger', icon: <WarningCircle className="h-6 w-6" /> },
-    { label: "Today's Sold Deals", value: 6, sub: '$18,400 total gross', variant: 'success', icon: <CheckCircle className="h-6 w-6" /> },
-    { label: 'Unfunded Deals', value: 14, sub: '2 over 14 days', variant: 'warning', icon: <CurrencyDollar className="h-6 w-6" /> },
-    { label: 'Missing Docs', value: 7, sub: 'Across 7 deals', variant: 'danger', icon: <WarningCircle className="h-6 w-6" /> },
-    { label: 'Recon Spend This Week', value: '$11,340', sub: '+8% vs last week', variant: 'default', icon: <Wrench className="h-6 w-6" /> },
-    { label: 'Floor Plan Exposure', value: '$2.1M', sub: '142 units floored', variant: 'default', icon: <CurrencyDollar className="h-6 w-6" /> },
-    { label: 'Red Flag Items', value: 5, sub: 'Requires attention', variant: 'danger', icon: <WarningCircle className="h-6 w-6" /> },
-  ]
-
   const quickLinks = [
     { id: 'inv-aging', label: 'Aging Inventory' },
     { id: 'sales-unfunded-aging', label: 'Unfunded Deals' },
@@ -538,12 +294,12 @@ function DashboardTab({ onRunTemplate }: { onRunTemplate: (templateId: string) =
     <div className="space-y-6">
       <div>
         <h2 className="text-lg font-semibold mb-1">Executive Pulse</h2>
-        <p className="text-sm text-muted-foreground">Key metrics across all operational areas · Live data preview</p>
+        <p className="text-sm text-muted-foreground">Key metrics across all operational areas · Connect a live data source to populate</p>
       </div>
-      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-        {metrics.map((m) => (
-          <MetricCard key={m.label} {...m} />
-        ))}
+      <div className="flex flex-col items-center justify-center py-12 text-center rounded-lg border border-dashed border-border">
+        <ChartBar className="h-10 w-10 mb-3 text-muted-foreground/30" />
+        <p className="font-medium text-muted-foreground">No report data yet</p>
+        <p className="text-sm text-muted-foreground mt-1">Run a report template below to see operational metrics here</p>
       </div>
       <Separator />
       <div>
@@ -890,13 +646,6 @@ function BuilderTab({ onSaveReport }: { onSaveReport: (report: Omit<SavedReport,
           <Play className="h-4 w-4 mr-1.5" />
           Run Now
         </Button>
-        <Button
-          variant="outline"
-          onClick={() => exportToCsv(generateMockRows(source), resultColumns, name || 'Report')}
-        >
-          <Download className="h-4 w-4 mr-1.5" />
-          Export CSV
-        </Button>
         {saveMsg && <span className="text-sm text-green-600 font-medium">{saveMsg}</span>}
       </div>
 
@@ -904,7 +653,6 @@ function BuilderTab({ onSaveReport }: { onSaveReport: (report: Omit<SavedReport,
         open={resultOpen}
         onClose={() => setResultOpen(false)}
         reportName={name || 'Custom Report'}
-        source={source}
         columns={resultColumns}
       />
     </div>
@@ -993,7 +741,6 @@ function SavedTab({
           open={Boolean(runningReport)}
           onClose={() => setRunningReport(null)}
           reportName={runningReport.name}
-          source={runningReport.source}
           columns={runningReport.columns}
         />
       )}
@@ -1436,7 +1183,6 @@ export function ReportsPage() {
           open={Boolean(runTemplate)}
           onClose={() => setRunTemplateId(null)}
           reportName={runTemplate.name}
-          source={runTemplate.dataSource}
           columns={runTemplate.defaultColumns}
         />
       )}
@@ -1447,7 +1193,6 @@ export function ReportsPage() {
           open={Boolean(runSavedReport)}
           onClose={() => setRunSavedReport(null)}
           reportName={runSavedReport.name}
-          source={runSavedReport.source}
           columns={runSavedReport.columns}
         />
       )}
