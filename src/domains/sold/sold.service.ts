@@ -34,6 +34,7 @@ const INVENTORY_TABLE = 'inventory_units'
 
 interface MockDealRow {
   id: UUID
+  lead_id?: UUID
   customer_name: string
   vehicle_description: string
   inventory_unit_id?: string
