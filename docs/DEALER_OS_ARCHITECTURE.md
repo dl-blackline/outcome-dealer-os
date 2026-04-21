@@ -12,7 +12,7 @@ Outcome Dealer OS is a React/TypeScript frontend application backed by a KV-stor
 
 | Layer | Technology |
 |---|---|
-| UI Framework | React 18 + TypeScript |
+| UI Framework | React 19 + TypeScript |
 | Build | Vite 7 |
 | Routing | Custom hash router (`src/app/router/`) |
 | State | React hooks + localStorage for operational domains |

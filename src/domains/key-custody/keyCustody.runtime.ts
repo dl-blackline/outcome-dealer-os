@@ -75,10 +75,33 @@ function deriveStatuses(events: KeyCustodyEvent[]): KeyCustodyStatus[] {
       latest.eventType === 'checked_out' || latest.eventType === 'transferred'
     const isLost = latest.eventType === 'lost'
 
+    // Trace back to the original checked_out event that started the current out-session.
+    // A transfer keeps keys out of the board, so we must not reset the timer on transfer.
+    // Scan backward (oldest-first) from the latest event; the current out-session began
+    // at the most recent checked_out event that was not subsequently followed by a
+    // checked_in or found event.
+    let checkedOutAt: string | undefined
+    if (isCheckedOut) {
+      // Walk events oldest→newest to find the checked_out that opened this session
+      const chronological = sorted.slice().reverse()
+      let sessionStart: string | undefined
+      for (const e of chronological) {
+        if (e.eventType === 'checked_in' || e.eventType === 'found') {
+          // Keys returned to board — reset session start
+          sessionStart = undefined
+        } else if (e.eventType === 'checked_out') {
+          // Mark/update session start at each checkout
+          sessionStart = e.timestamp
+        }
+        // transferred keeps sessionStart unchanged (keys still out)
+      }
+      checkedOutAt = sessionStart ?? latest.timestamp
+    }
+
     let minutesOut: number | undefined
-    if (isCheckedOut && latest.timestamp) {
+    if (isCheckedOut && checkedOutAt) {
       minutesOut = Math.round(
-        (Date.now() - new Date(latest.timestamp).getTime()) / 60_000
+        (Date.now() - new Date(checkedOutAt).getTime()) / 60_000
       )
     }
 
@@ -89,7 +112,7 @@ function deriveStatuses(events: KeyCustodyEvent[]): KeyCustodyStatus[] {
       isCheckedOut,
       currentHolder: isCheckedOut ? latest.checkedOutTo ?? latest.checkedInBy : undefined,
       currentReason: isCheckedOut ? latest.checkoutReason : undefined,
-      checkedOutAt: isCheckedOut ? latest.timestamp : undefined,
+      checkedOutAt,
       isLost,
       minutesOut,
       events: sorted,

@@ -160,7 +160,7 @@ export function HouseholdRecordPage() {
       {/* Purchase History — sold records linked via deal chain: household → leads → deals → sold_records */}
       <PurchaseHistoryCard
         soldRecords={purchasedVehicles}
-        loading={soldQuery.loading}
+        loading={leadsQuery.loading || dealsQuery.loading || soldQuery.loading}
         onNavigate={navigate}
       />
 

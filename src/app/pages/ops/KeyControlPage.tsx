@@ -357,7 +357,7 @@ function ActionDialog({
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function KeyControlPage() {
-  const { statuses, events, checkOut, checkIn, transfer, reportLost, reportFound, checkOut: co } = useKeyCustodyRuntime()
+  const { statuses, events, checkOut, checkIn, transfer, reportLost, reportFound } = useKeyCustodyRuntime()
   const [dialogState, setDialogState] = useState<DialogState>({ mode: null })
   const [search, setSearch] = useState('')
 
