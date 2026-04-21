@@ -26,7 +26,7 @@ export function InventoryListPage() {
   const { navigate } = useRouter()
   const inventory = useInventoryCatalog()
   const [search, setSearch] = useState('')
-  const [statusFilter, setStatusFilter] = useState<'all' | 'frontline' | 'recon' | 'inventory' | 'sold' | 'wholesale'>('all')
+  const [statusFilter, setStatusFilter] = useState<'active' | 'frontline' | 'recon' | 'inventory' | 'sold' | 'delivered' | 'wholesale' | 'all'>('active')
   const [visibilityFilter, setVisibilityFilter] = useState<'all' | 'public' | 'draft'>('all')
   const [featuredFilter, setFeaturedFilter] = useState<'all' | 'featured' | 'not-featured'>('all')
   const [viewMode, setViewMode] = useState<InventoryViewMode>(() => readStoredViewMode())
@@ -37,11 +37,18 @@ export function InventoryListPage() {
     }
   }, [viewMode])
 
+  const SOLD_STATUSES = new Set(['sold', 'delivered'])
+
   const filtered = useMemo(() => {
     const normalizedSearch = search.trim().toLowerCase()
     return inventory.records.filter((u) => {
       const desc = `${u.year} ${u.make} ${u.model} ${u.trim} ${u.vin || ''} ${u.stockNumber || ''}`.toLowerCase()
-      const statusOk = statusFilter === 'all' || u.status === statusFilter
+      const statusOk =
+        statusFilter === 'all'
+          ? true
+          : statusFilter === 'active'
+            ? !SOLD_STATUSES.has(u.status)
+            : u.status === statusFilter
       const visibilityOk = visibilityFilter === 'all' || (visibilityFilter === 'public' ? u.isPublished : !u.isPublished)
       const featuredOk = featuredFilter === 'all' || (featuredFilter === 'featured' ? u.isFeatured : !u.isFeatured)
       return (!normalizedSearch || desc.includes(normalizedSearch)) && statusOk && visibilityOk && featuredOk
@@ -70,12 +77,14 @@ export function InventoryListPage() {
             className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm placeholder:text-muted-foreground sm:w-72"
           />
           <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)} className="h-9 rounded-md border border-input bg-background px-3 text-xs uppercase tracking-[0.08em]">
-            <option value="all">All Status</option>
+            <option value="active">Active Inventory</option>
             <option value="frontline">Frontline</option>
             <option value="inventory">Inventory</option>
             <option value="recon">Recon</option>
-            <option value="sold">Sold</option>
             <option value="wholesale">Wholesale</option>
+            <option value="sold">Sold</option>
+            <option value="delivered">Delivered</option>
+            <option value="all">All (incl. Sold)</option>
           </select>
           <select value={visibilityFilter} onChange={(e) => setVisibilityFilter(e.target.value as typeof visibilityFilter)} className="h-9 rounded-md border border-input bg-background px-3 text-xs uppercase tracking-[0.08em]">
             <option value="all">All Visibility</option>

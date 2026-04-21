@@ -23,6 +23,7 @@ import { DealListPage } from '@/app/pages/records/DealListPage'
 import { DealRecordPage } from '@/app/pages/records/DealRecordPage'
 import { DealFormsPage } from '@/app/pages/records/DealFormsPage'
 import { DealFormPage } from '@/app/pages/records/DealFormPage'
+import { SoldRecordPage } from '@/app/pages/records/SoldRecordPage'
 import { LeadFormPage } from '@/app/pages/records/LeadFormPage'
 import { CreditAppFormPage } from '@/app/pages/records/CreditAppFormPage'
 import { InventoryListPage } from '@/app/pages/records/InventoryListPage'
@@ -58,6 +59,7 @@ const ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/app/records/deals': DealListPage,
   '/app/records/deals/new': DealFormPage,
   '/app/records/deals/:id/edit': DealFormPage,
+  '/app/records/deals/:id/sold': SoldRecordPage,
   '/app/records/deals/:id': DealRecordPage,
   '/app/records/deals/:id/forms': DealFormsPage,
   '/app/records/inventory': InventoryListPage,

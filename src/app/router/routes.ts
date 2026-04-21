@@ -26,6 +26,7 @@ export const APP_ROUTES: RouteDefinition[] = [
   { path: '/app/records/deals', label: 'Deals', component: 'DealListPage', group: 'records' },
   { path: '/app/records/deals/new', label: 'New Deal', component: 'DealFormPage', group: 'records' },
   { path: '/app/records/deals/:id/edit', label: 'Edit Deal', component: 'DealFormPage', group: 'records' },
+  { path: '/app/records/deals/:id/sold', label: 'Sold Record', component: 'SoldRecordPage', group: 'records' },
   { path: '/app/records/deals/:id', label: 'Deal', component: 'DealRecordPage', group: 'records' },
   { path: '/app/records/deals/:id/forms', label: 'Deal Forms', component: 'DealFormsPage', group: 'records' },
   { path: '/app/records/inventory', label: 'Inventory', component: 'InventoryListPage', group: 'records' },
