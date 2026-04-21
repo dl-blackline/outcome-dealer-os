@@ -181,6 +181,76 @@ export interface DealFormContext {
   fiManager?: string
   salesManager?: string
   dealManager?: string
+
+  // Dealer fax (for forms that show the dealer mailing block)
+  dealerFax?: string
+
+  // Vehicle identifiers (supplemental)
+  vehicleVINLast6?: string
+
+  // Down payment receipt
+  downPaymentDate?: string
+  downPaymentMethod?: string
+  downPaymentReceipt?: string
+
+  // Payment agreement
+  paymentDueDate?: string
+  paymentAmount?: string
+  paymentMethod?: string
+
+  // Check request
+  checkRequestPayee?: string
+  checkRequestAmount?: string
+  checkRequestReason?: string
+  checkRequestDate?: string
+  checkRequestAuthorizedBy?: string
+
+  // Lienholder payoff / title request
+  lienholderPayoffAmount?: string
+  lienholderGoodUntil?: string
+  lienholderPerDiem?: string
+  lienholderRepName?: string
+  lienholderAccount?: string
+
+  // References
+  reference1Name?: string
+  reference1Phone?: string
+  reference1Relationship?: string
+  reference1Address?: string
+  reference2Name?: string
+  reference2Phone?: string
+  reference2Relationship?: string
+  reference2Address?: string
+  reference3Name?: string
+  reference3Phone?: string
+  reference3Relationship?: string
+  reference3Address?: string
+
+  // Landlord information
+  landlordName?: string
+  landlordPhone?: string
+
+  // Vehicle equipment / condition
+  vehicleEquipmentNotes?: string
+  equipAC?: string
+  equipHeat?: string
+  equipRadio?: string
+  equipCDPlayer?: string
+  equipPower?: string
+  equipCruise?: string
+  equipTiltWheel?: string
+  equipSunroof?: string
+  equipLeather?: string
+  equipAlloyWheels?: string
+  equipRearDefrost?: string
+  equipABS?: string
+  equipAirbag?: string
+
+  // Four Square worksheet
+  fourSquareAskPrice?: string
+  fourSquareTradeValue?: string
+  fourSquareDownPayment?: string
+  fourSquareMonthlyPayment?: string
 }
 
 // ---------------------------------------------------------------------------
