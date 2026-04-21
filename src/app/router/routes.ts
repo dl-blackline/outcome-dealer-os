@@ -38,6 +38,7 @@ export const APP_ROUTES: RouteDefinition[] = [
   { path: '/app/ops/intelligence', label: 'Intelligence', component: 'IntelligencePage', group: 'operations' },
   { path: '/app/ops/operating-review', label: 'Operating Review', component: 'OperatingReviewPage', group: 'operations' },
   { path: '/app/ops/recon', label: 'Fixed Ops / Recon', component: 'ReconPage', group: 'operations' },
+  { path: '/app/ops/key-control', label: 'Key Control', component: 'KeyControlPage', group: 'operations' },
   { path: '/app/ops/back-office', label: 'Back Office', component: 'BackOfficePage', group: 'operations' },
   { path: '/app/ops/documents', label: 'Document Vault', component: 'DocumentVaultPage', group: 'operations' },
   { path: '/app/ops/reports', label: 'Reports', component: 'ReportsPage', group: 'operations' },

@@ -17,6 +17,7 @@ import {
   Buildings,
   FolderOpen,
   Toolbox,
+  Key,
 } from '@phosphor-icons/react'
 import { AppRole, ROLE_NAV_GROUPS, type NavGroup } from '@/domains/roles/roles'
 import { cn } from '@/lib/utils'
@@ -111,6 +112,12 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Fixed Ops / Recon',
     href: '/app/ops/recon',
     icon: Toolbox,
+    group: 'operations',
+  },
+  {
+    label: 'Key Control',
+    href: '/app/ops/key-control',
+    icon: Key,
     group: 'operations',
   },
   {
