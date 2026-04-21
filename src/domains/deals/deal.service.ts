@@ -25,6 +25,8 @@ interface MockDealRow extends DbRow {
   vehicle_description: string
   stock_number?: string
   vin?: string
+  inventory_unit_id?: string
+  inventory_snapshot?: string
   status: string
   amount: number
   sale_date?: string
@@ -47,6 +49,8 @@ function rowToDeal(row: MockDealRow): MockDeal {
     vehicleDescription: row.vehicle_description,
     stockNumber: row.stock_number,
     vin: row.vin,
+    inventoryUnitId: row.inventory_unit_id,
+    inventorySnapshot: row.inventory_snapshot ? JSON.parse(row.inventory_snapshot) : undefined,
     status: row.status as MockDeal['status'],
     amount: row.amount,
     saleDate: row.sale_date,
@@ -92,6 +96,8 @@ export async function createDeal(
       vehicle_description: input.vehicleDescription,
       stock_number: input.stockNumber,
       vin: input.vin,
+      inventory_unit_id: input.inventoryUnitId,
+      inventory_snapshot: input.inventorySnapshot ? JSON.stringify(input.inventorySnapshot) : undefined,
       status: input.status,
       amount: input.amount,
       sale_date: input.saleDate,
@@ -125,6 +131,8 @@ export async function updateDeal(
     if (input.vehicleDescription !== undefined) updates.vehicle_description = input.vehicleDescription
     if (input.stockNumber !== undefined) updates.stock_number = input.stockNumber
     if (input.vin !== undefined) updates.vin = input.vin
+    if (input.inventoryUnitId !== undefined) updates.inventory_unit_id = input.inventoryUnitId
+    if (input.inventorySnapshot !== undefined) updates.inventory_snapshot = input.inventorySnapshot ? JSON.stringify(input.inventorySnapshot) : undefined
     if (input.status !== undefined) updates.status = input.status
     if (input.amount !== undefined) updates.amount = input.amount
     if (input.saleDate !== undefined) updates.sale_date = input.saleDate

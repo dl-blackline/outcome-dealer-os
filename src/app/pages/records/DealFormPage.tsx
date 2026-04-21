@@ -4,11 +4,16 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
 import { useRouter } from '@/app/router'
 import { useRouteParam, hasRouteParam } from '@/app/router/routeParams'
 import { PageLoadingState } from '@/components/core/PageStates'
 import { useDeal, useDealMutations } from '@/domains/deals/deal.hooks'
-import { ArrowLeft, FloppyDisk, SpinnerGap } from '@phosphor-icons/react'
+import { InventoryUnitSelector } from '@/components/inventory/InventoryUnitSelector'
+import { pickBestInventoryPhoto, type InventoryRecord } from '@/domains/inventory/inventory.runtime'
+import type { DealInventorySnapshot } from '@/lib/mockData'
+import { ArrowLeft, FloppyDisk, SpinnerGap, Car, X, PencilSimple } from '@phosphor-icons/react'
+import { getPremiumPlaceholderByBodyStyle } from '@/domains/inventory-photo/inventoryPhoto.placeholder'
 
 const STATUSES: Array<{ value: string; label: string }> = [
   { value: 'structured', label: 'Structured' },
@@ -36,6 +41,11 @@ interface DealFormValues {
   notes: string
 }
 
+interface AttachedUnit {
+  inventoryUnitId: string
+  snapshot: DealInventorySnapshot
+}
+
 const EMPTY: DealFormValues = {
   customerName: '', coBuyer: '', vehicleDescription: '',
   stockNumber: '', vin: '', status: 'structured',
@@ -49,6 +59,40 @@ function toNum(v: string): number | undefined {
   return isNaN(n) ? undefined : n
 }
 
+/** Compact inline preview of the currently attached inventory unit in the form */
+function AttachedUnitPreview({ snapshot, inventoryUnitId }: { snapshot: DealInventorySnapshot; inventoryUnitId: string }) {
+  const [imgFailed, setImgFailed] = useState(false)
+  const fallback = getPremiumPlaceholderByBodyStyle(snapshot.bodyStyle)
+  const vinLast6 = snapshot.vinLast6 ?? (snapshot.vin ? snapshot.vin.slice(-6) : undefined)
+
+  return (
+    <div className="flex items-center gap-3 rounded-md border border-border bg-muted/30 px-3 py-2">
+      <div className="h-12 w-16 shrink-0 overflow-hidden rounded bg-muted/50 flex items-center justify-center">
+        {snapshot.primaryImageUrl && !imgFailed ? (
+          <img src={snapshot.primaryImageUrl} alt="Vehicle" className="h-full w-full object-cover" onError={() => setImgFailed(true)} />
+        ) : fallback ? (
+          <img src={fallback} alt="Vehicle" className="h-full w-full object-cover opacity-60" />
+        ) : (
+          <Car className="h-5 w-5 text-muted-foreground" />
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <p className="text-sm font-medium truncate">
+          {[snapshot.year, snapshot.make, snapshot.model, snapshot.trim].filter(Boolean).join(' ')}
+        </p>
+        <p className="text-xs text-muted-foreground truncate">
+          {[
+            snapshot.stockNumber ? `Stock #${snapshot.stockNumber}` : null,
+            vinLast6 ? `VIN …${vinLast6}` : null,
+            snapshot.mileage != null ? `${snapshot.mileage.toLocaleString()} mi` : null,
+          ].filter(Boolean).join(' · ')}
+        </p>
+      </div>
+      <Badge variant="secondary" className="shrink-0 text-xs">Linked</Badge>
+    </div>
+  )
+}
+
 export function DealFormPage() {
   const { navigate } = useRouter()
   const dealId = useRouteParam('id')
@@ -58,6 +102,8 @@ export function DealFormPage() {
   const mutations = useDealMutations()
 
   const [form, setForm] = useState<DealFormValues>(EMPTY)
+  const [attachedUnit, setAttachedUnit] = useState<AttachedUnit | null>(null)
+  const [selectorOpen, setSelectorOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [formReady, setFormReady] = useState(!isEdit)
@@ -83,6 +129,12 @@ export function DealFormPage() {
         amountFinanced: d.amountFinanced != null ? String(d.amountFinanced) : '',
         notes: d.notes || '',
       })
+      if (d.inventoryUnitId) {
+        setAttachedUnit({
+          inventoryUnitId: d.inventoryUnitId,
+          snapshot: d.inventorySnapshot ?? {},
+        })
+      }
       setFormReady(true)
     } else if (isEdit && !dealQuery.loading && !dealQuery.data) {
       setFormReady(true)
@@ -91,6 +143,42 @@ export function DealFormPage() {
 
   const set = (field: keyof DealFormValues) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm(prev => ({ ...prev, [field]: e.target.value }))
+  }
+
+  function handleInventorySelect(record: InventoryRecord) {
+    const vinLast6 = record.vin ? record.vin.slice(-6) : undefined
+    const photo = pickBestInventoryPhoto(record)
+    const snapshot: DealInventorySnapshot = {
+      year: record.year,
+      make: record.make,
+      model: record.model,
+      trim: record.trim,
+      bodyStyle: record.bodyStyle,
+      stockNumber: record.stockNumber,
+      vin: record.vin,
+      vinLast6,
+      exteriorColor: record.exteriorColor,
+      interiorColor: record.interiorColor,
+      mileage: record.mileage,
+      askingPrice: record.price,
+      primaryImageUrl: photo?.url,
+      unitStatus: record.status,
+    }
+    setAttachedUnit({ inventoryUnitId: record.id, snapshot })
+
+    // Auto-populate deal form fields from inventory
+    const description = [record.year, record.make, record.model, record.trim].filter(Boolean).join(' ')
+    setForm(prev => ({
+      ...prev,
+      vehicleDescription: description,
+      stockNumber: record.stockNumber || prev.stockNumber,
+      vin: record.vin || prev.vin,
+      amount: record.price > 0 ? String(record.price) : prev.amount,
+    }))
+  }
+
+  function handleRemoveUnit() {
+    setAttachedUnit(null)
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -112,6 +200,8 @@ export function DealFormPage() {
       vehicleDescription: form.vehicleDescription.trim(),
       stockNumber: form.stockNumber.trim() || undefined,
       vin: form.vin.trim() || undefined,
+      inventoryUnitId: attachedUnit?.inventoryUnitId,
+      inventorySnapshot: attachedUnit?.snapshot,
       status: form.status as 'structured' | 'quoted' | 'signed' | 'funded',
       amount: toNum(form.amount) ?? 0,
       saleDate: form.saleDate || undefined,
@@ -193,11 +283,58 @@ export function DealFormPage() {
                 </div>
               </div>
 
+              {/* ── Vehicle section ─────────────────────────────────────────── */}
               <div>
-                <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">Vehicle</p>
-                <div className="grid gap-4 sm:grid-cols-2">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">Vehicle</p>
+                  {!attachedUnit ? (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="outline"
+                      className="gap-1.5"
+                      onClick={() => setSelectorOpen(true)}
+                    >
+                      <Car className="h-3.5 w-3.5" />
+                      Attach Inventory Unit
+                    </Button>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="outline"
+                        className="gap-1.5"
+                        onClick={() => setSelectorOpen(true)}
+                      >
+                        <PencilSimple className="h-3.5 w-3.5" />
+                        Change Unit
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        variant="ghost"
+                        className="gap-1.5 text-destructive hover:text-destructive"
+                        onClick={handleRemoveUnit}
+                      >
+                        <X className="h-3.5 w-3.5" />
+                        Remove
+                      </Button>
+                    </div>
+                  )}
+                </div>
+
+                {/* Attached unit preview */}
+                {attachedUnit && (
+                  <AttachedUnitPreview snapshot={attachedUnit.snapshot} inventoryUnitId={attachedUnit.inventoryUnitId} />
+                )}
+
+                <div className="grid gap-4 sm:grid-cols-2 mt-4">
                   <div className="space-y-1.5 sm:col-span-2">
-                    <Label htmlFor="vehicleDescription">Vehicle Description <span className="text-destructive">*</span></Label>
+                    <Label htmlFor="vehicleDescription">
+                      Vehicle Description <span className="text-destructive">*</span>
+                      {attachedUnit && <Badge variant="secondary" className="ml-2 text-xs font-normal">Auto-filled from inventory</Badge>}
+                    </Label>
                     <Input id="vehicleDescription" value={form.vehicleDescription} onChange={set('vehicleDescription')} placeholder="e.g. 2024 Ford F-150 XLT" required />
                   </div>
                   <div className="space-y-1.5">
@@ -302,6 +439,13 @@ export function DealFormPage() {
           </div>
         </form>
       )}
+
+      <InventoryUnitSelector
+        open={selectorOpen}
+        onOpenChange={setSelectorOpen}
+        onSelect={handleInventorySelect}
+        selectedId={attachedUnit?.inventoryUnitId}
+      />
     </div>
   )
 }

@@ -24,6 +24,24 @@ export interface MockLead {
   updatedAt?: string
 }
 
+/** Snapshot of key inventory fields captured when a unit is attached to a deal. */
+export interface DealInventorySnapshot {
+  year?: number
+  make?: string
+  model?: string
+  trim?: string
+  bodyStyle?: string
+  stockNumber?: string
+  vin?: string
+  vinLast6?: string
+  exteriorColor?: string
+  interiorColor?: string
+  mileage?: number
+  askingPrice?: number
+  primaryImageUrl?: string
+  unitStatus?: string
+}
+
 export interface MockDeal {
   id: UUID
   leadId?: UUID
@@ -32,6 +50,10 @@ export interface MockDeal {
   vehicleDescription: string
   stockNumber?: string
   vin?: string
+  /** Live link to the inventory record at time of deal creation/update */
+  inventoryUnitId?: string
+  /** Snapshot of vehicle fields captured when the inventory unit was attached */
+  inventorySnapshot?: DealInventorySnapshot
   status: 'structured' | 'quoted' | 'signed' | 'funded'
   amount: number
   saleDate?: string
