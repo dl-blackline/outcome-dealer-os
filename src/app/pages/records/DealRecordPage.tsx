@@ -16,7 +16,10 @@ import { useDeal, useDealMutations } from '@/domains/deals/deal.hooks'
 import { useApprovals } from '@/domains/approvals/approval.hooks'
 import { useEntityEvents } from '@/domains/events/event.hooks'
 import { useLeads } from '@/domains/leads/lead.hooks'
-import { useInventory } from '@/domains/inventory/inventory.hooks'
+import { LinkedInventoryUnitCard } from '@/components/inventory/LinkedInventoryUnitCard'
+import { InventoryUnitSelector } from '@/components/inventory/InventoryUnitSelector'
+import { pickBestInventoryPhoto, type InventoryRecord } from '@/domains/inventory/inventory.runtime'
+import type { DealInventorySnapshot } from '@/lib/mockData'
 import {
   ArrowLeft,
   CurrencyDollar,
@@ -61,11 +64,11 @@ export function DealRecordPage() {
   const approvalsQuery = useApprovals()
   const eventsQuery = useEntityEvents(dealId)
   const leadsQuery = useLeads()
-  const inventoryQuery = useInventory()
   const mutations = useDealMutations()
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [selectorOpen, setSelectorOpen] = useState(false)
 
   if (!hasRouteParam(dealId)) {
     return <PageNotFoundState title="Deal Missing" message="No deal id was provided in this route." />
@@ -83,8 +86,44 @@ export function DealRecordPage() {
   const approvals = approvalsQuery.data.filter(a => a.description.toLowerCase().includes(deal.customerName.split(' ')[0].toLowerCase()))
   const events = eventsQuery.data
   const linkedLead = leadsQuery.data.find(l => l.id === deal.leadId)
-  const matchingInventory = inventoryQuery.data.find(u => deal.vehicleDescription.includes(u.make) && deal.vehicleDescription.includes(u.model))
   const currentIdx = STAGES.indexOf(deal.status as typeof STAGES[number])
+
+  async function handleAttachUnit(record: InventoryRecord) {
+    const vinLast6 = record.vin ? record.vin.slice(-6) : undefined
+    const photo = pickBestInventoryPhoto(record)
+    const snapshot: DealInventorySnapshot = {
+      year: record.year,
+      make: record.make,
+      model: record.model,
+      trim: record.trim,
+      bodyStyle: record.bodyStyle,
+      stockNumber: record.stockNumber,
+      vin: record.vin,
+      vinLast6,
+      exteriorColor: record.exteriorColor,
+      interiorColor: record.interiorColor,
+      mileage: record.mileage,
+      askingPrice: record.price,
+      primaryImageUrl: photo?.url,
+      unitStatus: record.status,
+    }
+    await mutations.updateDeal(dealId, {
+      inventoryUnitId: record.id,
+      inventorySnapshot: snapshot,
+      vehicleDescription: [record.year, record.make, record.model, record.trim].filter(Boolean).join(' '),
+      stockNumber: record.stockNumber,
+      vin: record.vin,
+    })
+    dealQuery.refresh()
+  }
+
+  async function handleRemoveUnit() {
+    await mutations.updateDeal(dealId, {
+      inventoryUnitId: undefined,
+      inventorySnapshot: undefined,
+    })
+    dealQuery.refresh()
+  }
 
   async function handleDelete() {
     setDeleting(true)
@@ -139,24 +178,48 @@ export function DealRecordPage() {
       )}
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Card><CardHeader><CardTitle>Linked Records</CardTitle></CardHeader><CardContent className="space-y-3">
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex items-center gap-2"><EntityBadge variant="lead">Lead</EntityBadge>{linkedLead && <span className="text-muted-foreground">{linkedLead.customerName}</span>}</div>
-            <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => navigate(`/app/records/leads/${deal.leadId}`)}>{deal.leadId} <CaretRight className="h-3 w-3" /></Button>
-          </div>
-          {linkedLead && (
-            <div className="flex items-center justify-between text-sm border-t border-border pt-2">
-              <div className="flex items-center gap-2"><EntityBadge variant="household">Household</EntityBadge></div>
-              <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => navigate(`/app/records/households/${linkedLead.householdId}`)}>{linkedLead.householdId} <CaretRight className="h-3 w-3" /></Button>
+        <div className="space-y-4">
+          <Card><CardHeader><CardTitle>Linked Records</CardTitle></CardHeader><CardContent className="space-y-3">
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2"><EntityBadge variant="lead">Lead</EntityBadge>{linkedLead && <span className="text-muted-foreground">{linkedLead.customerName}</span>}</div>
+              <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => navigate(`/app/records/leads/${deal.leadId}`)}>{deal.leadId} <CaretRight className="h-3 w-3" /></Button>
             </div>
+            {linkedLead && (
+              <div className="flex items-center justify-between text-sm border-t border-border pt-2">
+                <div className="flex items-center gap-2"><EntityBadge variant="household">Household</EntityBadge></div>
+                <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => navigate(`/app/records/households/${linkedLead.householdId}`)}>{linkedLead.householdId} <CaretRight className="h-3 w-3" /></Button>
+              </div>
+            )}
+          </CardContent></Card>
+
+          {/* Linked inventory unit — real record or attach prompt */}
+          {deal.inventoryUnitId ? (
+            <LinkedInventoryUnitCard
+              inventoryUnitId={deal.inventoryUnitId}
+              snapshot={deal.inventorySnapshot}
+              onChangeUnit={() => setSelectorOpen(true)}
+              onRemoveUnit={handleRemoveUnit}
+            />
+          ) : (
+            <Card className="border-dashed">
+              <CardContent className="py-6 flex flex-col items-center gap-3 text-center">
+                <Car className="h-8 w-8 text-muted-foreground/50" />
+                <div>
+                  <p className="text-sm font-medium">No inventory unit linked</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    {deal.vehicleDescription
+                      ? `Vehicle: ${deal.vehicleDescription}`
+                      : 'Attach a vehicle from inventory to enable rich deal tracking.'}
+                  </p>
+                </div>
+                <Button size="sm" variant="outline" className="gap-1.5" onClick={() => setSelectorOpen(true)}>
+                  <Car className="h-3.5 w-3.5" />
+                  Attach Inventory Unit
+                </Button>
+              </CardContent>
+            </Card>
           )}
-          {matchingInventory && (
-            <div className="flex items-center justify-between text-sm border-t border-border pt-2">
-              <div className="flex items-center gap-2"><EntityBadge variant="inventory">Inventory</EntityBadge><span className="text-muted-foreground">{matchingInventory.vin}</span></div>
-              <Button variant="ghost" size="sm" className="gap-1 text-xs" onClick={() => navigate(`/app/records/inventory/${matchingInventory.id}`)}>View <CaretRight className="h-3 w-3" /></Button>
-            </div>
-          )}
-        </CardContent></Card>
+        </div>
         <Card><CardHeader><CardTitle>Timeline</CardTitle></CardHeader><CardContent>{events.length === 0 ? <p className="text-sm text-muted-foreground">No events.</p> : (
           <div className="space-y-3">{events.map(e => (
             <div key={e.id} className="flex items-center gap-3 text-sm border-b border-border pb-2 last:border-0">
@@ -258,6 +321,13 @@ export function DealRecordPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <InventoryUnitSelector
+        open={selectorOpen}
+        onOpenChange={setSelectorOpen}
+        onSelect={handleAttachUnit}
+        selectedId={deal.inventoryUnitId}
+      />
     </div>
   )
 }
