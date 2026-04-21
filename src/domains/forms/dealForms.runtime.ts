@@ -9,6 +9,7 @@
  *  5. Building a complete DealFormPacket
  */
 import type { MockDeal } from '@/lib/mockData'
+import { DEALER } from '@/lib/dealer.constants'
 import type {
   DealFormContext,
   DealFormTemplate,
@@ -20,16 +21,18 @@ import type {
 import { getTemplate } from './dealForms.templates'
 
 // ---------------------------------------------------------------------------
-// Dealer defaults — in production these would come from a dealer settings table
+// Dealer defaults — sourced from the site-wide DEALER identity constants.
+// Multi-store deployments should replace DEALER with a per-store lookup.
 // ---------------------------------------------------------------------------
 
 const DEALER_DEFAULTS: Partial<DealFormContext> = {
-  dealerName: 'Outcome Dealership',
-  dealerAddress: '1000 Auto Drive',
-  dealerCity: 'Anytown',
-  dealerState: 'TX',
-  dealerZip: '75001',
-  dealerPhone: '(555) 000-1234',
+  dealerName: DEALER.legalName,
+  dealerAddress: DEALER.address,
+  dealerCity: DEALER.city,
+  dealerState: DEALER.state,
+  dealerZip: DEALER.zip,
+  dealerPhone: DEALER.phone,
+  dealerFax: '(216) 398-0049',
   dealerLicenseNumber: 'DLR-00000',
 }
 
@@ -105,6 +108,7 @@ export function buildDealFormContext(
     dealId: deal.id,
     dealNumber: deal.id.slice(0, 8).toUpperCase(),
     dealDate: new Date(deal.createdAt).toLocaleDateString('en-US'),
+    saleDate: deal.saleDate ? new Date(deal.saleDate).toLocaleDateString('en-US') : undefined,
     dealStatus: deal.status,
 
     // Buyer — derived from MockDeal.customerName
@@ -112,16 +116,52 @@ export function buildDealFormContext(
     buyerFirstName: buyerFirst,
     buyerLastName: buyerLast,
 
+    // Co-buyer
+    coBuyerFullName: deal.coBuyer ?? undefined,
+
     // Vehicle — parsed from MockDeal.vehicleDescription
     vehicleYear: year,
     vehicleMake: make,
     vehicleModel: model,
     vehicleTrim: trim,
     vehicleDescription: deal.vehicleDescription,
+    vehicleStockNumber: deal.stockNumber ?? undefined,
+    vehicleVIN: deal.vin ?? undefined,
+    vehicleVINLast6: deal.vin ? deal.vin.slice(-6) : undefined,
 
     // Financial — MockDeal.amount is total deal amount
     salePrice: formatCurrency(deal.amount),
     totalAmountDue: formatCurrency(deal.amount),
+    downPayment: deal.downPayment != null ? formatCurrency(deal.downPayment) : undefined,
+    tradeAllowance: deal.tradeAmount != null ? formatCurrency(deal.tradeAmount) : undefined,
+    tradePayoff: deal.payoff != null ? formatCurrency(deal.payoff) : undefined,
+    netTradeValue:
+      deal.tradeAmount != null && deal.payoff != null
+        ? formatCurrency(deal.tradeAmount - deal.payoff)
+        : undefined,
+    amountFinanced: deal.amountFinanced != null ? formatCurrency(deal.amountFinanced) : undefined,
+
+    // Lender / finance
+    lenderName: deal.lender ?? undefined,
+
+    // Staff
+    salesperson: deal.salesperson ?? undefined,
+    fiManager: deal.fiManager ?? undefined,
+
+    // Down payment receipt — prefill date from deal when available; amount uses downPayment field
+    downPaymentDate: deal.saleDate
+      ? new Date(deal.saleDate).toLocaleDateString('en-US')
+      : new Date(deal.createdAt).toLocaleDateString('en-US'),
+
+    // Four Square — seed from deal financials where possible
+    fourSquareAskPrice: formatCurrency(deal.amount),
+    fourSquareTradeValue:
+      deal.tradeAmount != null ? formatCurrency(deal.tradeAmount) : undefined,
+    fourSquareDownPayment:
+      deal.downPayment != null ? formatCurrency(deal.downPayment) : undefined,
+
+    // Lienholder payoff — use lender name if available
+    lienholderPayoffAmount: deal.payoff != null ? formatCurrency(deal.payoff) : undefined,
   }
 
   // Merge extras on top, allowing callers to supply richer data
