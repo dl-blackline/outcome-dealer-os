@@ -13,45 +13,14 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { StatusPill } from '@/components/core/StatusPill'
 import { useInventoryCatalog, pickBestInventoryPhoto, type InventoryRecord } from '@/domains/inventory/inventory.runtime'
+import {
+  inventoryStatusVariant,
+  inventoryStatusLabel,
+  WARN_STATUSES,
+  BLOCK_STATUSES,
+} from '@/domains/inventory/inventory.status'
 import { Car, MagnifyingGlass, SpinnerGap } from '@phosphor-icons/react'
 import { getPremiumPlaceholderByBodyStyle } from '@/domains/inventory-photo/inventoryPhoto.placeholder'
-
-// ── Status helpers ─────────────────────────────────────────────────────────────
-
-const STATUS_LABELS: Record<string, string> = {
-  available: 'Available',
-  frontline: 'Frontline Ready',
-  frontline_ready: 'Frontline Ready',
-  recon: 'In Recon',
-  hold: 'Hold',
-  sold: 'Sold',
-  delivered: 'Delivered',
-  wholesale: 'Wholesale',
-  archived: 'Archived',
-  inventory: 'In Inventory',
-}
-
-type PillVariant = 'success' | 'info' | 'warning' | 'danger' | 'neutral'
-
-function statusVariant(status: string): PillVariant {
-  const s = status.toLowerCase()
-  if (s === 'available' || s === 'frontline' || s === 'frontline_ready') return 'success'
-  if (s === 'recon') return 'info'
-  if (s === 'hold' || s === 'wholesale') return 'warning'
-  if (s === 'sold' || s === 'delivered' || s === 'archived') return 'danger'
-  return 'neutral'
-}
-
-function statusLabel(status: string): string {
-  return STATUS_LABELS[status.toLowerCase()] ?? status
-}
-
-/** Statuses that are appropriate for retail deal attachment without warnings */
-const RETAIL_SAFE_STATUSES = new Set(['available', 'frontline', 'frontline_ready', 'inventory'])
-/** Statuses that should show a warning but still be selectable */
-const WARN_STATUSES = new Set(['hold', 'recon'])
-/** Statuses that block selection without explicit acknowledgement */
-const BLOCK_STATUSES = new Set(['sold', 'delivered', 'wholesale', 'archived'])
 
 // ── Sub-components ─────────────────────────────────────────────────────────────
 
@@ -187,8 +156,8 @@ export function InventoryUnitSelector({ open, onOpenChange, onSelect, selectedId
                             {record.price > 0 && <span>${record.price.toLocaleString()}</span>}
                           </div>
                           <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                            <StatusPill variant={statusVariant(record.status)} dot className="text-xs">
-                              {statusLabel(record.status)}
+                            <StatusPill variant={inventoryStatusVariant(record.status)} dot className="text-xs">
+                              {inventoryStatusLabel(record.status)}
                             </StatusPill>
                             {isBlocked && (
                               <span className="text-xs text-destructive font-medium">Not available for new deal</span>
@@ -240,8 +209,8 @@ export function InventoryUnitSelector({ open, onOpenChange, onSelect, selectedId
                     {confirmUnit.year} {confirmUnit.make} {confirmUnit.model}{confirmUnit.trim ? ` ${confirmUnit.trim}` : ''}
                   </strong>
                   {' '}has a status of{' '}
-                  <StatusPill variant={statusVariant(confirmUnit.status)} dot={false} className="inline-flex text-xs">
-                    {statusLabel(confirmUnit.status)}
+                  <StatusPill variant={inventoryStatusVariant(confirmUnit.status)} dot={false} className="inline-flex text-xs">
+                    {inventoryStatusLabel(confirmUnit.status)}
                   </StatusPill>
                   {'. '}
                   {BLOCK_STATUSES.has(confirmUnit.status.toLowerCase())

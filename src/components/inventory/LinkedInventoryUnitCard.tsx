@@ -11,40 +11,14 @@ import { Button } from '@/components/ui/button'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Badge } from '@/components/ui/badge'
 import { useInventoryRecord, pickBestInventoryPhoto, type InventoryRecord } from '@/domains/inventory/inventory.runtime'
+import {
+  inventoryStatusVariant,
+  inventoryStatusLabel,
+} from '@/domains/inventory/inventory.status'
 import type { DealInventorySnapshot } from '@/lib/mockData'
 import { Car, ArrowSquareOut, PencilSimple, X } from '@phosphor-icons/react'
 import { getPremiumPlaceholderByBodyStyle } from '@/domains/inventory-photo/inventoryPhoto.placeholder'
 import { useRouter } from '@/app/router'
-
-// ── Status helpers (shared with selector) ────────────────────────────────────
-
-const STATUS_LABELS: Record<string, string> = {
-  available: 'Available',
-  frontline: 'Frontline Ready',
-  frontline_ready: 'Frontline Ready',
-  recon: 'In Recon',
-  hold: 'Hold',
-  sold: 'Sold',
-  delivered: 'Delivered',
-  wholesale: 'Wholesale',
-  archived: 'Archived',
-  inventory: 'In Inventory',
-}
-
-type PillVariant = 'success' | 'info' | 'warning' | 'danger' | 'neutral'
-
-function statusVariant(status: string): PillVariant {
-  const s = status.toLowerCase()
-  if (s === 'available' || s === 'frontline' || s === 'frontline_ready') return 'success'
-  if (s === 'recon') return 'info'
-  if (s === 'hold' || s === 'wholesale') return 'warning'
-  if (s === 'sold' || s === 'delivered' || s === 'archived') return 'danger'
-  return 'neutral'
-}
-
-function statusLabel(status: string): string {
-  return STATUS_LABELS[status.toLowerCase()] ?? status
-}
 
 // ── Thumbnail ────────────────────────────────────────────────────────────────
 
@@ -140,8 +114,8 @@ export function LinkedInventoryUnitCard({
               {displayPrice != null && displayPrice > 0 && <span>${displayPrice.toLocaleString()}</span>}
             </div>
             {displayStatus && (
-              <StatusPill variant={statusVariant(displayStatus)} className="text-xs mt-0.5">
-                {statusLabel(displayStatus)}
+              <StatusPill variant={inventoryStatusVariant(displayStatus)} className="text-xs mt-0.5">
+                {inventoryStatusLabel(displayStatus)}
               </StatusPill>
             )}
           </div>
