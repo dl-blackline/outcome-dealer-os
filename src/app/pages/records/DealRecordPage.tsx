@@ -20,6 +20,7 @@ import { LinkedInventoryUnitCard } from '@/components/inventory/LinkedInventoryU
 import { InventoryUnitSelector } from '@/components/inventory/InventoryUnitSelector'
 import { pickBestInventoryPhoto, type InventoryRecord } from '@/domains/inventory/inventory.runtime'
 import type { DealInventorySnapshot } from '@/lib/mockData'
+import { useSoldRecordByDeal, useSoldMutations } from '@/domains/sold/sold.hooks'
 import {
   ArrowLeft,
   CurrencyDollar,
@@ -34,9 +35,19 @@ import {
   PencilSimple,
   Trash,
   SpinnerGap,
+  Tag,
+  Truck,
 } from '@phosphor-icons/react'
 
-const STAGES = ['structured', 'quoted', 'signed', 'funded', 'delivered'] as const
+const STAGES = ['structured', 'quoted', 'signed', 'funded', 'sold_pending_delivery', 'delivered'] as const
+const STAGE_LABELS: Record<string, string> = {
+  structured: 'Structured',
+  quoted: 'Quoted',
+  signed: 'Signed',
+  funded: 'Funded',
+  sold_pending_delivery: 'Sold',
+  delivered: 'Delivered',
+}
 
 // Representative F&I products for a deal that hasn't yet had a menu built
 const FI_PRODUCTS = [
@@ -65,10 +76,15 @@ export function DealRecordPage() {
   const eventsQuery = useEntityEvents(dealId)
   const leadsQuery = useLeads()
   const mutations = useDealMutations()
+  const soldQuery = useSoldRecordByDeal(dealId)
+  const soldMutations = useSoldMutations()
 
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const [deleting, setDeleting] = useState(false)
   const [selectorOpen, setSelectorOpen] = useState(false)
+  const [showMarkSoldDialog, setShowMarkSoldDialog] = useState(false)
+  const [markingSold, setMarkingSold] = useState(false)
+  const [soldError, setSoldError] = useState<string | null>(null)
 
   if (!hasRouteParam(dealId)) {
     return <PageNotFoundState title="Deal Missing" message="No deal id was provided in this route." />
@@ -133,12 +149,54 @@ export function DealRecordPage() {
     navigate('/app/records/deals')
   }
 
+  async function handleMarkSold() {
+    setSoldError(null)
+    if (!deal) return
+    if (!deal.inventoryUnitId) {
+      setSoldError('Please attach an inventory unit before marking this deal as sold.')
+      return
+    }
+    setMarkingSold(true)
+    const result = await soldMutations.markSold({
+      dealId,
+      inventoryUnitId: deal.inventoryUnitId,
+      agreedSalePrice: deal.amount,
+      salesperson: deal.salesperson,
+      fiManager: deal.fiManager,
+      lender: deal.lender,
+      amountFinanced: deal.amountFinanced,
+      downPayment: deal.downPayment,
+      tradeAmount: deal.tradeAmount,
+      payoff: deal.payoff,
+      markedSoldBy: 'user',
+    })
+    setMarkingSold(false)
+    if (!result) {
+      setSoldError('Failed to mark deal as sold. Please try again.')
+      return
+    }
+    setShowMarkSoldDialog(false)
+    dealQuery.refresh()
+    soldQuery.refresh()
+  }
+
+  const isSold = deal.status === 'sold_pending_delivery' || deal.status === 'delivered'
+
   return (
     <div className="ods-page ods-flow-lg">
       <Button variant="ghost" size="sm" onClick={() => navigate('/app/records/deals')} className="gap-2"><ArrowLeft className="h-4 w-4" /> Deals</Button>
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <SectionHeader title={`${deal.customerName} — ${deal.vehicleDescription}`} description={`Deal record • Created ${new Date(deal.createdAt).toLocaleDateString()}`} />
         <div className="flex items-center gap-2 shrink-0 flex-wrap">
+          {isSold ? (
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate(`/app/records/deals/${dealId}/sold`)}>
+              <Tag className="h-4 w-4" /> View Sold Record
+            </Button>
+          ) : (
+            <Button size="sm" className="gap-2 bg-green-600 hover:bg-green-700 text-white" onClick={() => { setSoldError(null); setShowMarkSoldDialog(true) }}>
+              <Tag className="h-4 w-4" /> Mark Sold
+            </Button>
+          )}
           <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate(`/app/records/deals/${dealId}/edit`)}>
             <PencilSimple className="h-4 w-4" /> Edit
           </Button>
@@ -155,11 +213,33 @@ export function DealRecordPage() {
         {STAGES.map((s, i) => (
           <div key={s} className="flex items-center gap-2 flex-1">
             <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-bold ${i <= currentIdx ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>{i + 1}</div>
-            <span className={`text-sm capitalize ${i <= currentIdx ? 'font-semibold' : 'text-muted-foreground'}`}>{s}</span>
+            <span className={`text-sm capitalize ${i <= currentIdx ? 'font-semibold' : 'text-muted-foreground'}`}>{STAGE_LABELS[s] ?? s}</span>
             {i < STAGES.length - 1 && <div className={`flex-1 h-0.5 mx-2 ${i < currentIdx ? 'bg-primary' : 'bg-muted'}`} />}
           </div>
         ))}
       </div></CardContent></Card>
+
+      {isSold && soldQuery.data && (
+        <Card className="border-green-500/30 bg-green-500/5">
+          <CardContent className="py-3 flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-2">
+              <Tag className="h-5 w-5 text-green-600" />
+              <div>
+                <p className="text-sm font-semibold text-green-700">
+                  {deal.status === 'delivered' ? 'Delivered' : 'Sold – Pending Delivery'}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Sold {new Date(soldQuery.data.soldDate).toLocaleDateString()}
+                  {soldQuery.data.snapshotStockNumber && ` · Stock #${soldQuery.data.snapshotStockNumber}`}
+                </p>
+              </div>
+            </div>
+            <Button variant="outline" size="sm" className="gap-1.5 text-xs border-green-500/30" onClick={() => navigate(`/app/records/deals/${dealId}/sold`)}>
+              <Tag className="h-3.5 w-3.5" /> View Sold Record
+            </Button>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid gap-4 md:grid-cols-3">
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Amount</CardTitle></CardHeader>
@@ -167,7 +247,7 @@ export function DealRecordPage() {
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Vehicle</CardTitle></CardHeader>
           <CardContent><div className="flex items-center gap-2"><Car className="h-5 w-5" /><span className="text-sm">{deal.vehicleDescription}</span></div></CardContent></Card>
         <Card><CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Status</CardTitle></CardHeader>
-          <CardContent><StatusPill variant={deal.status === 'funded' ? 'success' : deal.status === 'signed' ? 'info' : 'warning'}>{deal.status}</StatusPill></CardContent></Card>
+          <CardContent><StatusPill variant={deal.status === 'delivered' ? 'success' : deal.status === 'sold_pending_delivery' ? 'success' : deal.status === 'funded' ? 'success' : deal.status === 'signed' ? 'info' : 'warning'}>{STAGE_LABELS[deal.status] ?? deal.status}</StatusPill></CardContent></Card>
       </div>
 
       {approvals.length > 0 && (
@@ -318,6 +398,74 @@ export function DealRecordPage() {
             >
               {deleting ? <SpinnerGap className="h-4 w-4 animate-spin" /> : 'Delete Deal'}
             </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Mark Sold confirmation modal */}
+      <AlertDialog open={showMarkSoldDialog} onOpenChange={open => { if (!open) { setShowMarkSoldDialog(false); setSoldError(null) } }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <Tag className="h-5 w-5 text-green-600" /> Mark Deal as Sold
+            </AlertDialogTitle>
+            <AlertDialogDescription asChild>
+              <div className="space-y-3 text-sm">
+                <p>You are about to mark this deal as <strong>Sold – Pending Delivery</strong>.</p>
+
+                <div className="rounded-md border border-border bg-muted/40 p-3 space-y-1.5 text-xs">
+                  <div className="flex justify-between"><span className="text-muted-foreground">Customer</span><span className="font-medium">{deal.customerName}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Vehicle</span><span className="font-medium">{deal.vehicleDescription || '—'}</span></div>
+                  {deal.stockNumber && <div className="flex justify-between"><span className="text-muted-foreground">Stock #</span><span className="font-medium">{deal.stockNumber}</span></div>}
+                  <div className="flex justify-between"><span className="text-muted-foreground">Sale Amount</span><span className="font-medium">${deal.amount.toLocaleString()}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Sale Date</span><span className="font-medium">{new Date().toLocaleDateString()}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">Delivery Status</span><span className="font-medium">Pending Delivery</span></div>
+                </div>
+
+                <div className="rounded-md border border-blue-200 bg-blue-50 dark:bg-blue-950/20 dark:border-blue-900 p-2.5 text-xs text-blue-800 dark:text-blue-200">
+                  <p className="font-medium mb-0.5">What happens next:</p>
+                  <ul className="list-disc pl-4 space-y-0.5">
+                    <li>A sold record will be created and linked to this deal</li>
+                    <li>The inventory unit will be removed from active retail inventory</li>
+                    <li>The deal status will advance to <strong>Sold – Pending Delivery</strong></li>
+                  </ul>
+                </div>
+
+                {!deal.inventoryUnitId && (
+                  <div className="rounded-md border border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800 p-2.5 text-xs text-amber-800 dark:text-amber-200">
+                    <Warning className="inline h-3.5 w-3.5 mr-1" />
+                    No inventory unit is linked. Please attach one before marking as sold, or the sold record will be created as a manual/legacy deal.
+                  </div>
+                )}
+
+                {soldError && (
+                  <div className="rounded-md border border-red-200 bg-red-50 dark:bg-red-950/20 p-2.5 text-xs text-red-700 dark:text-red-300">
+                    <Warning className="inline h-3.5 w-3.5 mr-1" />{soldError}
+                  </div>
+                )}
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={markingSold} onClick={() => { setShowMarkSoldDialog(false); setSoldError(null) }}>Cancel</AlertDialogCancel>
+            {!deal.inventoryUnitId ? (
+              <Button
+                className="gap-2"
+                variant="outline"
+                disabled={markingSold}
+                onClick={() => { setShowMarkSoldDialog(false); setSelectorOpen(true) }}
+              >
+                <Car className="h-4 w-4" /> Attach Inventory Unit
+              </Button>
+            ) : (
+              <AlertDialogAction
+                className="bg-green-600 hover:bg-green-700 text-white"
+                disabled={markingSold}
+                onClick={handleMarkSold}
+              >
+                {markingSold ? <SpinnerGap className="h-4 w-4 animate-spin" /> : <><Tag className="h-4 w-4 mr-1" /> Confirm – Mark Sold</>}
+              </AlertDialogAction>
+            )}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

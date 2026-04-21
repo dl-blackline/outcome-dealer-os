@@ -54,7 +54,7 @@ export interface MockDeal {
   inventoryUnitId?: string
   /** Snapshot of vehicle fields captured when the inventory unit was attached */
   inventorySnapshot?: DealInventorySnapshot
-  status: 'structured' | 'quoted' | 'signed' | 'funded'
+  status: 'structured' | 'quoted' | 'signed' | 'funded' | 'sold_pending_delivery' | 'delivered'
   amount: number
   saleDate?: string
   salesperson?: string

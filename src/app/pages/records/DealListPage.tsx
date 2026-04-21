@@ -12,7 +12,17 @@ import { useDeals, useDealMutations } from '@/domains/deals/deal.hooks'
 import { type MockDeal } from '@/lib/mockData'
 import { Plus, PencilSimple, Trash, SpinnerGap, Warning } from '@phosphor-icons/react'
 
-const STATUSES = ['all', 'structured', 'quoted', 'signed', 'funded'] as const
+const STATUSES = ['all', 'structured', 'quoted', 'signed', 'funded', 'sold_pending_delivery', 'delivered'] as const
+
+const STATUS_LABELS: Record<string, string> = {
+  all: 'All',
+  structured: 'Structured',
+  quoted: 'Quoted',
+  signed: 'Signed',
+  funded: 'Funded',
+  sold_pending_delivery: 'Sold',
+  delivered: 'Delivered',
+}
 
 export function DealListPage() {
   const { navigate } = useRouter()
@@ -43,7 +53,7 @@ export function DealListPage() {
       <div className="ods-toolbar ods-sticky-toolbar justify-between">
         <div className="ods-toolbar w-fit gap-0 overflow-hidden rounded-lg p-0">
           {STATUSES.map(s => (
-            <button key={s} onClick={() => setTab(s)} className={`px-3 py-1.5 text-sm capitalize ${tab === s ? 'bg-primary text-primary-foreground' : 'hover:bg-accent/50 text-muted-foreground'}`}>{s}</button>
+            <button key={s} onClick={() => setTab(s)} className={`px-3 py-1.5 text-sm capitalize ${tab === s ? 'bg-primary text-primary-foreground' : 'hover:bg-accent/50 text-muted-foreground'}`}>{STATUS_LABELS[s] ?? s}</button>
           ))}
         </div>
         <Button size="sm" onClick={() => navigate('/app/records/deals/new')} className="gap-2 shrink-0">
@@ -76,7 +86,7 @@ export function DealListPage() {
                 <td className="px-4 py-3 text-muted-foreground cursor-pointer" onClick={() => navigate(`/app/records/deals/${deal.id}`)}>{deal.vehicleDescription}</td>
                 <td className="px-4 py-3 text-right font-semibold cursor-pointer" onClick={() => navigate(`/app/records/deals/${deal.id}`)}>${deal.amount.toLocaleString()}</td>
                 <td className="px-4 py-3 cursor-pointer" onClick={() => navigate(`/app/records/deals/${deal.id}`)}>
-                  <StatusPill variant={deal.status === 'funded' ? 'success' : deal.status === 'signed' ? 'info' : deal.status === 'quoted' ? 'warning' : 'neutral'}>{deal.status}</StatusPill>
+                  <StatusPill variant={deal.status === 'delivered' ? 'success' : deal.status === 'sold_pending_delivery' ? 'success' : deal.status === 'funded' ? 'success' : deal.status === 'signed' ? 'info' : deal.status === 'quoted' ? 'warning' : 'neutral'}>{STATUS_LABELS[deal.status] ?? deal.status}</StatusPill>
                 </td>
                 <td className="px-4 py-3 text-right text-muted-foreground cursor-pointer" onClick={() => navigate(`/app/records/deals/${deal.id}`)}>{new Date(deal.createdAt).toLocaleDateString()}</td>
                 <td className="px-4 py-3 text-right">
