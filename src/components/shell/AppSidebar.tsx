@@ -18,6 +18,7 @@ import {
   FolderOpen,
   Toolbox,
   Key,
+  BookOpen,
 } from '@phosphor-icons/react'
 import { AppRole, ROLE_NAV_GROUPS, type NavGroup } from '@/domains/roles/roles'
 import { cn } from '@/lib/utils'
@@ -161,6 +162,12 @@ const NAV_ITEMS: NavItem[] = [
     href: '/app/settings/crm-import',
     icon: UploadSimple,
     group: 'settings',
+  },
+  {
+    label: 'Playbook',
+    href: '/app/playbook',
+    icon: BookOpen,
+    group: 'playbook',
   },
 ]
 

@@ -32,20 +32,20 @@ export const ROLE_LABELS: Record<AppRole, string> = {
   admin: 'Administrator',
 }
 
-export type NavGroup = 'dashboard' | 'records' | 'operations' | 'settings' | 'workstation'
+export type NavGroup = 'dashboard' | 'records' | 'operations' | 'settings' | 'workstation' | 'playbook'
 
 export const ROLE_NAV_GROUPS: Record<AppRole, NavGroup[]> = {
-  owner: ['dashboard', 'workstation', 'records', 'operations', 'settings'],
-  gm: ['dashboard', 'workstation', 'records', 'operations', 'settings'],
-  gsm: ['dashboard', 'workstation', 'records', 'operations', 'settings'],
-  used_car_manager: ['dashboard', 'workstation', 'records', 'operations'],
-  bdc_manager: ['dashboard', 'workstation', 'records', 'operations'],
-  sales_manager: ['dashboard', 'workstation', 'records', 'operations'],
+  owner: ['dashboard', 'workstation', 'records', 'operations', 'playbook', 'settings'],
+  gm: ['dashboard', 'workstation', 'records', 'operations', 'playbook', 'settings'],
+  gsm: ['dashboard', 'workstation', 'records', 'operations', 'playbook', 'settings'],
+  used_car_manager: ['dashboard', 'workstation', 'records', 'operations', 'playbook'],
+  bdc_manager: ['dashboard', 'workstation', 'records', 'operations', 'playbook'],
+  sales_manager: ['dashboard', 'workstation', 'records', 'operations', 'playbook'],
   sales_rep: ['dashboard', 'workstation', 'records'],
-  fi_manager: ['dashboard', 'workstation', 'records', 'operations'],
-  service_director: ['dashboard', 'workstation', 'records', 'operations'],
+  fi_manager: ['dashboard', 'workstation', 'records', 'operations', 'playbook'],
+  service_director: ['dashboard', 'workstation', 'records', 'operations', 'playbook'],
   service_advisor: ['dashboard', 'workstation', 'records'],
   recon_manager: ['dashboard', 'workstation', 'records', 'operations'],
-  marketing_manager: ['dashboard', 'workstation', 'records', 'operations'],
-  admin: ['dashboard', 'workstation', 'records', 'operations', 'settings'],
+  marketing_manager: ['dashboard', 'workstation', 'records', 'operations', 'playbook'],
+  admin: ['dashboard', 'workstation', 'records', 'operations', 'playbook', 'settings'],
 }
