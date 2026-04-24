@@ -44,6 +44,15 @@ import { IntegrationsSettingsPage } from '@/app/pages/settings/IntegrationsSetti
 import { InventoryImportPage } from '@/app/pages/settings/InventoryImportPage'
 import { InventoryManagePage } from '@/app/pages/settings/InventoryManagePage'
 import { CrmImportPage } from '@/app/pages/settings/CrmImportPage'
+import { PlaybookDashboardPage } from '@/app/pages/playbook/PlaybookDashboardPage'
+import { PlaybooksListPage } from '@/app/pages/playbook/PlaybooksListPage'
+import { ProjectsListPage } from '@/app/pages/playbook/ProjectsListPage'
+import { NotesListPage } from '@/app/pages/playbook/NotesListPage'
+import { MeetingsListPage } from '@/app/pages/playbook/MeetingsListPage'
+import { DecisionsListPage } from '@/app/pages/playbook/DecisionsListPage'
+import { ActionItemsListPage } from '@/app/pages/playbook/ActionItemsListPage'
+import { TimelinePage } from '@/app/pages/playbook/TimelinePage'
+import { FilesLibraryPage } from '@/app/pages/playbook/FilesLibraryPage'
 
 const ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/app/dashboard': DashboardPage,
@@ -81,6 +90,15 @@ const ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/app/settings/inventory-import': InventoryImportPage,
   '/app/settings/inventory-manage': InventoryManagePage,
   '/app/settings/crm-import': CrmImportPage,
+  '/app/playbook': PlaybookDashboardPage,
+  '/app/playbook/playbooks': PlaybooksListPage,
+  '/app/playbook/projects': ProjectsListPage,
+  '/app/playbook/notes': NotesListPage,
+  '/app/playbook/meetings': MeetingsListPage,
+  '/app/playbook/decisions': DecisionsListPage,
+  '/app/playbook/action-items': ActionItemsListPage,
+  '/app/playbook/timeline': TimelinePage,
+  '/app/playbook/files': FilesLibraryPage,
 }
 
 function resolvePageComponent(currentPath: string): React.ComponentType | null {

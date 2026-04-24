@@ -4,7 +4,7 @@ export interface RouteDefinition {
   path: string
   label: string
   component: string
-  group: 'dashboard' | 'records' | 'operations' | 'settings' | 'workstation' | 'buyer_hub'
+  group: 'dashboard' | 'records' | 'operations' | 'settings' | 'workstation' | 'buyer_hub' | 'playbook'
   requiredPermission?: Permission
   requireExecutive?: boolean
 }
@@ -47,6 +47,16 @@ export const APP_ROUTES: RouteDefinition[] = [
   { path: '/app/settings/inventory-import', label: 'Inventory Import', component: 'InventoryImportPage', group: 'settings' },
   { path: '/app/settings/inventory-manage', label: 'Manage Inventory', component: 'InventoryManagePage', group: 'settings' },
   { path: '/app/settings/crm-import', label: 'CRM Import', component: 'CrmImportPage', group: 'settings' },
+  // Playbook & Execution Center
+  { path: '/app/playbook', label: 'Playbook', component: 'PlaybookDashboardPage', group: 'playbook' },
+  { path: '/app/playbook/playbooks', label: 'Playbooks', component: 'PlaybooksListPage', group: 'playbook' },
+  { path: '/app/playbook/projects', label: 'Projects', component: 'ProjectsListPage', group: 'playbook' },
+  { path: '/app/playbook/notes', label: 'Notes', component: 'NotesListPage', group: 'playbook' },
+  { path: '/app/playbook/meetings', label: 'Meetings', component: 'MeetingsListPage', group: 'playbook' },
+  { path: '/app/playbook/decisions', label: 'Decisions', component: 'DecisionsListPage', group: 'playbook' },
+  { path: '/app/playbook/action-items', label: 'Action Items', component: 'ActionItemsListPage', group: 'playbook' },
+  { path: '/app/playbook/timeline', label: 'Timeline', component: 'TimelinePage', group: 'playbook' },
+  { path: '/app/playbook/files', label: 'Files & Library', component: 'FilesLibraryPage', group: 'playbook' },
   // Buyer Hub (customer-facing)
   { path: '/shop', label: 'Shop Inventory', component: 'ShopInventoryPage', group: 'buyer_hub' },
   { path: '/shop/:unitId', label: 'Vehicle Detail', component: 'VehicleDetailPage', group: 'buyer_hub' },
