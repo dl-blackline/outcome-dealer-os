@@ -52,6 +52,7 @@ for each row execute function set_updated_at();
 
 create trigger trg_finance_credit_application_documents_updated_at
 before update on finance_credit_application_documents
+for each row execute function set_updated_at();
 
 -- Row Level Security
 -- Customers (unauthenticated / anon) can insert but not read other rows.
@@ -86,4 +87,3 @@ create policy "anon_insert_finance_credit_document"
   for insert
   to anon
   with check (true);
-for each row execute function set_updated_at();
