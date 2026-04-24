@@ -104,10 +104,9 @@ export function NotesListPage() {
   function handleConvertToDecision(entryId: string, entryTitle: string, playbookId: string) {
     rt.createDecision({
       playbookId,
-      sourceEntryId: entryId,
       title: entryTitle,
       summary: '',
-    } as Parameters<typeof rt.createDecision>[0])
+    })
     rt.updateEntry(entryId, { status: 'converted' })
   }
 

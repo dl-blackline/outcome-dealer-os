@@ -62,7 +62,7 @@ export function PlaybooksListPage() {
     setShowForm(true)
   }
 
-  async function handleSave() {
+  function handleSave() {
     if (!form.title.trim()) return
     setSaving(true)
     rt.createPlaybook(form)
