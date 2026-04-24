@@ -89,9 +89,9 @@ create index if not exists idx_approvals_status_type
 alter table integration_sync_states
   add column if not exists status                text,
   add column if not exists last_attempt_at       timestamptz,
-  add column if not exists error_count           integer not null default 0,
+  add column if not exists error_count           integer default 0,
   add column if not exists last_error_message    text,
-  add column if not exists retry_backoff_seconds integer not null default 0;
+  add column if not exists retry_backoff_seconds integer default 0;
 
 create index if not exists idx_integration_sync_states_status
   on integration_sync_states(status);
@@ -425,6 +425,7 @@ on conflict (id) do nothing;
 
 drop policy if exists vehicle_photos_bucket_public_read  on storage.objects;
 drop policy if exists vehicle_photos_bucket_staff_write  on storage.objects;
+drop policy if exists vehicle_photos_bucket_staff_update on storage.objects;
 drop policy if exists vehicle_photos_bucket_staff_delete on storage.objects;
 
 create policy vehicle_photos_bucket_public_read on storage.objects
