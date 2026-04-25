@@ -83,7 +83,7 @@ export function ProgramReviewPage() {
           variant="outline"
           className={approved || job.status === 'approved'
             ? 'bg-emerald-100 text-emerald-800 border-emerald-200'
-            : job.status === 'pending_review'
+            : job.status === 'needs_review'
             ? 'bg-amber-100 text-amber-800 border-amber-200'
             : 'bg-gray-100 text-gray-600 border-gray-200'}
         >

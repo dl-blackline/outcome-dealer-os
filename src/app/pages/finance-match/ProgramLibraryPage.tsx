@@ -57,7 +57,7 @@ export function ProgramLibraryPage() {
           <div className="text-xs text-muted-foreground mt-1">Total Lenders</div>
         </Card>
         <Card className="p-4">
-          <div className="text-2xl font-bold">{jobs.filter(j => j.status === 'pending_review').length}</div>
+          <div className="text-2xl font-bold">{jobs.filter(j => j.status === 'needs_review').length}</div>
           <div className="text-xs text-muted-foreground mt-1">Pending Review</div>
         </Card>
         <Card className="p-4">
@@ -164,7 +164,7 @@ export function ProgramLibraryPage() {
                     </div>
                     <div className="flex items-center gap-2 shrink-0">
                       <JobStatusBadge status={job.status} />
-                      {job.status === 'pending_review' && (
+                      {job.status === 'needs_review' && (
                         <Button
                           size="sm"
                           variant="outline"

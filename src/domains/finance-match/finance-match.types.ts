@@ -51,6 +51,7 @@ export type ProcessingJobStatus =
   | 'pending'
   | 'processing'
   | 'extracted'
+  | 'needs_review'
   | 'failed'
   | 'approved'
   | 'rejected'
