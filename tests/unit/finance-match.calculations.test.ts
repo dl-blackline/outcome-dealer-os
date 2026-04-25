@@ -185,4 +185,3 @@ describe('buildDealCalculations', () => {
     expect(calc.creditTier).toBe('F')
   })
 })
-
