@@ -49,7 +49,7 @@ export function LoginPage() {
   return (
     <div className={`min-h-screen text-foreground ${theme === 'dark' ? 'bg-[radial-gradient(circle_at_top_left,rgba(14,165,233,0.18),transparent_30%),linear-gradient(180deg,rgba(15,23,42,1)_0%,rgba(3,7,18,1)_100%)]' : 'bg-[radial-gradient(circle_at_top_left,rgba(14,165,233,0.12),transparent_30%),linear-gradient(180deg,rgba(248,252,255,1)_0%,rgba(238,246,255,1)_100%)]'}`}>
       <div className="mx-auto grid min-h-screen max-w-7xl gap-12 px-6 py-10 lg:grid-cols-[1.2fr_0.8fr] lg:px-10">
-        <section className={`flex flex-col justify-between rounded-4xl border p-8 backdrop-blur-xl lg:p-12 ${theme === 'dark' ? 'border-white/10 bg-white/5' : 'border-slate-300/70 bg-white/80'}`}>
+        <section className={`flex flex-col justify-between rounded-4xl border p-8 backdrop-blur-xl lg:p-12 ${theme === 'dark' ? 'border-white/10 bg-white/5' : 'border-slate-200/80 bg-white/95'}`}>
           <div>
             <p className={`text-sm uppercase tracking-[0.3em] ${theme === 'dark' ? 'text-sky-200/80' : 'text-sky-700'}`}>Vehicle Vault Internal Access</p>
             <h1 className={`mt-6 max-w-2xl font-display text-5xl font-semibold tracking-tight lg:text-6xl ${theme === 'dark' ? 'text-white' : 'text-slate-900'}`}>

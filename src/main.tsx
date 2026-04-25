@@ -8,8 +8,6 @@ import { AuthProvider } from './domains/auth'
 import { ThemeProvider } from './domains/theme'
 
 import "./main.css"
-import "./styles/theme.css"
-import "./index.css"
 
 // Clear stale placeholder localStorage keys that were used for demo/mock tables.
 // Inventory-related keys (outcome.inventory.*) are intentionally preserved.
