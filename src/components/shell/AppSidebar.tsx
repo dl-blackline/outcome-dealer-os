@@ -19,6 +19,7 @@ import {
   Toolbox,
   Key,
   BookOpen,
+  Intersect,
 } from '@phosphor-icons/react'
 import { AppRole, ROLE_NAV_GROUPS, type NavGroup } from '@/domains/roles/roles'
 import { cn } from '@/lib/utils'
@@ -168,6 +169,18 @@ const NAV_ITEMS: NavItem[] = [
     href: '/app/playbook',
     icon: BookOpen,
     group: 'playbook',
+  },
+  {
+    label: 'Bank Match Engine',
+    href: '/app/finance/match-engine',
+    icon: Intersect,
+    group: 'finance',
+  },
+  {
+    label: 'Program Library',
+    href: '/app/finance/program-library',
+    icon: BookOpen,
+    group: 'finance',
   },
 ]
 

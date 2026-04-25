@@ -28,6 +28,9 @@ export const PERMISSIONS = [
   'resolve_approvals',
   'manage_integrations',
   'admin_platform',
+  'run_finance_match',
+  'manage_lender_programs',
+  'approve_lender_rules',
 ] as const
 
 export type Permission = typeof PERMISSIONS[number]
@@ -61,6 +64,9 @@ export const ROLE_PERMISSIONS: Record<AppRole, Permission[]> = {
     'resolve_approvals',
     'manage_integrations',
     'admin_platform',
+    'run_finance_match',
+    'manage_lender_programs',
+    'approve_lender_rules',
   ],
   gm: [
     'view_executive_dashboard',
@@ -89,6 +95,8 @@ export const ROLE_PERMISSIONS: Record<AppRole, Permission[]> = {
     'view_approvals',
     'resolve_approvals',
     'manage_integrations',
+    'run_finance_match',
+    'manage_lender_programs',
   ],
   gsm: [
     'view_executive_dashboard',
@@ -108,6 +116,7 @@ export const ROLE_PERMISSIONS: Record<AppRole, Permission[]> = {
     'approve_ai_actions',
     'view_approvals',
     'resolve_approvals',
+    'run_finance_match',
   ],
   used_car_manager: [
     'view_leads',
@@ -146,6 +155,7 @@ export const ROLE_PERMISSIONS: Record<AppRole, Permission[]> = {
     'manage_tasks',
     'view_approvals',
     'resolve_approvals',
+    'run_finance_match',
   ],
   sales_rep: [
     'view_leads',
@@ -170,6 +180,8 @@ export const ROLE_PERMISSIONS: Record<AppRole, Permission[]> = {
     'approve_ai_actions',
     'view_approvals',
     'resolve_approvals',
+    'run_finance_match',
+    'manage_lender_programs',
   ],
   service_director: [
     'view_service_events',
@@ -223,5 +235,8 @@ export const ROLE_PERMISSIONS: Record<AppRole, Permission[]> = {
     'resolve_approvals',
     'manage_integrations',
     'admin_platform',
+    'run_finance_match',
+    'manage_lender_programs',
+    'approve_lender_rules',
   ],
 }

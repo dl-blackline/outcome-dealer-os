@@ -4,7 +4,7 @@ export interface RouteDefinition {
   path: string
   label: string
   component: string
-  group: 'dashboard' | 'records' | 'operations' | 'settings' | 'workstation' | 'buyer_hub' | 'playbook'
+  group: 'dashboard' | 'records' | 'operations' | 'settings' | 'workstation' | 'buyer_hub' | 'playbook' | 'finance'
   requiredPermission?: Permission
   requireExecutive?: boolean
 }
@@ -57,6 +57,11 @@ export const APP_ROUTES: RouteDefinition[] = [
   { path: '/app/playbook/action-items', label: 'Action Items', component: 'ActionItemsListPage', group: 'playbook' },
   { path: '/app/playbook/timeline', label: 'Timeline', component: 'TimelinePage', group: 'playbook' },
   { path: '/app/playbook/files', label: 'Files & Library', component: 'FilesLibraryPage', group: 'playbook' },
+  // Finance Match Engine
+  { path: '/app/finance/match-engine', label: 'Bank Match Engine', component: 'FinanceMatchEnginePage', group: 'finance', requiredPermission: 'run_finance_match' },
+  { path: '/app/finance/program-library', label: 'Program Library', component: 'ProgramLibraryPage', group: 'finance', requiredPermission: 'manage_lender_programs' },
+  { path: '/app/finance/program-review/:jobId', label: 'Program Review', component: 'ProgramReviewPage', group: 'finance', requiredPermission: 'approve_lender_rules' },
+  { path: '/app/finance/programs/:lenderId', label: 'Lender Program Detail', component: 'LenderProgramDetailPage', group: 'finance', requiredPermission: 'manage_lender_programs' },
   // Buyer Hub (customer-facing)
   { path: '/shop', label: 'Shop Inventory', component: 'ShopInventoryPage', group: 'buyer_hub' },
   { path: '/shop/:unitId', label: 'Vehicle Detail', component: 'VehicleDetailPage', group: 'buyer_hub' },

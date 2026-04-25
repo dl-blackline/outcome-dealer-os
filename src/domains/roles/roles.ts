@@ -32,20 +32,20 @@ export const ROLE_LABELS: Record<AppRole, string> = {
   admin: 'Administrator',
 }
 
-export type NavGroup = 'dashboard' | 'records' | 'operations' | 'settings' | 'workstation' | 'playbook'
+export type NavGroup = 'dashboard' | 'records' | 'operations' | 'settings' | 'workstation' | 'playbook' | 'finance'
 
 export const ROLE_NAV_GROUPS: Record<AppRole, NavGroup[]> = {
-  owner: ['dashboard', 'workstation', 'records', 'operations', 'playbook', 'settings'],
-  gm: ['dashboard', 'workstation', 'records', 'operations', 'playbook', 'settings'],
-  gsm: ['dashboard', 'workstation', 'records', 'operations', 'playbook', 'settings'],
-  used_car_manager: ['dashboard', 'workstation', 'records', 'operations', 'playbook'],
+  owner: ['dashboard', 'workstation', 'records', 'operations', 'finance', 'playbook', 'settings'],
+  gm: ['dashboard', 'workstation', 'records', 'operations', 'finance', 'playbook', 'settings'],
+  gsm: ['dashboard', 'workstation', 'records', 'operations', 'finance', 'playbook', 'settings'],
+  used_car_manager: ['dashboard', 'workstation', 'records', 'operations', 'finance', 'playbook'],
   bdc_manager: ['dashboard', 'workstation', 'records', 'operations', 'playbook'],
-  sales_manager: ['dashboard', 'workstation', 'records', 'operations', 'playbook'],
+  sales_manager: ['dashboard', 'workstation', 'records', 'operations', 'finance', 'playbook'],
   sales_rep: ['dashboard', 'workstation', 'records'],
-  fi_manager: ['dashboard', 'workstation', 'records', 'operations', 'playbook'],
+  fi_manager: ['dashboard', 'workstation', 'records', 'operations', 'finance', 'playbook'],
   service_director: ['dashboard', 'workstation', 'records', 'operations', 'playbook'],
   service_advisor: ['dashboard', 'workstation', 'records'],
   recon_manager: ['dashboard', 'workstation', 'records', 'operations'],
   marketing_manager: ['dashboard', 'workstation', 'records', 'operations', 'playbook'],
-  admin: ['dashboard', 'workstation', 'records', 'operations', 'playbook', 'settings'],
+  admin: ['dashboard', 'workstation', 'records', 'operations', 'finance', 'playbook', 'settings'],
 }
