@@ -30,7 +30,7 @@ function formatPrice(value: number) {
 const TRUST_POINTS = [
   'Financing available for all credit types',
   'Trade-ins welcome — we pay top dollar',
-  'Serving Cleveland, Ohio and surrounding areas',
+  `Serving ${DEALER.city}, ${DEALER.state} and surrounding areas`,
   'Every vehicle verified before listing',
 ]
 
