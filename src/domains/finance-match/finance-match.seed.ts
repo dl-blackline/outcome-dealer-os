@@ -43,10 +43,6 @@ const IDS = {
 const SEED_EXPLANATION = 'Demo seed data — verify against current lender guidelines before use.'
 const NOW = new Date().toISOString()
 
-function seedRow<T extends { id: string; created_at: string }>(base: Omit<T, 'created_at' | 'updated_at'> & { id: string }): T {
-  return { ...base, created_at: NOW } as unknown as T
-}
-
 // ─── Lenders ─────────────────────────────────────────────────────────────────
 
 const SEED_LENDERS: LenderRow[] = [

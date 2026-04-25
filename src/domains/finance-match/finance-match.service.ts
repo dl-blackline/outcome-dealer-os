@@ -1,5 +1,4 @@
 import { findMany, findById, insert, update } from '@/lib/db/helpers'
-import { db } from '@/lib/db/supabase'
 import { ServiceResult, ok, fail } from '@/types/common'
 import { UUID } from '@/types/common'
 import {
