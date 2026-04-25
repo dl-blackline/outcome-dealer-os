@@ -77,29 +77,29 @@ export function BuyerHubShell() {
             onClick={() => navigate('/')}
             className="group flex items-center gap-3 text-left"
           >
-            <div className="rounded-xl border border-white/20 bg-white/5 p-2 text-slate-100 shadow-lg shadow-black/30">
-              <ShieldCheck size={20} weight="duotone" />
+            <div className={`rounded-xl border p-2 shadow-md ${isDark ? 'border-white/20 bg-white/5 text-blue-300' : 'border-blue-400/30 bg-blue-50 text-blue-600'}`}>
+              <ShieldCheck size={22} weight="duotone" />
             </div>
             <div>
-              <p className={`vault-title text-[0.72rem] leading-tight ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>National Car Mart</p>
-              <p className={`text-xs tracking-[0.18em] ${isDark ? 'text-slate-400' : 'text-slate-600'}`}>Vehicle Vault</p>
+              <p className={`text-sm font-bold leading-tight ${isDark ? 'text-slate-100' : 'text-slate-900'}`}>National Car Mart</p>
+              <p className={`text-[0.65rem] tracking-[0.14em] ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>Vehicle Vault</p>
             </div>
           </button>
 
           {/* Nav Links */}
-          <nav className="hidden items-center gap-2 md:flex">
+          <nav className="hidden items-center gap-1.5 md:flex">
             {NAV_LINKS.map((link) => (
               <button
                 key={link.path}
                 onClick={() => navigate(link.path)}
-                className={`rounded-full border px-4 py-2 text-xs font-semibold tracking-[0.15em] uppercase transition-all ${
+                className={`rounded-full border px-4 py-2 text-sm font-medium transition-all ${
                   currentPath === link.path || currentPath.startsWith(link.path + '/')
                     ? isDark
-                      ? 'border-blue-200/40 bg-blue-200/20 text-blue-100 shadow-[0_0_35px_rgba(133,171,255,0.25)]'
-                      : 'border-blue-500/35 bg-blue-500/10 text-blue-700'
+                      ? 'border-blue-200/40 bg-blue-200/20 text-blue-100 shadow-[0_0_30px_rgba(133,171,255,0.2)]'
+                      : 'border-blue-500/40 bg-blue-500/10 text-blue-700'
                     : isDark
                       ? 'border-white/12 bg-white/3 text-slate-300 hover:border-white/28 hover:bg-white/8 hover:text-white'
-                      : 'border-slate-300/70 bg-slate-100/80 text-slate-700 hover:border-slate-400 hover:bg-white'
+                      : 'border-slate-300/70 bg-white/80 text-slate-700 hover:border-slate-400 hover:bg-white hover:text-slate-900'
                 }`}
               >
                 {link.label}
@@ -125,14 +125,14 @@ export function BuyerHubShell() {
             </button>
             <button
               onClick={() => navigate('/wholesale')}
-              className={`hidden rounded-full border px-4 py-2 text-xs font-semibold tracking-[0.15em] uppercase transition-all md:inline-flex ${isDark ? 'border-blue-200/35 bg-blue-200/12 text-blue-100 hover:border-blue-200/60 hover:bg-blue-200/20' : 'border-blue-400/40 bg-blue-50 text-blue-700 hover:border-blue-500/55 hover:bg-blue-100'}`}
+              className={`hidden rounded-full border px-4 py-2 text-sm font-medium transition-all md:inline-flex ${isDark ? 'border-blue-200/35 bg-blue-200/12 text-blue-100 hover:border-blue-200/60 hover:bg-blue-200/20' : 'border-blue-400/40 bg-blue-50 text-blue-700 hover:border-blue-500/55 hover:bg-blue-100'}`}
             >
               <LockKey size={14} className="mr-1.5" />
               Wholesale
             </button>
             <button
               onClick={() => navigate('/login')}
-              className={`hidden rounded-full border px-4 py-2 text-xs font-semibold tracking-[0.15em] uppercase transition-all md:inline-flex ${isDark ? 'border-white/15 bg-white/3 text-slate-300 hover:border-white/30 hover:bg-white/8 hover:text-white' : 'border-slate-300/80 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50'}`}
+              className={`hidden rounded-full border px-4 py-2 text-sm font-medium transition-all md:inline-flex ${isDark ? 'border-white/15 bg-white/3 text-slate-300 hover:border-white/30 hover:bg-white/8 hover:text-white' : 'border-slate-300/80 bg-white text-slate-700 hover:border-slate-400 hover:bg-slate-50'}`}
             >
               Staff Login
             </button>
@@ -153,7 +153,7 @@ export function BuyerHubShell() {
             </button>
             <button
               onClick={() => navigate('/my-next-steps')}
-              className={`vault-edge inline-flex items-center gap-1 rounded-full px-4 py-2 text-xs font-semibold tracking-[0.14em] uppercase transition-all ${
+              className={`vault-edge inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-semibold transition-all ${
                 currentPath === '/my-next-steps'
                   ? 'vault-btn text-white'
                   : 'vault-btn-muted hover:border-white/45 hover:text-white'

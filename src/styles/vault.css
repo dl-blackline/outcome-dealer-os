@@ -415,7 +415,7 @@
   }
 
   /* Preserve white text on colored gradient badges (e.g. ManufacturerMark) */
-  :root[data-theme='light'] .vault-shell [class*="bg-linear-to"] {
+  :root[data-theme='light'] .vault-shell [class*="bg-gradient-to"] .badge-label {
     color: white !important;
   }
 
