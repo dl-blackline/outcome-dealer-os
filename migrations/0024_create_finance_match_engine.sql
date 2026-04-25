@@ -142,7 +142,7 @@ CREATE TABLE IF NOT EXISTS lender_match_results (
 CREATE TABLE IF NOT EXISTS uploaded_program_processing_jobs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   document_id UUID REFERENCES lender_program_documents(id) ON DELETE SET NULL,
-  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'extracted', 'failed', 'approved', 'rejected')),
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'processing', 'extracted', 'needs_review', 'failed', 'approved', 'rejected')),
   extracted_data JSONB,
   extracted_rules JSONB NOT NULL DEFAULT '[]',
   approved_rules JSONB NOT NULL DEFAULT '[]',

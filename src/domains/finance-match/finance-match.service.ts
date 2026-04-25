@@ -338,7 +338,8 @@ export async function createProcessingJob(
   try {
     const row = await insert<UploadedProgramJobRow>('uploaded_program_processing_jobs', {
       document_id: documentId,
-      status: 'extracted',
+      // Jobs created via manual entry start in 'needs_review' state since there's no async extraction step
+      status: 'needs_review' as const,
       extracted_data: extractedData,
       extracted_rules: [],
       approved_rules: [],
