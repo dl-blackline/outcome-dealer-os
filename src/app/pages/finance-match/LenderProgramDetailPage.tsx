@@ -72,34 +72,28 @@ export function LenderProgramDetailPage() {
 
       {/* Lender Info */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        {lender.contactEmail && (
-          <Card className="p-4">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-              <Envelope className="h-3.5 w-3.5" /> Email
-            </div>
-            <div className="text-sm font-medium truncate">{lender.contactEmail}</div>
-          </Card>
-        )}
-        {lender.contactPhone && (
+        {lender.phone && (
           <Card className="p-4">
             <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
               <Phone className="h-3.5 w-3.5" /> Phone
             </div>
-            <div className="text-sm font-medium">{lender.contactPhone}</div>
+            <div className="text-sm font-medium">{lender.phone}</div>
           </Card>
         )}
-        {lender.dealerNumber && (
+        {lender.website && (
           <Card className="p-4">
             <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
-              <IdentificationBadge className="h-3.5 w-3.5" /> Dealer #
+              <Envelope className="h-3.5 w-3.5" /> Website
             </div>
-            <div className="text-sm font-medium">{lender.dealerNumber}</div>
+            <div className="text-sm font-medium truncate">{lender.website}</div>
           </Card>
         )}
-        {lender.routingNumber && (
+        {lender.portalUrl && (
           <Card className="p-4">
-            <div className="text-xs text-muted-foreground mb-1">Routing #</div>
-            <div className="text-sm font-medium">{lender.routingNumber}</div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+              <IdentificationBadge className="h-3.5 w-3.5" /> Dealer Portal
+            </div>
+            <div className="text-sm font-medium truncate">{lender.portalUrl}</div>
           </Card>
         )}
       </div>

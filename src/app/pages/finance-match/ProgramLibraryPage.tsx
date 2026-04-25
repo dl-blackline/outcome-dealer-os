@@ -100,14 +100,11 @@ export function ProgramLibraryPage() {
                 <CardContent className="space-y-3">
                   <div className="text-xs text-muted-foreground space-y-1">
                     <div><span className="font-medium">Type:</span> {lender.lenderType.replace('_', ' ')}</div>
-                    {lender.routingNumber && (
-                      <div><span className="font-medium">Routing:</span> {lender.routingNumber}</div>
+                    {lender.phone && (
+                      <div><span className="font-medium">Phone:</span> {lender.phone}</div>
                     )}
-                    {lender.contactEmail && (
-                      <div className="truncate"><span className="font-medium">Email:</span> {lender.contactEmail}</div>
-                    )}
-                    {lender.dealerNumber && (
-                      <div><span className="font-medium">Dealer #:</span> {lender.dealerNumber}</div>
+                    {lender.website && (
+                      <div className="truncate"><span className="font-medium">Web:</span> {lender.website}</div>
                     )}
                   </div>
                   <Button
@@ -159,10 +156,10 @@ export function ProgramLibraryPage() {
                 <Card key={job.id}>
                   <CardContent className="p-4 flex items-center justify-between gap-4">
                     <div className="min-w-0">
-                      <div className="text-sm font-medium truncate">{job.fileName}</div>
+                      <div className="text-sm font-medium truncate">Job {job.id.slice(0, 8)}…</div>
                       <div className="text-xs text-muted-foreground">
                         {new Date(job.createdAt).toLocaleDateString()}
-                        {job.extractedRuleCount !== undefined && ` · ${job.extractedRuleCount} rules extracted`}
+                        {job.extractedRules.length > 0 && ` · ${job.extractedRules.length} rules extracted`}
                       </div>
                     </div>
                     <div className="flex items-center gap-2 shrink-0">

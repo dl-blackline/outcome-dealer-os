@@ -69,7 +69,8 @@ export function calcFrontEndAdvance(input: DealStructureInput): number {
   const cashDown = input.cashDown ?? 0
   const netTradeEquity = calcNetTradeEquity(input)
 
-  return salesPrice + taxes + titleLicenseFees + docFee - cashDown + netTradeEquity
+  // Positive equity reduces amount financed; negative equity (over-trade) adds to it
+  return salesPrice + taxes + titleLicenseFees + docFee - cashDown - netTradeEquity
 }
 
 export function calcLtv(input: DealStructureInput): number {

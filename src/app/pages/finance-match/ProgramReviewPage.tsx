@@ -73,10 +73,10 @@ export function ProgramReviewPage() {
         <div>
           <h1 className="text-xl font-bold flex items-center gap-2">
             <FileText className="h-5 w-5" />
-            {job.fileName}
+            Program Document
           </h1>
           <p className="text-sm text-muted-foreground mt-1">
-            Uploaded {new Date(job.createdAt).toLocaleDateString()} · {job.extractedRuleCount ?? 0} rules extracted
+            Uploaded {new Date(job.createdAt).toLocaleDateString()} · {job.extractedRules.length} rules extracted
           </p>
         </div>
         <Badge
@@ -102,7 +102,7 @@ export function ProgramReviewPage() {
           <div className="rounded-lg border border-dashed bg-muted/30 p-10 text-center">
             <FileText className="h-10 w-10 mx-auto mb-2 text-muted-foreground/50" />
             <p className="text-sm text-muted-foreground">Document preview not available in demo mode.</p>
-            <p className="text-xs text-muted-foreground mt-1">Original file: <span className="font-medium">{job.fileName}</span></p>
+            <p className="text-xs text-muted-foreground mt-1">Document ID: <span className="font-medium">{job.documentId ?? 'N/A'}</span></p>
           </div>
         </CardContent>
       </Card>
@@ -110,21 +110,20 @@ export function ProgramReviewPage() {
       {/* Extracted Rules */}
       <div>
         <h2 className="text-base font-semibold mb-3">Extracted Rules</h2>
-        {!job.extractedRuleCount || job.extractedRuleCount === 0 ? (
+        {job.extractedRules.length === 0 ? (
           <div className="text-sm text-muted-foreground">No rules were extracted from this document.</div>
         ) : (
           <div className="space-y-2">
-            {/* Since we don't have the actual extracted rules in the job object, show a placeholder */}
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <Warning className="h-4 w-4 text-amber-500" />
-                  <span>Rule details require Supabase integration to display. {job.extractedRuleCount} rules are ready for review.</span>
+                  <span>Rule details require Supabase integration to display. {job.extractedRules.length} rules are ready for review.</span>
                 </div>
               </CardContent>
             </Card>
 
-            {Array.from({ length: Math.min(job.extractedRuleCount, 5) }, (_, i) => (
+            {Array.from({ length: Math.min(job.extractedRules.length, 5) }, (_, i) => (
               <Card key={i}>
                 <CardContent className="p-4 flex items-center justify-between gap-4">
                   <div className="min-w-0 flex-1">
