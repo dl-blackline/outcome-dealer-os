@@ -53,6 +53,10 @@ import { DecisionsListPage } from '@/app/pages/playbook/DecisionsListPage'
 import { ActionItemsListPage } from '@/app/pages/playbook/ActionItemsListPage'
 import { TimelinePage } from '@/app/pages/playbook/TimelinePage'
 import { FilesLibraryPage } from '@/app/pages/playbook/FilesLibraryPage'
+import { FinanceMatchEnginePage } from '@/app/pages/finance-match/FinanceMatchEnginePage'
+import { ProgramLibraryPage } from '@/app/pages/finance-match/ProgramLibraryPage'
+import { ProgramReviewPage } from '@/app/pages/finance-match/ProgramReviewPage'
+import { LenderProgramDetailPage } from '@/app/pages/finance-match/LenderProgramDetailPage'
 
 const ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/app/dashboard': DashboardPage,
@@ -99,6 +103,10 @@ const ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/app/playbook/action-items': ActionItemsListPage,
   '/app/playbook/timeline': TimelinePage,
   '/app/playbook/files': FilesLibraryPage,
+  '/app/finance/match-engine': FinanceMatchEnginePage,
+  '/app/finance/program-library': ProgramLibraryPage,
+  '/app/finance/program-review/:jobId': ProgramReviewPage,
+  '/app/finance/programs/:lenderId': LenderProgramDetailPage,
 }
 
 function resolvePageComponent(currentPath: string): React.ComponentType | null {
