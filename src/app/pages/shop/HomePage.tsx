@@ -1,343 +1,626 @@
-import {
-  ArrowRight,
-  Car,
-  CheckCircle,
-  CurrencyDollar,
-  Gauge,
-  MapPin,
-  ShieldCheck,
-  Star,
-  TrendUp,
-} from '@phosphor-icons/react'
+import { useRef } from 'react'
+import { CaretRight, Car, CurrencyDollar, Wrench, ArrowsLeftRight, Users, Timer, MapPin, Heart } from '@phosphor-icons/react'
 import { useRouter } from '@/app/router'
-import { useInventoryCatalog, pickBestInventoryPhoto } from '@/domains/inventory/inventory.runtime'
-import { useScrollIntoView } from '@/hooks/useScrollIntoView'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { useInventoryCatalog } from '@/domains/inventory/inventory.runtime'
+import { computePaymentEstimate } from '@/domains/buyer-hub/buyerHub.types'
 import { InventoryPhotoImage } from '@/components/inventory/InventoryPhotoImage'
-import { isPlaceholderUrl } from '@/domains/inventory-photo/inventoryPhoto.placeholder'
+
 import { DEALER } from '@/lib/dealer.constants'
 
 function formatPrice(value: number) {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    maximumFractionDigits: 0,
-  }).format(value)
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value)
 }
 
-const TRUST_POINTS = [
-  'Financing available for all credit types',
-  'Trade-ins welcome — we pay top dollar',
-  `Serving ${DEALER.city}, ${DEALER.state} and surrounding areas`,
-  'Every vehicle verified before listing',
+function formatMileage(value: number) {
+  return new Intl.NumberFormat('en-US').format(value)
+}
+
+function getMonthlyPayment(price: number) {
+  const est = computePaymentEstimate({ vehiclePrice: price, downPayment: 0, tradeValue: 0, termMonths: 72, interestRate: 6.9 })
+  return Math.round(est.monthlyPayment)
+}
+
+// Assign a badge type to inventory cards based on index / days in stock
+function getBadgeType(idx: number, daysInStock: number): 'new' | 'value' | 'family' | null {
+  if (daysInStock <= 7) return 'new'
+  if (idx % 3 === 1) return 'value'
+  if (idx % 3 === 2) return 'family'
+  return 'new'
+}
+
+const BADGE_LABELS: Record<'new' | 'value' | 'family', string> = {
+  new: 'New Arrival',
+  value: 'Great Value',
+  family: 'Family Favorite',
+}
+
+const BADGE_CLASSES: Record<'new' | 'value' | 'family', string> = {
+  new: 'ncm-badge-new',
+  value: 'ncm-badge-value',
+  family: 'ncm-badge-family',
+}
+
+const SERVICE_CARDS = [
+  {
+    icon: Car,
+    title: 'Inventory',
+    sub: 'Shop Premium\nPre-Owned Vehicles',
+    path: '/shop',
+    accent: '#d41a1a',
+  },
+  {
+    icon: CurrencyDollar,
+    title: 'Financing',
+    sub: 'Fast & Easy\nApproval Process',
+    path: '/finance',
+    accent: '#2563eb',
+  },
+  {
+    icon: ArrowsLeftRight,
+    title: 'Trade',
+    sub: 'Get Top Dollar\nFor Your Trade',
+    path: '/trade',
+    accent: '#d41a1a',
+  },
+  {
+    icon: Wrench,
+    title: 'Service',
+    sub: 'Expert Service\nYou Can Trust',
+    path: '/schedule',
+    accent: '#d41a1a',
+  },
+]
+
+const TRUST_ITEMS = [
+  {
+    icon: Users,
+    title: 'Family-Owned Since 1962',
+    sub: 'Over 60 years of serving Cleveland with honesty and integrity.',
+  },
+  {
+    icon: Timer,
+    title: 'Fast Approvals',
+    sub: 'Most approvals in minutes, not hours.',
+  },
+  {
+    icon: MapPin,
+    title: 'Top Cleveland Selection',
+    sub: 'Hundreds of quality pre-owned vehicles ready to drive.',
+  },
 ]
 
 export function HomePage() {
   const { navigate } = useRouter()
-  const { featuredRecords, publicRecords, masterSource } = useInventoryCatalog()
-  const heroUnit = featuredRecords[0] || publicRecords[0]
-  const featureCardsRef = useScrollIntoView()
-  const inventoryGridRef = useScrollIntoView()
+  const { featuredRecords, publicRecords } = useInventoryCatalog()
+  const scrollRef = useRef<HTMLDivElement>(null)
 
-  const heroPhotoUrl = heroUnit ? pickBestInventoryPhoto(heroUnit)?.url : undefined
-  const heroHasRealPhoto = !!heroPhotoUrl && !isPlaceholderUrl(heroPhotoUrl)
+  // Pick best 4-5 for featured cards
+  const showcaseUnits = featuredRecords.length >= 4
+    ? featuredRecords.slice(0, 4)
+    : publicRecords.slice(0, 4)
+
+  function scrollCards(dir: -1 | 1) {
+    if (scrollRef.current) {
+      scrollRef.current.scrollBy({ left: dir * 320, behavior: 'smooth' })
+    }
+  }
 
   return (
-    <div className="space-y-12 pb-20 pt-4 sm:pt-6">
-      {/* ── Hero ── */}
-      <section className="vault-panel vault-edge vault-animate-fade overflow-hidden rounded-[2rem]">
-        <div className="grid min-h-[30rem] gap-0 lg:grid-cols-2 lg:min-h-[38rem]">
-          {/* LEFT: headline + trust points + CTAs */}
-          <div className="relative flex flex-col justify-center p-7 sm:p-10 lg:p-12">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_30%,rgba(182,212,255,0.1),transparent_45%)]" />
-            <div className="relative z-10 max-w-md space-y-5">
-              <Badge className="vault-chip rounded-full px-4 py-1.5 text-[0.6rem] uppercase tracking-[0.16em]">
-                National Car Mart
-              </Badge>
-              <h1 className="text-3xl font-bold leading-tight tracking-tight text-slate-900 dark:text-white sm:text-4xl lg:text-[2.6rem]">
-                Find Your Next Vehicle<br className="hidden sm:block" /> With Confidence
-              </h1>
-              <p className="text-[0.9rem] leading-7 text-slate-600 dark:text-slate-300">
-                Verified inventory, flexible financing, and trade-in options — all in one place.
-              </p>
-              <ul className="space-y-2">
-                {TRUST_POINTS.map((point) => (
-                  <li key={point} className="flex items-center gap-2.5 text-sm text-slate-600 dark:text-slate-400">
-                    <CheckCircle size={15} weight="fill" className="shrink-0 text-emerald-500 dark:text-emerald-400" />
-                    {point}
-                  </li>
-                ))}
-              </ul>
-              <div className="flex flex-wrap gap-3 pt-1">
-                <Button
-                  size="lg"
-                  onClick={() => navigate('/shop')}
-                  className="vault-btn rounded-xl px-7 py-3 text-sm font-semibold"
-                >
-                  Browse Inventory
-                  <ArrowRight size={16} />
-                </Button>
-                <Button
-                  size="lg"
-                  onClick={() => navigate('/finance')}
-                  className="vault-btn-muted rounded-xl px-7 py-3 text-sm font-semibold"
-                >
-                  Get Financing
-                </Button>
-              </div>
+    <div style={{ background: '#0a0a0f' }}>
+      {/* ═══════════════════════════════════════════════
+          HERO
+          ═══════════════════════════════════════════════ */}
+      <section
+        style={{
+          position: 'relative',
+          minHeight: '520px',
+          background: 'linear-gradient(135deg, #080810 0%, #0e0e1a 40%, #12121e 100%)',
+          overflow: 'hidden',
+        }}
+      >
+        {/* Atmosphere BG */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            background: 'radial-gradient(ellipse 80% 60% at 60% 50%, rgba(30,40,80,0.45) 0%, transparent 70%)',
+            pointerEvents: 'none',
+          }}
+        />
+        {/* Light streaks */}
+        <div style={{ position: 'absolute', top: '38%', left: 0, right: 0, height: '2px', background: 'linear-gradient(90deg, transparent 0%, rgba(212,26,26,0.7) 30%, rgba(212,26,26,0.3) 60%, transparent 100%)', transform: 'skewY(-2deg)', pointerEvents: 'none' }} />
+        <div style={{ position: 'absolute', top: '45%', left: 0, right: 0, height: '1px', background: 'linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.5) 40%, rgba(59,130,246,0.2) 70%, transparent 100%)', transform: 'skewY(-2deg)', pointerEvents: 'none' }} />
+
+        {/* Hero content */}
+        <div
+          className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8"
+          style={{ position: 'relative', zIndex: 2, paddingTop: '4rem', paddingBottom: '5rem', textAlign: 'center' }}
+        >
+          {/* Sub-label */}
+          <div
+            className="inline-flex items-center gap-2 mb-6"
+            style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.72rem', letterSpacing: '0.22em', color: '#8898b8', textTransform: 'uppercase' }}
+          >
+            <span style={{ color: '#d41a1a' }}>★</span>
+            <span>Premium Pre-Owned Vehicles</span>
+            <span style={{ color: '#d41a1a' }}>•</span>
+            <span>Fast Approvals</span>
+            <span style={{ color: '#d41a1a' }}>•</span>
+            <span>Cleveland Confidence</span>
+            <span style={{ color: '#3b82f6' }}>★</span>
+          </div>
+
+          {/* Main headline */}
+          <div style={{ marginBottom: '0.5rem' }}>
+            <div
+              style={{
+                fontFamily: 'Barlow Condensed, Syncopate, sans-serif',
+                fontWeight: 700,
+                fontSize: 'clamp(2.2rem, 6vw, 4.5rem)',
+                textTransform: 'uppercase',
+                lineHeight: 0.95,
+                color: '#d8dff5',
+                letterSpacing: '0.01em',
+              }}
+            >
+              Drive Something
+            </div>
+            <div
+              style={{
+                fontFamily: 'Barlow Condensed, Syncopate, sans-serif',
+                fontWeight: 800,
+                fontSize: 'clamp(3rem, 9vw, 7rem)',
+                textTransform: 'uppercase',
+                lineHeight: 0.88,
+                background: 'linear-gradient(180deg, #ffffff 10%, #c8d4f0 55%, #8898c8 100%)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+                letterSpacing: '-0.01em',
+              }}
+            >
+              POWERFUL
             </div>
           </div>
 
-          {/* RIGHT: Vehicle image or branded fallback */}
-          <div className="relative min-h-[22rem] overflow-hidden lg:min-h-0">
-            {heroHasRealPhoto && heroUnit ? (
-              <>
-                <InventoryPhotoImage
-                  record={heroUnit}
-                  alt={`${heroUnit.year} ${heroUnit.make} ${heroUnit.model}`}
-                  className="h-full w-full object-cover"
-                  loading="eager"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/10 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 space-y-2 p-6 sm:p-8">
-                  <p className="vault-title text-[0.55rem] text-slate-200">Featured</p>
-                  <h2 className="text-xl font-bold text-white sm:text-2xl">
-                    {heroUnit.year} {heroUnit.make} {heroUnit.model}
-                  </h2>
-                  <div className="flex items-end justify-between gap-4">
-                    <div>
-                      <p className="text-xs text-slate-300">{heroUnit.trim}</p>
-                      <p className="mt-0.5 text-lg font-semibold text-white">{formatPrice(heroUnit.price)}</p>
-                    </div>
-                    <Button
-                      size="sm"
-                      onClick={() => navigate(`/shop/${heroUnit.id}`)}
-                      className="vault-btn-muted shrink-0 rounded-xl px-5 py-2 text-xs font-semibold"
-                    >
-                      View Details
-                    </Button>
-                  </div>
-                </div>
-              </>
-            ) : (
-              // Branded fallback — shown when no real vehicle photo is available
-              <div className="relative flex h-full flex-col items-center justify-center overflow-hidden bg-gradient-to-br from-blue-950 via-slate-900 to-slate-800 p-10 text-center">
-                {/* Decorative grid */}
-                <div
-                  className="pointer-events-none absolute inset-0 opacity-[0.04]"
-                  style={{
-                    backgroundImage:
-                      'linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)',
-                    backgroundSize: '40px 40px',
-                  }}
-                />
-                <div className="relative z-10 space-y-4">
-                  <div className="mx-auto w-fit rounded-full border border-blue-400/30 bg-blue-500/15 p-5">
-                    <ShieldCheck size={38} weight="duotone" className="text-blue-300" />
-                  </div>
-                  <div>
-                    <p className="text-base font-bold text-white">National Car Mart</p>
-                    <p className="mt-1 text-sm text-slate-400">
-                      {heroUnit
-                        ? `${heroUnit.year} ${heroUnit.make} ${heroUnit.model} — ${formatPrice(heroUnit.price)}`
-                        : 'Premium inventory loading…'}
-                    </p>
-                  </div>
-                  {heroUnit ? (
-                    <Button
-                      size="sm"
-                      onClick={() => navigate(`/shop/${heroUnit.id}`)}
-                      className="vault-btn rounded-xl px-6 py-2 text-sm font-semibold"
-                    >
-                      View Details
-                      <ArrowRight size={14} />
-                    </Button>
-                  ) : (
-                    <Button
-                      size="sm"
-                      onClick={() => navigate('/shop')}
-                      className="vault-btn rounded-xl px-6 py-2 text-sm font-semibold"
-                    >
-                      Browse Inventory
-                      <ArrowRight size={14} />
-                    </Button>
-                  )}
-                </div>
-              </div>
-            )}
+          {/* Stars accent */}
+          <div className="flex items-center justify-center gap-2 my-5">
+            <div style={{ flex: 1, maxWidth: '120px', height: '1px', background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.25))' }} />
+            <span style={{ color: '#3b82f6', fontSize: '0.9rem' }}>★</span>
+            <span style={{ color: '#c8d4f0', fontSize: '0.9rem' }}>★</span>
+            <div style={{ flex: 1, maxWidth: '120px', height: '1px', background: 'linear-gradient(270deg, transparent, rgba(255,255,255,0.25))' }} />
+          </div>
+
+          {/* CTA Row */}
+          <div className="flex flex-wrap items-center justify-center gap-3 mt-6">
+            <button
+              onClick={() => navigate('/shop')}
+              className="ncm-btn-red flex items-center gap-2 px-7 py-3 text-sm"
+              style={{ borderRadius: '4px' }}
+            >
+              SHOP INVENTORY <CaretRight size={14} weight="bold" />
+            </button>
+            <button
+              onClick={() => navigate('/finance/apply')}
+              className="ncm-btn-outline flex items-center gap-2 px-7 py-3 text-sm"
+              style={{ borderRadius: '4px' }}
+            >
+              GET APPROVED <CaretRight size={14} weight="bold" />
+            </button>
+            <button
+              onClick={() => navigate('/trade')}
+              className="ncm-btn-blue flex items-center gap-2 px-7 py-3 text-sm"
+              style={{ borderRadius: '4px' }}
+            >
+              VALUE YOUR TRADE <CaretRight size={14} weight="bold" />
+            </button>
           </div>
         </div>
       </section>
 
-      {/* ── Stats strip ── */}
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
-        <Card className="vault-panel-soft rounded-2xl">
-          <CardContent className="p-5">
-            <p className="text-xs uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">In Stock</p>
-            <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">{publicRecords.length}</p>
-            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-500">Available vehicles</p>
-          </CardContent>
-        </Card>
-        <Card className="vault-panel-soft rounded-2xl">
-          <CardContent className="p-5">
-            <p className="text-xs uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Inventory Source</p>
-            <p className="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-200">{masterSource.label}</p>
-          </CardContent>
-        </Card>
-        <Card className="vault-panel-soft col-span-2 rounded-2xl md:col-span-1">
-          <CardContent className="p-5">
-            <p className="text-xs uppercase tracking-[0.14em] text-slate-500 dark:text-slate-400">Location</p>
-            <p className="mt-2 text-sm font-semibold text-slate-800 dark:text-slate-200">Cleveland, Ohio</p>
-          </CardContent>
-        </Card>
+      {/* ═══════════════════════════════════════════════
+          SERVICE CARDS ROW
+          ═══════════════════════════════════════════════ */}
+      <div style={{ background: '#0d0d15', borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+        <div className="mx-auto max-w-[1400px] grid grid-cols-2 lg:grid-cols-4">
+          {SERVICE_CARDS.map((card, i) => {
+            const Icon = card.icon
+            return (
+              <button
+                key={card.title}
+                onClick={() => navigate(card.path)}
+                className="ncm-service-card"
+                style={{
+                  borderRight: i < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                  borderRadius: 0,
+                  padding: '1.25rem 1.5rem',
+                }}
+              >
+                <div
+                  style={{
+                    width: '48px',
+                    height: '48px',
+                    borderRadius: '4px',
+                    background: `rgba(${card.accent === '#d41a1a' ? '212,26,26' : '37,99,235'},0.15)`,
+                    border: `1px solid rgba(${card.accent === '#d41a1a' ? '212,26,26' : '37,99,235'},0.3)`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <Icon size={22} style={{ color: card.accent }} weight="bold" />
+                </div>
+                <div className="text-left">
+                  <div
+                    style={{
+                      fontFamily: 'Barlow, Manrope, sans-serif',
+                      fontWeight: 700,
+                      fontSize: '0.9rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                      color: '#f0f2f8',
+                    }}
+                  >
+                    {card.title}
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: 'Barlow, Manrope, sans-serif',
+                      fontSize: '0.72rem',
+                      color: '#8898b8',
+                      lineHeight: 1.45,
+                      marginTop: '0.2rem',
+                      whiteSpace: 'pre-line',
+                    }}
+                  >
+                    {card.sub}
+                  </div>
+                </div>
+                <CaretRight size={14} style={{ color: card.accent, marginLeft: 'auto', flexShrink: 0 }} />
+              </button>
+            )
+          })}
+        </div>
       </div>
 
-      {/* ── Feature cards ── */}
-      <section className="grid gap-5 md:grid-cols-3" ref={featureCardsRef}>
-        <Card className="vault-panel-soft vault-edge vault-scroll-stagger rounded-2xl">
-          <CardContent className="space-y-3 p-6">
-            <ShieldCheck size={20} className="text-blue-600 dark:text-blue-300" />
-            <p className="text-base font-semibold text-slate-900 dark:text-white">Verified purchase flow</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Transparent inquiry, finance, and scheduling pathways so you know exactly where you stand.</p>
-          </CardContent>
-        </Card>
-        <Card className="vault-panel-soft vault-edge vault-scroll-stagger rounded-2xl">
-          <CardContent className="space-y-3 p-6">
-            <TrendUp size={20} className="text-emerald-600 dark:text-emerald-300" />
-            <p className="text-base font-semibold text-slate-900 dark:text-white">Live inventory sync</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Pricing, availability, and mileage stay up to date so you're always looking at real listings.</p>
-          </CardContent>
-        </Card>
-        <Card className="vault-panel-soft vault-edge vault-scroll-stagger rounded-2xl">
-          <CardContent className="space-y-3 p-6">
-            <Gauge size={20} className="text-violet-600 dark:text-violet-300" />
-            <p className="text-base font-semibold text-slate-900 dark:text-white">Fast, mobile-ready browsing</p>
-            <p className="text-sm text-slate-500 dark:text-slate-400">Browse vehicles quickly on any device with full details, photos, and easy contact options.</p>
-          </CardContent>
-        </Card>
-      </section>
-
-      {/* ── Featured inventory ── */}
-      <section className="space-y-7">
-        <div className="flex flex-wrap items-end justify-between gap-4">
-          <div>
-            <p className="text-[0.63rem] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Featured Vehicles</p>
-            <h2 className="mt-2 text-2xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-3xl">
-              Hand-selected units in stock
-            </h2>
-          </div>
-          <Button
-            onClick={() => navigate('/shop')}
-            className="vault-btn-muted rounded-xl px-6 py-2.5 text-sm font-semibold"
-          >
-            View Full Inventory
-            <ArrowRight size={15} />
-          </Button>
-        </div>
-
-        {featuredRecords.length > 0 ? (
-          <div className="grid gap-6 xl:grid-cols-3" ref={inventoryGridRef}>
-            {featuredRecords.slice(0, 3).map((record, index) => (
-              <button
-                key={record.id}
-                type="button"
-                onClick={() => navigate(`/shop/${record.id}`)}
-                className="vault-panel vault-edge vault-scroll-stagger vault-animate-rise overflow-hidden rounded-[1.5rem] text-left transition-all hover:-translate-y-1 hover:border-blue-500/30 dark:hover:border-blue-200/40"
-                style={{ animationDelay: `${index * 120}ms` }}
+      {/* ═══════════════════════════════════════════════
+          FEATURED INVENTORY
+          ═══════════════════════════════════════════════ */}
+      <section style={{ background: '#0a0a0f', padding: '3.5rem 0' }}>
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+          {/* Section header */}
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div style={{ width: '4px', height: '28px', background: '#d41a1a', borderRadius: '2px' }} />
+              <h2
+                style={{
+                  fontFamily: 'Barlow Condensed, Syncopate, sans-serif',
+                  fontWeight: 800,
+                  fontSize: 'clamp(1.4rem, 3vw, 2rem)',
+                  textTransform: 'uppercase',
+                  color: '#f0f2f8',
+                  letterSpacing: '0.04em',
+                }}
               >
-                <div className="vault-image-frame aspect-[16/10]">
-                  <InventoryPhotoImage
-                    record={record}
-                    alt={`${record.year} ${record.make} ${record.model}`}
-                    className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
-                  />
-                </div>
-                <div className="space-y-3 p-5">
-                  <div>
-                    <p className="text-base font-semibold text-slate-900 dark:text-white">
-                      {record.year} {record.make} {record.model}
-                    </p>
-                    <p className="mt-0.5 text-sm text-slate-500 dark:text-slate-400">{record.trim} · {record.bodyStyle}</p>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <Badge className="vault-chip text-xs">{record.drivetrain || 'Available'}</Badge>
-                    <p className="text-sm font-bold text-slate-900 dark:text-white">{formatPrice(record.price)}</p>
-                  </div>
-                </div>
+                Featured Inventory
+              </h2>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => scrollCards(-1)}
+                className="hidden sm:flex items-center justify-center w-8 h-8 rounded transition-colors"
+                style={{ border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.04)', color: '#c8d4f0' }}
+              >
+                ‹
               </button>
-            ))}
+              <button
+                onClick={() => scrollCards(1)}
+                className="hidden sm:flex items-center justify-center w-8 h-8 rounded transition-colors"
+                style={{ border: '1px solid rgba(255,255,255,0.15)', background: 'rgba(255,255,255,0.04)', color: '#c8d4f0' }}
+              >
+                ›
+              </button>
+              <button
+                onClick={() => navigate('/shop')}
+                className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest transition-colors"
+                style={{ color: '#d41a1a', fontFamily: 'Barlow, Manrope, sans-serif', letterSpacing: '0.1em' }}
+              >
+                View All Inventory <CaretRight size={12} weight="bold" />
+              </button>
+            </div>
           </div>
-        ) : (
-          <div className="vault-panel-soft rounded-2xl p-10 text-center">
-            <Car size={32} className="mx-auto mb-4 text-slate-400 dark:text-slate-500" />
-            <p className="text-base font-semibold text-slate-700 dark:text-slate-300">Featured inventory loading</p>
-            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-              Our hand-selected vehicles will appear here. Browse all available inventory below.
-            </p>
-            <Button
-              onClick={() => navigate('/shop')}
-              className="vault-btn mt-6 rounded-xl px-6 py-2.5 text-sm font-semibold"
+
+          {showcaseUnits.length > 0 ? (
+            <div
+              ref={scrollRef}
+              className="grid grid-cols-2 gap-4 lg:grid-cols-4"
+              style={{ overflowX: 'auto', scrollSnapType: 'x mandatory' }}
             >
-              Browse All Vehicles
-              <ArrowRight size={15} />
-            </Button>
-          </div>
-        )}
+              {showcaseUnits.map((unit, idx) => {
+                const badge = getBadgeType(idx, unit.daysInStock || 99)
+                const monthly = getMonthlyPayment(unit.price)
+                return (
+                  <div
+                    key={unit.id}
+                    className="ncm-inventory-card"
+                    style={{ minWidth: '240px', scrollSnapAlign: 'start', cursor: 'pointer' }}
+                    onClick={() => navigate(`/shop/${unit.id}`)}
+                  >
+                    {/* Photo */}
+                    <div style={{ position: 'relative', height: '180px', background: '#111118', overflow: 'hidden' }}>
+                      <InventoryPhotoImage
+                        record={unit}
+                        alt={`${unit.year} ${unit.make} ${unit.model}`}
+                        className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                        loading="lazy"
+                      />
+                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 50%, rgba(10,10,15,0.8) 100%)' }} />
+
+                      {/* Badge */}
+                      {badge && (
+                        <div style={{ position: 'absolute', top: '10px', left: '10px' }}>
+                          <span className={BADGE_CLASSES[badge]}>{BADGE_LABELS[badge]}</span>
+                        </div>
+                      )}
+
+                      {/* Heart */}
+                      <button
+                        onClick={(e) => { e.stopPropagation() }}
+                        style={{
+                          position: 'absolute', top: '10px', right: '10px',
+                          width: '28px', height: '28px', borderRadius: '50%',
+                          background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(255,255,255,0.2)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        <Heart size={14} style={{ color: '#c8d4f0' }} />
+                      </button>
+
+                      {/* Make/model overlay */}
+                      <div style={{ position: 'absolute', bottom: '8px', left: '10px', right: '10px' }}>
+                        <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.62rem', fontWeight: 600, color: '#8898b8', textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                          {unit.year} {unit.make}
+                        </div>
+                        <div
+                          style={{
+                            fontFamily: 'Barlow Condensed, Syncopate, sans-serif',
+                            fontSize: '1rem',
+                            fontWeight: 800,
+                            color: '#f0f2f8',
+                            textTransform: 'uppercase',
+                            lineHeight: 1.1,
+                          }}
+                        >
+                          {unit.model} {unit.trim}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card details */}
+                    <div style={{ padding: '0.85rem 1rem', flex: 1, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      {/* Mileage */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#8898b8', fontSize: '0.72rem' }}>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <circle cx="12" cy="12" r="10"/><path d="m12 6 0 6 4 2"/>
+                        </svg>
+                        {formatMileage(unit.mileage)} MILES
+                      </div>
+
+                      {/* Price row */}
+                      <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '0.5rem' }}>
+                        <div>
+                          <div className="ncm-price" style={{ fontSize: '1.45rem' }}>
+                            {formatPrice(unit.price)}
+                          </div>
+                          <div className="ncm-monthly" style={{ fontSize: '0.72rem' }}>
+                            ${monthly} <span style={{ color: '#6678a0', fontWeight: 400 }}>/mo*</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <div style={{ textAlign: 'center', padding: '4rem 2rem', color: '#8898b8' }}>
+              <Car size={40} style={{ margin: '0 auto 1rem', color: '#2a2a40' }} />
+              <p style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.9rem' }}>Inventory loading…</p>
+              <button onClick={() => navigate('/shop')} className="ncm-btn-red mt-4" style={{ borderRadius: '4px' }}>Browse All Vehicles</button>
+            </div>
+          )}
+        </div>
       </section>
 
-      {/* ── Buyer confidence ── */}
-      <section className="vault-panel-soft vault-edge grid gap-8 rounded-3xl p-8 lg:grid-cols-2 lg:p-10">
-        <div>
-          <p className="text-[0.63rem] uppercase tracking-[0.18em] text-slate-500 dark:text-slate-400">Why Choose Us</p>
-          <h2 className="mt-3 max-w-sm text-2xl font-bold text-slate-900 dark:text-white sm:text-3xl">
-            A dealership experience built around you.
-          </h2>
-          <p className="mt-4 max-w-sm text-sm leading-7 text-slate-600 dark:text-slate-400">
-            At National Car Mart, we combine a broad inventory selection with flexible financing,
-            transparent pricing, and a team that puts customers first.
-          </p>
-          <div className="mt-7 flex flex-wrap gap-3">
-            <Button
-              onClick={() => navigate('/schedule')}
-              className="vault-btn rounded-xl px-6 py-2.5 text-sm font-semibold"
-            >
-              Schedule a Visit
-            </Button>
-            <Button
-              onClick={() => navigate('/trade')}
-              className="vault-btn-muted rounded-xl px-6 py-2.5 text-sm font-semibold"
-            >
-              Value My Trade
-            </Button>
+      {/* ═══════════════════════════════════════════════
+          FINANCING STRIP
+          ═══════════════════════════════════════════════ */}
+      <section
+        style={{
+          background: 'linear-gradient(135deg, #0d0d15 0%, #111118 100%)',
+          borderTop: '1px solid rgba(255,255,255,0.06)',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+        }}
+      >
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 items-center gap-0">
+            {/* Left: message */}
+            <div style={{ padding: '2.5rem 0 2.5rem 0', borderRight: '1px solid rgba(255,255,255,0.06)' }}>
+              <div className="pr-8">
+                {/* Speedometer icon area */}
+                <div className="flex items-start gap-4">
+                  <div
+                    style={{
+                      width: '64px', height: '64px', borderRadius: '50%',
+                      background: 'radial-gradient(circle, rgba(212,26,26,0.15), transparent)',
+                      border: '2px solid rgba(212,26,26,0.3)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      flexShrink: 0,
+                    }}
+                  >
+                    <CurrencyDollar size={28} style={{ color: '#d41a1a' }} weight="bold" />
+                  </div>
+                  <div>
+                    <h3
+                      style={{
+                        fontFamily: 'Barlow Condensed, Syncopate, sans-serif',
+                        fontWeight: 800,
+                        fontSize: 'clamp(1.3rem, 3vw, 1.8rem)',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.03em',
+                        lineHeight: 1.05,
+                      }}
+                    >
+                      Financing For{' '}
+                      <span style={{ color: '#d41a1a' }}>Every</span> Drive
+                    </h3>
+                    <p style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.85rem', color: '#8898b8', marginTop: '0.4rem' }}>
+                      Bad Credit? No Credit? We Can Help!
+                    </p>
+                    <div className="flex flex-wrap gap-4 mt-3">
+                      {['Low Down Payments', 'Flexible Terms', 'Fast Decisions'].map((item) => (
+                        <div key={item} className="flex items-center gap-1.5" style={{ color: '#c8d4f0', fontSize: '0.78rem', fontFamily: 'Barlow, Manrope, sans-serif' }}>
+                          <span style={{ color: '#2563eb', fontSize: '0.7rem' }}>✓</span>
+                          {item}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right: CTA panel */}
+            <div style={{ padding: '2rem 0 2rem 2rem' }}>
+              <div
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  borderRadius: '6px',
+                  padding: '1.5rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                }}
+              >
+                <div
+                  style={{
+                    width: '52px', height: '52px', borderRadius: '50%',
+                    background: 'rgba(212,26,26,0.12)', border: '1px solid rgba(212,26,26,0.3)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#d41a1a" strokeWidth="2">
+                    <path d="M9 11l3 3L22 4"/>
+                    <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
+                  </svg>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontWeight: 700, fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#f0f2f8' }}>
+                    Get Pre-Approved
+                  </div>
+                  <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.72rem', color: '#8898b8', marginTop: '0.2rem' }}>
+                    Takes 60 Seconds<br />Won't Affect Your Credit
+                  </div>
+                </div>
+                <button
+                  onClick={() => navigate('/finance/apply')}
+                  className="ncm-btn-red"
+                  style={{ borderRadius: '4px', padding: '0.6rem 1.2rem', fontSize: '0.75rem' }}
+                >
+                  GET STARTED <CaretRight size={12} weight="bold" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="vault-panel rounded-2xl p-5">
-            <MapPin size={18} className="text-blue-600 dark:text-blue-300" />
-            <p className="mt-3 font-semibold text-slate-900 dark:text-white">Visit Our Lot</p>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">{DEALER.addressFull}</p>
-          </div>
-          <div className="vault-panel rounded-2xl p-5">
-            <CurrencyDollar size={18} className="text-emerald-600 dark:text-emerald-300" />
-            <p className="mt-3 font-semibold text-slate-900 dark:text-white">Flexible Financing</p>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">All credit types welcome. Quick pre-qualification with no obligation.</p>
-          </div>
-          <div className="vault-panel rounded-2xl p-5 sm:col-span-2">
-            <div className="flex items-start gap-3">
-              <CheckCircle size={17} weight="fill" className="mt-0.5 shrink-0 text-emerald-500 dark:text-emerald-400" />
-              <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">
-                Browse our inventory online or come in — we're open 6 days a week and ready to work with your budget.
-              </p>
-            </div>
-            <div className="mt-3 flex items-start gap-3">
-              <Star size={17} weight="fill" className="mt-0.5 shrink-0 text-blue-500 dark:text-blue-300" />
-              <p className="text-sm leading-7 text-slate-600 dark:text-slate-300">
-                Trade-ins accepted on all makes and models. Get a fast offer on your current vehicle.
-              </p>
-            </div>
-          </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════
+          TRUST ROW
+          ═══════════════════════════════════════════════ */}
+      <section
+        id="about"
+        style={{
+          background: '#0d0d15',
+          borderBottom: '1px solid rgba(255,255,255,0.06)',
+        }}
+      >
+        <div className="mx-auto max-w-[1400px] grid grid-cols-1 sm:grid-cols-3">
+          {TRUST_ITEMS.map((item, i) => {
+            const Icon = item.icon
+            return (
+              <div
+                key={item.title}
+                style={{
+                  padding: '2rem 1.5rem',
+                  borderRight: i < 2 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                  display: 'flex',
+                  alignItems: 'flex-start',
+                  gap: '1rem',
+                }}
+              >
+                <div
+                  style={{
+                    width: '48px', height: '48px', borderRadius: '50%',
+                    background: 'rgba(212,26,26,0.10)',
+                    border: '1px solid rgba(212,26,26,0.25)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    flexShrink: 0,
+                  }}
+                >
+                  <Icon size={22} style={{ color: '#d41a1a' }} weight="bold" />
+                </div>
+                <div>
+                  <div
+                    style={{
+                      fontFamily: 'Barlow, Manrope, sans-serif',
+                      fontWeight: 700,
+                      fontSize: '0.9rem',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.06em',
+                      color: '#f0f2f8',
+                    }}
+                  >
+                    {item.title}
+                  </div>
+                  <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.78rem', color: '#8898b8', marginTop: '0.35rem', lineHeight: 1.5 }}>
+                    {item.sub}
+                  </div>
+                </div>
+              </div>
+            )
+          })}
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════
+          CONTACT ANCHOR (for nav link)
+          ═══════════════════════════════════════════════ */}
+      <section
+        id="contact"
+        style={{ background: '#0a0a0f', padding: '3rem 0' }}
+      >
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 text-center">
+          <p
+            style={{
+              fontFamily: 'Barlow Condensed, Syncopate, sans-serif',
+              fontWeight: 800,
+              fontSize: 'clamp(1rem, 2vw, 1.4rem)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.06em',
+              color: '#8898b8',
+            }}
+          >
+            {DEALER.addressFull}
+            <span style={{ margin: '0 0.75rem', color: 'rgba(255,255,255,0.2)' }}>•</span>
+            <a href={DEALER.phoneTel} style={{ color: '#f0f2f8' }}>{DEALER.phone}</a>
+            <span style={{ margin: '0 0.75rem', color: 'rgba(255,255,255,0.2)' }}>•</span>
+            <span>Mon–Sat 9AM–8PM</span>
+          </p>
         </div>
       </section>
     </div>

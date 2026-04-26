@@ -4,31 +4,14 @@ import { computePaymentEstimate } from '@/domains/buyer-hub/buyerHub.types'
 import { useShoppingState } from '@/domains/buyer-hub/useShoppingState'
 import { useInventoryRecord } from '@/domains/inventory/inventory.runtime'
 import { setSelectedUnit } from '@/domains/buyer-hub/helpers/selectedVehicleContext'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Separator } from '@/components/ui/separator'
 import { InventoryPhotoImage } from '@/components/inventory/InventoryPhotoImage'
-import {
-  ArrowLeft,
-  Heart,
-  CurrencyDollar,
-  CalendarPlus,
-  Speedometer,
-  ChatCircle,
-  Scales,
-  CarProfile,
-  Star,
-  Lock,
-  Sparkle,
-} from '@phosphor-icons/react'
+import { ArrowLeft, Heart, Car, Lock } from '@phosphor-icons/react'
 
-function formatPrice(value: number): string {
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value)
+function fmt(v: number) {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v)
 }
-
-function formatMileage(value: number): string {
-  return new Intl.NumberFormat('en-US').format(value)
+function fmtMi(v: number) {
+  return new Intl.NumberFormat('en-US').format(v)
 }
 
 export function VehicleDetailPage() {
@@ -37,335 +20,348 @@ export function VehicleDetailPage() {
   const { record: vehicle, loading } = useInventoryRecord(params.unitId)
   const [selectedPhotoIndex, setSelectedPhotoIndex] = useState(0)
 
-  // Set selected unit immediately when detail page loads
   useEffect(() => {
-    if (params.unitId) {
-      setSelectedUnit(params.unitId, 'shop')
-    }
+    if (params.unitId) setSelectedUnit(params.unitId, 'shop')
   }, [params.unitId])
 
   const isFavorited = vehicle ? isSaved(vehicle.id) : false
 
   const paymentEstimate = useMemo(() => {
     if (!vehicle) return null
-    return computePaymentEstimate({
-      vehiclePrice: vehicle.price,
-      downPayment: 0,
-      tradeValue: 0,
-      termMonths: 72,
-      interestRate: 6.9,
-    })
+    return computePaymentEstimate({ vehiclePrice: vehicle.price, downPayment: 0, tradeValue: 0, termMonths: 72, interestRate: 6.9 })
   }, [vehicle])
 
   if (loading) {
-    return <div className="py-24 text-center text-sm text-muted-foreground">Loading vehicle…</div>
+    return (
+      <div style={{ background: '#0a0a0f', minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <p style={{ color: '#8898b8', fontFamily: 'Barlow, Manrope, sans-serif' }}>Loading vehicle…</p>
+      </div>
+    )
   }
 
-  // --- Not-found state ---
   if (!vehicle) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-16 text-center">
-        <CarProfile size={64} className="mx-auto mb-4 text-muted-foreground" />
-        <h1 className="text-2xl font-bold">Vehicle Not Found</h1>
-        <p className="text-muted-foreground mt-2 mb-6">
-          The vehicle you're looking for is no longer available or the link may be incorrect.
-        </p>
-        <Button variant="outline" onClick={() => navigate('/shop')}>
-          <ArrowLeft size={18} className="mr-2" />
-          Back to Inventory
-        </Button>
+      <div style={{ background: '#0a0a0f', minHeight: '60vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '1rem' }}>
+        <Car size={56} style={{ color: '#2a2a40' }} />
+        <p style={{ fontFamily: 'Barlow Condensed, Syncopate, sans-serif', fontWeight: 700, fontSize: '1.3rem', textTransform: 'uppercase', color: '#c8d4f0' }}>Vehicle Not Found</p>
+        <p style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.85rem', color: '#8898b8' }}>This vehicle may no longer be available.</p>
+        <button onClick={() => navigate('/shop')} className="ncm-btn-red" style={{ borderRadius: '4px', marginTop: '0.5rem' }}>
+          <ArrowLeft size={15} /> Back to Inventory
+        </button>
       </div>
     )
   }
 
   const title = `${vehicle.year} ${vehicle.make} ${vehicle.model} ${vehicle.trim}`
   const selectedPhoto = vehicle.photos[selectedPhotoIndex] || vehicle.photos[0]
+  const monthly = paymentEstimate ? Math.round(paymentEstimate.monthlyPayment) : null
 
   return (
-    <div className="ods-buyer-page mx-auto max-w-[88rem] space-y-7 px-3 pb-20 pt-6 sm:px-4 sm:pt-8 lg:px-6">
-      {/* Back navigation */}
-      <Button
-        variant="ghost"
-        size="sm"
-        className="vault-btn-muted mb-4 rounded-full border border-white/20 px-5 text-xs uppercase tracking-[0.14em] text-slate-200"
-        onClick={() => navigate('/shop')}
-      >
-        <ArrowLeft size={18} className="mr-1.5" />
-        Back to Inventory
-      </Button>
+    <div style={{ background: '#0a0a0f', minHeight: '100vh', paddingBottom: '6rem' }}>
+      {/* Back nav */}
+      <div style={{ background: '#0d0d15', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '0.75rem 0' }}>
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+          <button
+            onClick={() => navigate('/shop')}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.4rem',
+              fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.75rem', color: '#8898b8',
+              background: 'none', border: 'none', cursor: 'pointer',
+              letterSpacing: '0.06em', textTransform: 'uppercase',
+            }}
+          >
+            <ArrowLeft size={14} /> Back to Inventory
+          </button>
+        </div>
+      </div>
 
-      <div className="grid gap-8 lg:grid-cols-5">
-        {/* ===== LEFT COLUMN — Hero, Specs, Highlights ===== */}
-        <div className="lg:col-span-3 space-y-6">
-          {/* Hero section */}
-          <Card className="vault-panel vault-edge overflow-hidden rounded-4xl border-white/15 bg-black/30">
-            <div className="vault-image-frame relative h-[23rem] bg-muted/40 sm:h-[34rem]">
-              <InventoryPhotoImage
-                record={vehicle}
-                photo={selectedPhoto}
-                alt={title}
-                className="h-full w-full object-cover"
-                loading="eager"
-              />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_44%,rgba(3,7,14,0.95))]" />
-              <div className="absolute inset-x-0 bottom-0 p-6 sm:p-7">
-                <p className="vault-title text-[0.62rem] text-slate-300">Vault Asset Profile</p>
-                <h1 className="mt-2 text-2xl font-bold text-white sm:text-4xl">{title}</h1>
-                <div className="mt-2 flex items-center gap-2">
-                  {vehicle.available ? (
-                    <Badge variant="default" className="rounded-full bg-emerald-600/85 hover:bg-emerald-600">
-                      <Star size={12} weight="fill" className="mr-1" /> Available
-                    </Badge>
-                  ) : (
-                    <Badge variant="secondary">Unavailable</Badge>
-                  )}
-                  <Badge variant="outline">{vehicle.bodyStyle}</Badge>
-                </div>
-              </div>
-              {/* Favorite toggle */}
-              <button
-                onClick={() => vehicle && toggleSaved(vehicle.id)}
-                className="absolute right-4 top-4 rounded-full border border-white/30 bg-black/30 p-2 transition-colors hover:bg-black/55"
-                aria-label={isFavorited ? 'Remove from favorites' : 'Save to favorites'}
-              >
-                <Heart
-                  size={26}
-                  weight={isFavorited ? 'fill' : 'regular'}
-                  className={isFavorited ? 'text-red-400' : 'text-slate-300'}
-                />
-              </button>
-            </div>
-            <div className="grid grid-cols-4 gap-3 border-t border-white/15 p-4 sm:grid-cols-5">
-              {vehicle.photos.map((photo, index) => (
-                <button
-                  key={photo.id}
-                  type="button"
-                  onClick={() => setSelectedPhotoIndex(index)}
-                  className={`overflow-hidden rounded-xl border transition-all ${selectedPhotoIndex === index ? 'border-blue-200/45 ring-2 ring-blue-200/25' : 'border-white/15 hover:border-white/40'}`}
-                >
+      <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8 pt-6">
+        <div className="grid lg:grid-cols-5 gap-8">
+          {/* Left: Gallery + details */}
+          <div className="lg:col-span-3 space-y-5">
+            {/* Hero photo */}
+            <div
+              style={{
+                position: 'relative', borderRadius: '8px', overflow: 'hidden',
+                background: '#111118', border: '1px solid rgba(255,255,255,0.08)',
+              }}
+            >
+              <div style={{ height: '380px', position: 'relative' }}>
+                {selectedPhoto ? (
                   <InventoryPhotoImage
                     record={vehicle}
-                    photo={photo}
-                    alt={photo.alt}
-                    className="aspect-4/3 h-full w-full object-cover"
+                    photo={selectedPhoto}
+                    alt={title}
+                    className="h-full w-full object-cover"
+                    loading="eager"
                   />
+                ) : (
+                  <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <Car size={64} style={{ color: '#2a2a40' }} />
+                  </div>
+                )}
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 50%, rgba(10,10,15,0.9) 100%)' }} />
+                {/* Title overlay */}
+                <div style={{ position: 'absolute', bottom: '1.25rem', left: '1.25rem', right: '1.25rem' }}>
+                  <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.65rem', fontWeight: 600, color: '#8898b8', textTransform: 'uppercase', letterSpacing: '0.14em' }}>
+                    {vehicle.year} {vehicle.make}
+                  </div>
+                  <h1
+                    style={{
+                      fontFamily: 'Barlow Condensed, Syncopate, sans-serif',
+                      fontWeight: 800, fontSize: 'clamp(1.5rem, 3vw, 2.2rem)',
+                      textTransform: 'uppercase', color: '#f0f2f8', lineHeight: 1, marginTop: '0.2rem',
+                    }}
+                  >
+                    {vehicle.model} {vehicle.trim}
+                  </h1>
+                  {vehicle.available && (
+                    <span style={{ display: 'inline-block', marginTop: '0.5rem', background: 'rgba(22,163,74,0.2)', border: '1px solid rgba(22,163,74,0.4)', color: '#4ade80', fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em', padding: '0.2rem 0.6rem', borderRadius: '3px' }}>
+                      ● Available
+                    </span>
+                  )}
+                </div>
+                {/* Heart */}
+                <button
+                  onClick={() => toggleSaved(vehicle.id)}
+                  style={{
+                    position: 'absolute', top: '1rem', right: '1rem',
+                    width: '36px', height: '36px', borderRadius: '50%',
+                    background: 'rgba(0,0,0,0.55)', border: '1px solid rgba(255,255,255,0.2)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                  }}
+                  aria-label={isFavorited ? 'Remove from favorites' : 'Save to favorites'}
+                >
+                  <Heart size={18} style={{ color: isFavorited ? '#f03030' : '#c8d4f0' }} weight={isFavorited ? 'fill' : 'regular'} />
                 </button>
+              </div>
+
+              {/* Thumbnail strip */}
+              {vehicle.photos.length > 1 && (
+                <div style={{ display: 'flex', gap: '0.5rem', padding: '0.75rem', overflowX: 'auto', background: '#0d0d15', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
+                  {vehicle.photos.map((photo, i) => (
+                    <button
+                      key={photo.id}
+                      onClick={() => setSelectedPhotoIndex(i)}
+                      style={{
+                        flexShrink: 0, width: '72px', height: '54px', borderRadius: '4px', overflow: 'hidden',
+                        border: i === selectedPhotoIndex ? '2px solid #d41a1a' : '2px solid rgba(255,255,255,0.1)',
+                        background: '#111118', cursor: 'pointer',
+                      }}
+                    >
+                      <InventoryPhotoImage
+                        record={vehicle}
+                        photo={photo}
+                        alt={photo.alt}
+                        className="h-full w-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Spec strip */}
+            <div
+              style={{
+                display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
+                background: '#0d0d15', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', overflow: 'hidden',
+              }}
+            >
+              {[
+                { label: 'Price', value: fmt(vehicle.price), color: '#f03030' },
+                { label: 'Mileage', value: `${fmtMi(vehicle.mileage)} mi`, color: '#60a5fa' },
+                { label: 'Year', value: String(vehicle.year), color: '#f0f2f8' },
+                { label: 'Body', value: vehicle.bodyStyle, color: '#f0f2f8' },
+              ].map((spec, i) => (
+                <div key={spec.label} style={{ padding: '1rem', textAlign: 'center', borderRight: i < 3 ? '1px solid rgba(255,255,255,0.06)' : 'none' }}>
+                  <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#8898b8', marginBottom: '0.3rem' }}>{spec.label}</div>
+                  <div style={{ fontFamily: 'Barlow Condensed, Syncopate, sans-serif', fontWeight: 800, fontSize: '1.1rem', color: spec.color }}>{spec.value}</div>
+                </div>
               ))}
             </div>
-          </Card>
 
-          {/* Key specs grid */}
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-            <Card className="vault-panel-soft border-white/15 bg-white/4">
-              <CardContent className="flex flex-col items-center py-4 px-3 text-center">
-                <CurrencyDollar size={24} className="mb-1.5 text-emerald-600" />
-                <span className="text-xs uppercase tracking-[0.14em] text-slate-400">Price</span>
-                <span className="text-lg font-bold text-white">{formatPrice(vehicle.price)}</span>
-              </CardContent>
-            </Card>
-            <Card className="vault-panel-soft border-white/15 bg-white/4">
-              <CardContent className="flex flex-col items-center py-4 px-3 text-center">
-                <Speedometer size={24} className="mb-1.5 text-blue-600" />
-                <span className="text-xs uppercase tracking-[0.14em] text-slate-400">Mileage</span>
-                <span className="text-lg font-bold text-white">{formatMileage(vehicle.mileage)} mi</span>
-              </CardContent>
-            </Card>
-            <Card className="vault-panel-soft border-white/15 bg-white/4">
-              <CardContent className="flex flex-col items-center py-4 px-3 text-center">
-                <CarProfile size={24} className="mb-1.5 text-violet-600" />
-                <span className="text-xs uppercase tracking-[0.14em] text-slate-400">Body Style</span>
-                <span className="text-lg font-bold text-white">{vehicle.bodyStyle}</span>
-              </CardContent>
-            </Card>
-            <Card className="vault-panel-soft border-white/15 bg-white/4">
-              <CardContent className="flex flex-col items-center py-4 px-3 text-center">
-                <CalendarPlus size={24} className="mb-1.5 text-amber-600" />
-                <span className="text-xs uppercase tracking-[0.14em] text-slate-400">Year</span>
-                <span className="text-lg font-bold text-white">{vehicle.year}</span>
-              </CardContent>
-            </Card>
-          </div>
+            {/* Features */}
+            {vehicle.features.length > 0 && (
+              <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', padding: '1.25rem 1.5rem' }}>
+                <h3 style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontWeight: 700, fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.14em', color: '#8898b8', marginBottom: '0.85rem' }}>Highlights</h3>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  {vehicle.features.map((f) => (
+                    <span key={f} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '3px', padding: '0.25rem 0.6rem', fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.72rem', color: '#c8d4f0' }}>
+                      {f}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
 
-          {/* Highlights */}
-          {vehicle.features.length > 0 && (
-            <Card className="vault-panel-soft border-white/15 bg-white/3">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-base text-white">Highlights</CardTitle>
-              </CardHeader>
-              <CardContent className="flex flex-wrap gap-2">
-                {vehicle.features.map((h) => (
-                  <Badge key={h} variant="secondary" className="border border-white/15 bg-white/4 text-sm text-slate-200">
-                    {h}
-                  </Badge>
+            {/* Description */}
+            {vehicle.description && (
+              <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', padding: '1.25rem 1.5rem' }}>
+                <h3 style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontWeight: 700, fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.14em', color: '#8898b8', marginBottom: '0.75rem' }}>Vehicle Overview</h3>
+                <p style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.82rem', color: '#c8d4f0', lineHeight: 1.65 }}>{vehicle.description}</p>
+              </div>
+            )}
+
+            {/* Vehicle details grid */}
+            <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '6px', padding: '1.25rem 1.5rem' }}>
+              <h3 style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontWeight: 700, fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.14em', color: '#8898b8', marginBottom: '0.85rem' }}>Vehicle Details</h3>
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                {[
+                  ['Condition', vehicle.condition || 'Pre-owned'],
+                  ['Drivetrain', vehicle.drivetrain || 'Not specified'],
+                  ['Engine', vehicle.engine || 'Not specified'],
+                  ['Transmission', vehicle.transmission || 'Not specified'],
+                  ['Exterior Color', vehicle.exteriorColor || vehicle.color || 'Not specified'],
+                  ['Interior Color', vehicle.interiorColor || 'Not specified'],
+                ].map(([label, value]) => (
+                  <div key={label} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '4px', padding: '0.65rem 0.85rem' }}>
+                    <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#8898b8' }}>{label}</div>
+                    <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontWeight: 600, fontSize: '0.82rem', color: '#f0f2f8', marginTop: '0.2rem' }}>{value}</div>
+                  </div>
                 ))}
-              </CardContent>
-            </Card>
-          )}
-
-          <Card className="vault-panel-soft border-white/15 bg-white/3">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base text-white">Vehicle Overview</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-sm leading-7 text-slate-300">{vehicle.description}</p>
-              <div className="grid gap-3 text-sm sm:grid-cols-2">
-                <div className="rounded-xl border border-white/15 bg-black/30 p-3">
-                  <p className="text-xs uppercase tracking-wide text-slate-400">Condition</p>
-                  <p className="mt-1 font-medium text-white">{vehicle.condition || 'Pre-owned'}</p>
-                </div>
-                <div className="rounded-xl border border-white/15 bg-black/30 p-3">
-                  <p className="text-xs uppercase tracking-wide text-slate-400">Drivetrain</p>
-                  <p className="mt-1 font-medium text-white">{vehicle.drivetrain || 'Not specified'}</p>
-                </div>
-                <div className="rounded-xl border border-white/15 bg-black/30 p-3">
-                  <p className="text-xs uppercase tracking-wide text-slate-400">Engine</p>
-                  <p className="mt-1 font-medium text-white">{vehicle.engine || 'Not specified'}</p>
-                </div>
-                <div className="rounded-xl border border-white/15 bg-black/30 p-3">
-                  <p className="text-xs uppercase tracking-wide text-slate-400">Color</p>
-                  <p className="mt-1 font-medium text-white">{vehicle.color || 'Not specified'}</p>
-                </div>
               </div>
-            </CardContent>
-          </Card>
+              {vehicle.vin && (
+                <div style={{ marginTop: '0.85rem', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)', borderRadius: '4px', padding: '0.65rem 0.85rem', display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
+                  <div>
+                    <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#8898b8' }}>VIN</div>
+                    <div style={{ fontFamily: 'monospace', fontWeight: 600, fontSize: '0.82rem', color: '#f0f2f8', marginTop: '0.2rem' }}>{vehicle.vin}</div>
+                  </div>
+                  {vehicle.stockNumber && (
+                    <div>
+                      <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.12em', color: '#8898b8' }}>Stock #</div>
+                      <div style={{ fontFamily: 'monospace', fontWeight: 600, fontSize: '0.82rem', color: '#f0f2f8', marginTop: '0.2rem' }}>{vehicle.stockNumber}</div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
 
-          {/* VIN */}
-          <div className="vault-panel-soft grid gap-3 rounded-2xl border border-white/15 p-5 text-center sm:grid-cols-3">
-            <div>
-              <span className="text-xs uppercase tracking-[0.14em] text-slate-400">Stock #</span>
-              <p className="font-mono text-sm tracking-wider text-slate-200">
-                {vehicle.stockNumber || 'N/A'}
-              </p>
+          {/* Right: Pricing + CTAs */}
+          <div className="lg:col-span-2 space-y-5 lg:sticky lg:top-[80px] lg:self-start">
+            {/* Price panel */}
+            <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', padding: '1.5rem' }}>
+              <div style={{ marginBottom: '1rem' }}>
+                <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.65rem', fontWeight: 600, color: '#8898b8', textTransform: 'uppercase', letterSpacing: '0.14em' }}>
+                  {vehicle.year} {vehicle.make}
+                </div>
+                <h2 style={{ fontFamily: 'Barlow Condensed, Syncopate, sans-serif', fontWeight: 800, fontSize: '1.4rem', textTransform: 'uppercase', color: '#f0f2f8', lineHeight: 1.1, marginTop: '0.2rem' }}>
+                  {vehicle.model} {vehicle.trim}
+                </h2>
+              </div>
+
+              <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '1rem' }}>
+                <div className="ncm-price" style={{ fontSize: '2.2rem' }}>{fmt(vehicle.price)}</div>
+                {monthly && (
+                  <div className="ncm-monthly" style={{ fontSize: '0.9rem', marginTop: '0.25rem' }}>
+                    ${monthly} <span style={{ color: '#6678a0', fontWeight: 400 }}>/mo*</span>
+                    <span style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.65rem', color: '#6678a0', marginLeft: '0.4rem' }}>est. 72mo @ 6.9%</span>
+                  </div>
+                )}
+                {paymentEstimate && (
+                  <p style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.62rem', color: '#6678a0', marginTop: '0.5rem', lineHeight: 1.5 }}>
+                    {paymentEstimate.disclaimer}
+                  </p>
+                )}
+              </div>
             </div>
-            <div>
-              <span className="text-xs uppercase tracking-[0.14em] text-slate-400">Transmission</span>
-              <p className="text-sm tracking-wide text-slate-200">
-                {vehicle.transmission || 'N/A'}
-              </p>
+
+            {/* CTAs */}
+            <div style={{ background: '#111118', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '8px', padding: '1.25rem', display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+              <button
+                onClick={() => navigate(`/inquiry/${vehicle.id}`)}
+                className="ncm-btn-red"
+                style={{ borderRadius: '4px', justifyContent: 'center', width: '100%', padding: '0.85rem' }}
+              >
+                CHECK AVAILABILITY
+              </button>
+              <button
+                onClick={() => { setSelectedUnit(vehicle.id, 'finance'); navigate('/finance/apply') }}
+                className="ncm-btn-red"
+                style={{ borderRadius: '4px', justifyContent: 'center', width: '100%', padding: '0.85rem' }}
+              >
+                GET APPROVED
+              </button>
+              <button
+                onClick={() => navigate('/schedule')}
+                className="ncm-btn-outline"
+                style={{ borderRadius: '4px', justifyContent: 'center', width: '100%', padding: '0.75rem' }}
+              >
+                SCHEDULE TEST DRIVE
+              </button>
+              <button
+                onClick={() => navigate('/trade')}
+                className="ncm-btn-outline"
+                style={{ borderRadius: '4px', justifyContent: 'center', width: '100%', padding: '0.75rem' }}
+              >
+                VALUE YOUR TRADE
+              </button>
+              <a
+                href="tel:+12165693344"
+                className="ncm-btn-outline"
+                style={{ borderRadius: '4px', justifyContent: 'center', width: '100%', padding: '0.75rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                📞 CALL (216) 569-3344
+              </a>
+              <button
+                onClick={() => toggleSaved(vehicle.id)}
+                style={{
+                  width: '100%', padding: '0.6rem', background: 'none',
+                  border: '1px solid rgba(255,255,255,0.08)', borderRadius: '4px',
+                  color: isFavorited ? '#f03030' : '#8898b8',
+                  fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.75rem', fontWeight: 600,
+                  textTransform: 'uppercase', letterSpacing: '0.1em',
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.4rem',
+                }}
+              >
+                <Heart size={15} weight={isFavorited ? 'fill' : 'regular'} />
+                {isFavorited ? 'Saved to Favorites' : 'Save to Favorites'}
+              </button>
             </div>
-            <div>
-              <span className="text-xs uppercase tracking-[0.14em] text-slate-400">VIN</span>
-              <p className="font-mono text-sm tracking-wider text-slate-200">{vehicle.vin}</p>
+
+            {/* Trust box */}
+            <div style={{ background: 'rgba(212,26,26,0.05)', border: '1px solid rgba(212,26,26,0.2)', borderRadius: '6px', padding: '1rem 1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                <Lock size={14} style={{ color: '#d41a1a' }} />
+                <span style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontWeight: 700, fontSize: '0.72rem', textTransform: 'uppercase', letterSpacing: '0.1em', color: '#f0f2f8' }}>Secure &amp; Trusted</span>
+              </div>
+              <p style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.68rem', color: '#8898b8', lineHeight: 1.5 }}>
+                Family-owned since 1962. Over 60 years of serving Cleveland with honesty and integrity.
+              </p>
             </div>
           </div>
         </div>
-
-        {/* ===== RIGHT COLUMN — Payment Estimate + CTAs ===== */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Payment Estimate */}
-          {paymentEstimate && (
-            <Card className="vault-panel vault-edge rounded-3xl border-white/20 bg-black/35">
-              <CardHeader className="pb-3">
-                <CardTitle className="flex items-center gap-2 text-base text-white">
-                  <CurrencyDollar size={20} />
-                  Estimated Payment
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="text-center">
-                  <span className="text-4xl font-bold text-white">
-                    {formatPrice(paymentEstimate.monthlyPayment)}
-                  </span>
-                  <span className="text-slate-400">/mo</span>
-                </div>
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div className="text-slate-400">Vehicle Price</div>
-                    <div className="text-right font-medium text-slate-100">{formatPrice(vehicle.price)}</div>
-                  <div className="text-slate-400">Down Payment</div>
-                  <div className="text-right font-medium text-slate-100">{formatPrice(0)}</div>
-                  <div className="text-slate-400">Term</div>
-                  <div className="text-right font-medium text-slate-100">72 months</div>
-                  <div className="text-slate-400">Est. APR</div>
-                  <div className="text-right font-medium text-slate-100">6.9%</div>
-                </div>
-                <Separator className="bg-white/15" />
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div className="text-slate-400">Total Cost</div>
-                  <div className="text-right font-semibold text-slate-100">{formatPrice(paymentEstimate.totalCost)}</div>
-                </div>
-                <p className="text-xs leading-relaxed text-slate-400">
-                  {paymentEstimate.disclaimer}
-                </p>
-                <Button
-                  variant="outline"
-                  className="vault-btn-muted w-full rounded-full text-xs uppercase tracking-[0.14em]"
-                  onClick={() => navigate('/finance')}
-                >
-                  Customize Payment
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Conversion CTAs */}
-          <Card className="vault-panel-soft rounded-3xl border-white/15 bg-white/3">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-base text-white">
-                <Lock size={18} className="text-blue-200" />
-                Unlock Next Step
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button className="vault-btn w-full rounded-full text-xs uppercase tracking-[0.14em]" onClick={() => navigate(`/inquiry/${vehicle.id}`)}>
-                <ChatCircle size={18} className="mr-2" />
-                Inquire About This Vehicle
-              </Button>
-              <Button variant="outline" className="vault-btn-muted w-full rounded-full text-xs uppercase tracking-[0.14em]" onClick={() => navigate('/schedule')}>
-                <CalendarPlus size={18} className="mr-2" />
-                Schedule a Test Drive
-              </Button>
-              <Button variant="outline" className="vault-btn-muted w-full rounded-full text-xs uppercase tracking-[0.14em]" onClick={() => navigate('/finance/apply')}>
-                <CurrencyDollar size={18} className="mr-2" />
-                Get Pre-Qualified
-              </Button>
-              <Button variant="outline" className="vault-btn-muted w-full rounded-full text-xs uppercase tracking-[0.14em]" onClick={() => navigate('/trade')}>
-                <Scales size={18} className="mr-2" />
-                Value Your Trade
-              </Button>
-              <Separator className="bg-white/15" />
-              <Button
-                variant="ghost"
-                className="w-full rounded-full text-xs uppercase tracking-[0.14em] text-slate-300 hover:bg-white/8 hover:text-white"
-                onClick={() => vehicle && toggleSaved(vehicle.id)}
-              >
-                <Heart
-                  size={18}
-                  weight={isFavorited ? 'fill' : 'regular'}
-                  className={`mr-2 ${isFavorited ? 'text-red-500' : ''}`}
-                />
-                {isFavorited ? 'Saved to Favorites' : 'Save to Favorites'}
-              </Button>
-              <div className="rounded-xl border border-white/12 bg-black/30 p-3 text-xs text-slate-400">
-                <p className="flex items-center gap-2">
-                  <Sparkle size={14} className="text-blue-200" />
-                  Vehicle Vault keeps public browsing premium while internal operations stay protected.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
       </div>
 
-      {/* Mobile Sticky Action Bar - drives conversion on small screens */}
-      <div className="fixed inset-x-0 bottom-0 block border-t border-white/15 bg-black/95 backdrop-blur-md lg:hidden">
-        <div className="grid grid-cols-3 gap-2 p-2 sm:grid-cols-3">
-          <Button className="vault-btn vault-tap flex-1 rounded-lg py-2.5 text-[0.65rem] uppercase tracking-[0.12em]" onClick={() => navigate(`/inquiry/${vehicle.id}`)}>
-            <ChatCircle size={14} className="mr-1" />
-            Inquire
-          </Button>
-          <Button variant="outline" className="vault-btn-muted vault-tap flex-1 rounded-lg py-2.5 text-[0.65rem] uppercase tracking-[0.12em]" onClick={() => navigate('/schedule')}>
-            <CalendarPlus size={14} className="mr-1" />
-            Schedule
-          </Button>
-          <Button variant="outline" className="vault-btn-muted vault-tap flex-1 rounded-lg py-2.5 text-[0.65rem] uppercase tracking-[0.12em]" onClick={() => navigate('/finance')}>
-            <CurrencyDollar size={14} className="mr-1" />
-            Finance
-          </Button>
+      {/* Mobile sticky CTA */}
+      <div
+        className="fixed inset-x-0 bottom-0 lg:hidden"
+        style={{ background: 'rgba(10,10,15,0.97)', borderTop: '1px solid rgba(255,255,255,0.1)', padding: '0.75rem 1rem', backdropFilter: 'blur(8px)' }}
+      >
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button
+            onClick={() => { setSelectedUnit(vehicle.id, 'finance'); navigate('/finance/apply') }}
+            className="ncm-btn-red"
+            style={{ flex: 1, borderRadius: '4px', justifyContent: 'center', fontSize: '0.72rem', padding: '0.75rem 0.5rem' }}
+          >
+            GET APPROVED
+          </button>
+          <button
+            onClick={() => navigate('/schedule')}
+            className="ncm-btn-outline"
+            style={{ flex: 1, borderRadius: '4px', justifyContent: 'center', fontSize: '0.72rem', padding: '0.75rem 0.5rem' }}
+          >
+            SCHEDULE
+          </button>
+          <a
+            href="tel:+12165693344"
+            style={{ flex: 1, borderRadius: '4px', justifyContent: 'center', fontSize: '0.72rem', padding: '0.75rem 0.5rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0f2f8', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.25rem', fontFamily: 'Barlow, Manrope, sans-serif', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}
+          >
+            📞 CALL
+          </a>
         </div>
       </div>
-
-      {/* Mobile padding to prevent content overlap with sticky bar */}
-      <div className="h-20 lg:hidden" />
     </div>
   )
 }
