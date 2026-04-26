@@ -160,7 +160,7 @@ export function AppSidebar({ currentPath, currentRole, onNavigate }: AppSidebarP
               <span className="flex-1 text-left">{item.label}</span>
               {item.badge != null && (
                 <span className={cn(
-                  'flex h-4.5 min-w-4.5 items-center justify-center rounded-full px-1.5 text-[0.6rem] font-bold tabular-nums',
+                  'flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[0.6rem] font-bold tabular-nums',
                   item.badgeColor ? BADGE_STYLES[item.badgeColor] : 'bg-white/15 text-white/70'
                 )}>
                   {item.badge}
