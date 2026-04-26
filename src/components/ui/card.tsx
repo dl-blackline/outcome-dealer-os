@@ -7,7 +7,7 @@ function Card({ className, ...props }: ComponentProps<"div">) {
     <div
       data-slot="card"
       className={cn(
-        "bg-card/90 text-card-foreground flex flex-col gap-5 rounded-2xl border border-border/70 py-5 shadow-[0_10px_28px_color-mix(in_oklab,var(--color-foreground)_9%,transparent)] backdrop-blur-[2px]",
+        "bg-card/90 text-card-foreground flex flex-col gap-5 rounded-2xl border border-border/70 py-5 shadow-[0_18px_48px_color-mix(in_oklab,var(--color-foreground)_18%,transparent),inset_0_1px_0_rgba(255,255,255,0.10)] backdrop-blur-[4px]",
         className
       )}
       {...props}

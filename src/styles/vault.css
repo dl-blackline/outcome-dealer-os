@@ -22,6 +22,18 @@
   --ncm-border-accent: rgba(212, 26, 26, 0.45);
   --ncm-font-display: 'Barlow Condensed', 'Syncopate', system-ui, sans-serif;
   --ncm-font-body: 'Barlow', 'Manrope', system-ui, sans-serif;
+  --ncm-bg-base: var(--bg-base, #07080d);
+  --ncm-bg-elevated: var(--bg-elevated, #0d1018);
+  --ncm-bg-panel: var(--bg-panel, #121722);
+  --ncm-border-subtle: var(--border-subtle, rgba(226, 233, 255, 0.11));
+  --ncm-border-strong: var(--border-strong, rgba(226, 233, 255, 0.24));
+  --ncm-red-accent: var(--red-accent, #df2424);
+  --ncm-blue-accent: var(--blue-accent, #2c69ff);
+  --ncm-silver-text: var(--silver-text, #e9efff);
+  --ncm-muted-text: var(--muted-text, #97a5c3);
+  --ncm-premium-shadow: var(--premium-shadow, 0 22px 70px rgba(0, 0, 0, 0.6));
+  --ncm-panel-glow: var(--panel-glow, 0 0 0 1px rgba(255, 255, 255, 0.03), 0 18px 48px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12));
+  --ncm-card-radius: var(--card-radius, 0.8rem);
 }
 
 @layer base {
@@ -587,20 +599,21 @@
 @layer components {
 
   .ncm-page {
-    background: var(--ncm-dark);
+    background: var(--ncm-bg-base);
     min-height: 100vh;
-    color: #f0f2f8;
+    color: var(--ncm-silver-text);
   }
 
   .ncm-panel {
-    background: var(--ncm-dark-card);
-    border: 1px solid var(--ncm-border);
-    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+    background: linear-gradient(165deg, color-mix(in oklab, var(--ncm-bg-panel) 92%, black 8%), color-mix(in oklab, var(--ncm-bg-elevated) 92%, black 8%));
+    border: 1px solid var(--ncm-border-subtle);
+    box-shadow: var(--ncm-panel-glow);
   }
 
   .ncm-panel-steel {
-    background: var(--ncm-steel);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: linear-gradient(155deg, #181e2d, #10141f);
+    border: 1px solid var(--ncm-border-subtle);
+    box-shadow: var(--ncm-panel-glow);
   }
 
   .ncm-btn-red {
@@ -608,26 +621,27 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    background: linear-gradient(135deg, #d41a1a 0%, #b01212 100%);
+    background: linear-gradient(135deg, #f03a3a 0%, #cf1818 54%, #9e0f0f 100%);
     color: #fff;
-    border: 1px solid rgba(255, 80, 80, 0.35);
+    border: 1px solid rgba(255, 145, 145, 0.32);
     font-family: var(--ncm-font-body);
     font-weight: 700;
     font-size: 0.8rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     padding: 0.65rem 1.4rem;
-    border-radius: 0.375rem;
+    border-radius: calc(var(--ncm-card-radius) - 0.25rem);
     cursor: pointer;
-    transition: background 180ms ease, transform 150ms ease, box-shadow 150ms ease;
-    box-shadow: 0 4px 20px rgba(212, 26, 26, 0.45);
+    transition: background 180ms ease, transform 150ms ease, box-shadow 150ms ease, border-color 150ms ease;
+    box-shadow: 0 8px 26px rgba(223, 36, 36, 0.48), inset 0 1px 0 rgba(255, 255, 255, 0.26);
     white-space: nowrap;
   }
 
   .ncm-btn-red:hover {
-    background: linear-gradient(135deg, #e82020 0%, #c01515 100%);
+    background: linear-gradient(135deg, #ff4444 0%, #db1f1f 55%, #aa1212 100%);
+    border-color: rgba(255, 194, 194, 0.56);
     transform: translateY(-1px);
-    box-shadow: 0 6px 28px rgba(212, 26, 26, 0.62);
+    box-shadow: 0 12px 34px rgba(223, 36, 36, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.32);
   }
 
   .ncm-btn-outline {
@@ -635,24 +649,25 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    background: rgba(255,255,255,0.05);
-    color: #f0f2f8;
-    border: 1px solid rgba(255,255,255,0.35);
+    background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+    color: var(--ncm-silver-text);
+    border: 1px solid rgba(255,255,255,0.28);
     font-family: var(--ncm-font-body);
     font-weight: 700;
     font-size: 0.8rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     padding: 0.65rem 1.4rem;
-    border-radius: 0.375rem;
+    border-radius: calc(var(--ncm-card-radius) - 0.25rem);
     cursor: pointer;
-    transition: background 180ms ease, border-color 180ms ease;
+    transition: background 180ms ease, border-color 180ms ease, color 180ms ease;
     white-space: nowrap;
   }
 
   .ncm-btn-outline:hover {
-    background: rgba(255,255,255,0.10);
-    border-color: rgba(255,255,255,0.6);
+    background: linear-gradient(180deg, rgba(255,255,255,0.12), rgba(255,255,255,0.04));
+    border-color: rgba(255,255,255,0.52);
+    color: #fff;
   }
 
   .ncm-btn-blue {
@@ -660,25 +675,26 @@
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+    background: linear-gradient(135deg, #1e43ad 0%, #2d6bff 55%, #1a47c9 100%);
     color: #fff;
-    border: 1px solid rgba(96, 165, 250, 0.35);
+    border: 1px solid rgba(168, 204, 255, 0.35);
     font-family: var(--ncm-font-body);
     font-weight: 700;
     font-size: 0.8rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     padding: 0.65rem 1.4rem;
-    border-radius: 0.375rem;
+    border-radius: calc(var(--ncm-card-radius) - 0.25rem);
     cursor: pointer;
-    transition: background 180ms ease, transform 150ms ease;
-    box-shadow: 0 4px 20px rgba(29, 78, 216, 0.4);
+    transition: background 180ms ease, transform 150ms ease, box-shadow 180ms ease;
+    box-shadow: 0 8px 26px rgba(44, 105, 255, 0.46), inset 0 1px 0 rgba(255, 255, 255, 0.22);
     white-space: nowrap;
   }
 
   .ncm-btn-blue:hover {
-    background: linear-gradient(135deg, #1e4fbe 0%, #2563eb 100%);
+    background: linear-gradient(135deg, #2959d9 0%, #3b7fff 60%, #1e52dd 100%);
     transform: translateY(-1px);
+    box-shadow: 0 12px 34px rgba(44, 105, 255, 0.56);
   }
 
   .ncm-display {
@@ -695,11 +711,11 @@
     font-size: 0.82rem;
     letter-spacing: 0.06em;
     text-transform: uppercase;
-    color: rgba(255,255,255,0.88);
-    padding: 0.35rem 0.1rem;
+    color: rgba(255,255,255,0.9);
+    padding: 0.25rem 0.05rem;
     cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: color 150ms ease, border-color 150ms ease;
+    border-bottom: 1px solid transparent;
+    transition: color 150ms ease, border-color 150ms ease, text-shadow 150ms ease;
     white-space: nowrap;
     display: inline-flex;
     align-items: center;
@@ -713,11 +729,12 @@
   .ncm-nav-item:hover,
   .ncm-nav-item[data-active='true'] {
     color: #fff;
-    border-bottom-color: var(--ncm-red);
+    border-bottom-color: rgba(223, 36, 36, 0.88);
+    text-shadow: 0 0 14px rgba(44, 105, 255, 0.35);
   }
 
   .ncm-badge-new {
-    background: linear-gradient(90deg, #16a34a, #15803d);
+    background: var(--badge-new-bg, linear-gradient(120deg, #0f8b45 0%, #1dcf6e 100%));
     color: #fff;
     font-family: var(--ncm-font-body);
     font-weight: 700;
@@ -725,12 +742,14 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
     padding: 0.22rem 0.6rem;
-    border-radius: 2px;
+    border-radius: 999px;
+    border: 1px solid rgba(155, 255, 195, 0.28);
+    box-shadow: 0 8px 18px rgba(14, 139, 69, 0.3);
     white-space: nowrap;
   }
 
   .ncm-badge-value {
-    background: linear-gradient(90deg, #2563eb, #1d4ed8);
+    background: var(--badge-value-bg, linear-gradient(120deg, #1546c8 0%, #3f84ff 100%));
     color: #fff;
     font-family: var(--ncm-font-body);
     font-weight: 700;
@@ -738,12 +757,14 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
     padding: 0.22rem 0.6rem;
-    border-radius: 2px;
+    border-radius: 999px;
+    border: 1px solid rgba(161, 200, 255, 0.28);
+    box-shadow: 0 8px 18px rgba(44, 105, 255, 0.28);
     white-space: nowrap;
   }
 
   .ncm-badge-family {
-    background: linear-gradient(90deg, #d41a1a, #b01212);
+    background: var(--badge-family-bg, linear-gradient(120deg, #b51212 0%, #ee3838 100%));
     color: #fff;
     font-family: var(--ncm-font-body);
     font-weight: 700;
@@ -751,60 +772,67 @@
     letter-spacing: 0.1em;
     text-transform: uppercase;
     padding: 0.22rem 0.6rem;
-    border-radius: 2px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 161, 161, 0.26);
+    box-shadow: 0 8px 18px rgba(223, 36, 36, 0.28);
     white-space: nowrap;
   }
 
   .ncm-price {
-    color: #f03030;
+    color: #ff4f4f;
     font-family: var(--ncm-font-display);
     font-weight: 800;
     letter-spacing: 0.01em;
+    text-shadow: 0 0 18px rgba(223, 36, 36, 0.25);
   }
 
   .ncm-monthly {
-    color: #60a5fa;
+    color: #78adff;
     font-family: var(--ncm-font-body);
     font-weight: 700;
   }
 
   .ncm-inventory-card {
-    background: var(--ncm-dark-card);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 6px;
+    background: linear-gradient(168deg, color-mix(in oklab, var(--ncm-bg-panel) 90%, black 10%), color-mix(in oklab, var(--ncm-bg-elevated) 94%, black 6%));
+    border: 1px solid var(--ncm-border-subtle);
+    border-radius: var(--ncm-card-radius);
     overflow: hidden;
     transition: border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
     display: flex;
     flex-direction: column;
+    box-shadow: var(--ncm-panel-glow);
   }
 
   .ncm-inventory-card:hover {
-    border-color: rgba(212, 26, 26, 0.4);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    border-color: rgba(255, 162, 162, 0.34);
+    transform: translateY(-3px);
+    box-shadow: 0 18px 42px rgba(0,0,0,0.66), 0 0 26px rgba(44, 105, 255, 0.12);
   }
 
   .ncm-service-card {
-    background: var(--ncm-dark-card);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: linear-gradient(160deg, rgba(22, 28, 41, 0.96), rgba(14, 18, 29, 0.96));
+    border: 1px solid var(--ncm-border-subtle);
     padding: 1.25rem 1.5rem;
     display: flex;
     align-items: center;
     gap: 1rem;
-    transition: border-color 200ms ease, background 200ms ease;
+    transition: border-color 200ms ease, background 200ms ease, transform 180ms ease, box-shadow 180ms ease;
     cursor: pointer;
+    box-shadow: 0 14px 30px rgba(0,0,0,0.4);
   }
 
   .ncm-service-card:hover {
-    border-color: rgba(212,26,26,0.4);
-    background: #1a1a24;
+    border-color: rgba(255,255,255,0.24);
+    background: linear-gradient(160deg, rgba(27, 33, 47, 0.97), rgba(18, 22, 35, 0.97));
+    transform: translateY(-2px);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.52);
   }
 
   .ncm-step-badge {
     width: 2rem;
     height: 2rem;
     border-radius: 50%;
-    background: var(--ncm-red);
+    background: linear-gradient(140deg, #ef3f3f, #b91313);
     color: #fff;
     font-family: var(--ncm-font-body);
     font-weight: 800;
@@ -816,8 +844,10 @@
   }
 
   .ncm-filter-rail {
-    background: #111118;
-    border-right: 1px solid rgba(255,255,255,0.08);
+    background: linear-gradient(180deg, rgba(15, 20, 31, 0.98), rgba(11, 15, 24, 0.98));
+    border: 1px solid var(--ncm-border-subtle);
+    border-radius: var(--ncm-card-radius);
+    box-shadow: var(--ncm-panel-glow);
     flex-shrink: 0;
   }
 
@@ -828,31 +858,35 @@
     font-size: 0.875rem;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, 0.85);
-    background: transparent;
-    border: none;
+    color: rgba(255, 255, 255, 0.9);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: calc(var(--ncm-card-radius) - 0.35rem);
     cursor: pointer;
+    padding: 0.65rem 0.75rem;
   }
 
   .ncm-mobile-nav-item:hover {
     color: #fff;
-    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.24);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
   }
 
   /* Footer quick-link */
   .ncm-footer-link {
     font-family: 'Barlow', 'Manrope', sans-serif;
     font-size: 0.875rem;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.74);
     background: none;
     border: none;
     cursor: pointer;
     padding: 0;
     text-align: left;
-    transition: color 150ms ease;
+    transition: color 150ms ease, transform 150ms ease;
   }
 
   .ncm-footer-link:hover {
     color: #fff;
+    transform: translateX(2px);
   }
 }

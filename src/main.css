@@ -35,6 +35,24 @@
 */
 :root {
   --radius: 0.625rem;
+  --bg-base: #07080d;
+  --bg-elevated: #0d1018;
+  --bg-panel: #121722;
+  --border-subtle: rgba(226, 233, 255, 0.11);
+  --border-strong: rgba(226, 233, 255, 0.24);
+  --red-accent: #df2424;
+  --blue-accent: #2c69ff;
+  --silver-text: #e9efff;
+  --muted-text: #97a5c3;
+  --premium-shadow: 0 22px 70px rgba(0, 0, 0, 0.6);
+  --panel-glow: 0 0 0 1px rgba(255, 255, 255, 0.03), 0 18px 48px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --hero-overlay-gradient: linear-gradient(180deg, rgba(7, 8, 13, 0.1) 0%, rgba(7, 8, 13, 0.66) 52%, rgba(7, 8, 13, 0.96) 100%);
+  --card-radius: 0.8rem;
+  --section-spacing: clamp(2.85rem, 6vw, 5.25rem);
+  --heading-scale: clamp(2.1rem, 5.7vw, 5.6rem);
+  --badge-new-bg: linear-gradient(120deg, #0f8b45 0%, #1dcf6e 100%);
+  --badge-value-bg: linear-gradient(120deg, #1546c8 0%, #3f84ff 100%);
+  --badge-family-bg: linear-gradient(120deg, #b51212 0%, #ee3838 100%);
   /* Internal portal light theme — premium steel-blue enterprise palette */
   --background: oklch(0.965 0.009 228);
   --foreground: oklch(0.13 0.025 240);
@@ -190,10 +208,66 @@
     @apply bg-background text-foreground;
   }
 
+  body[data-route^='/shop'],
+  body[data-route^='/finance'],
+  body[data-route^='/trade'],
+  body[data-route^='/schedule'] {
+    background:
+      radial-gradient(circle at 8% -2%, rgba(54, 83, 152, 0.28), transparent 32%),
+      radial-gradient(circle at 92% -15%, rgba(226, 36, 36, 0.12), transparent 28%),
+      linear-gradient(180deg, var(--bg-base) 0%, #06070b 50%, #05060a 100%);
+  }
+
   /* Ensure native HTML select dropdown options are readable in dark-themed UIs. */
   select option,
   select optgroup {
     color: var(--color-foreground);
     background-color: var(--color-popover);
+  }
+}
+
+@layer components {
+  .ncm-section-shell {
+    background: linear-gradient(170deg, color-mix(in oklab, var(--bg-elevated) 94%, black 6%), color-mix(in oklab, var(--bg-panel) 92%, black 8%));
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--card-radius);
+    box-shadow: var(--panel-glow);
+  }
+
+  .ncm-metal-line {
+    position: relative;
+  }
+
+  .ncm-metal-line::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: inherit;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  .ncm-hero-depth {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .ncm-hero-depth::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(70% 55% at 18% 8%, rgba(44, 105, 255, 0.2), transparent 65%),
+      radial-gradient(70% 65% at 84% 20%, rgba(223, 36, 36, 0.16), transparent 62%),
+      linear-gradient(135deg, #07080d 0%, #0c101b 42%, #101522 100%);
+    pointer-events: none;
+  }
+
+  .ncm-hero-depth::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--hero-overlay-gradient);
+    pointer-events: none;
   }
 }
