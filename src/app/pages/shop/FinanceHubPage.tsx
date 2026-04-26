@@ -463,10 +463,22 @@ export function FinanceHubPage() {
             ))}
             <div className="flex items-center gap-2">
               {/* Social icons */}
-              {['f', 'in', 'yt', 'tk'].map((s) => (
-                <div key={s} style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', color: '#8898b8', fontWeight: 700 }}>
-                  {s}
-                </div>
+              {[
+                { label: 'Facebook', href: 'https://www.facebook.com/nationalcarmart', icon: 'f' },
+                { label: 'Instagram', href: 'https://www.instagram.com/nationalcarmart', icon: 'in' },
+                { label: 'YouTube', href: 'https://www.youtube.com/@nationalcarmart', icon: 'yt' },
+                { label: 'TikTok', href: 'https://www.tiktok.com/@nationalcarmart', icon: 'tk' },
+              ].map(({ label, href, icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Follow National Car Mart on ${label}`}
+                  style={{ width: '24px', height: '24px', borderRadius: '50%', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.55rem', color: '#8898b8', fontWeight: 700, textDecoration: 'none' }}
+                >
+                  {icon}
+                </a>
               ))}
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '4px', padding: '0.3rem 0.6rem' }}>

@@ -6,6 +6,7 @@ import { setSelectedUnit } from '@/domains/buyer-hub/helpers/selectedVehicleCont
 import { computePaymentEstimate } from '@/domains/buyer-hub/buyerHub.types'
 import { InventoryPhotoImage } from '@/components/inventory/InventoryPhotoImage'
 import { isPlaceholderUrl } from '@/domains/inventory-photo/inventoryPhoto.placeholder'
+import { DEALER } from '@/lib/dealer.constants'
 import {
   MagnifyingGlass,
   SlidersHorizontal,
@@ -394,7 +395,7 @@ export function ShopInventoryPage() {
             </select>
 
             <button
-              onClick={() => {}}
+              onClick={() => document.querySelector('.ncm-filter-rail')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
               className="ncm-btn-blue"
               style={{ borderRadius: '4px', height: '44px', gap: '0.5rem' }}
             >
@@ -565,8 +566,8 @@ export function ShopInventoryPage() {
               </div>
               <div>
                 <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: '#f0f2f8' }}>Call Us Today</div>
-                <a href="tel:+12165693344" style={{ fontFamily: 'Barlow Condensed, Syncopate, sans-serif', fontWeight: 800, fontSize: '1.2rem', color: '#f0f2f8', letterSpacing: '0.04em' }}>
-                  (216) 569-3344
+                <a href={DEALER.phoneTel} style={{ fontFamily: 'Barlow Condensed, Syncopate, sans-serif', fontWeight: 800, fontSize: '1.2rem', color: '#f0f2f8', letterSpacing: '0.04em' }}>
+                  {DEALER.phone}
                 </a>
                 <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.7rem', color: '#8898b8', marginTop: '0.15rem' }}>
                   Mon–Sat: 9AM–8PM &nbsp;|&nbsp; Sunday: 11AM–5PM

@@ -820,4 +820,39 @@
     border-right: 1px solid rgba(255,255,255,0.08);
     flex-shrink: 0;
   }
+
+  /* Mobile nav item */
+  .ncm-mobile-nav-item {
+    font-family: 'Barlow', 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 0.875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.85);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+
+  .ncm-mobile-nav-item:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  /* Footer quick-link */
+  .ncm-footer-link {
+    font-family: 'Barlow', 'Manrope', sans-serif;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.7);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    text-align: left;
+    transition: color 150ms ease;
+  }
+
+  .ncm-footer-link:hover {
+    color: #fff;
+  }
 }

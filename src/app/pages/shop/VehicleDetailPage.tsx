@@ -6,6 +6,7 @@ import { useInventoryRecord } from '@/domains/inventory/inventory.runtime'
 import { setSelectedUnit } from '@/domains/buyer-hub/helpers/selectedVehicleContext'
 import { InventoryPhotoImage } from '@/components/inventory/InventoryPhotoImage'
 import { ArrowLeft, Heart, Car, Lock } from '@phosphor-icons/react'
+import { DEALER } from '@/lib/dealer.constants'
 
 function fmt(v: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(v)
@@ -298,11 +299,11 @@ export function VehicleDetailPage() {
                 VALUE YOUR TRADE
               </button>
               <a
-                href="tel:+12165693344"
+                href={DEALER.phoneTel}
                 className="ncm-btn-outline"
                 style={{ borderRadius: '4px', justifyContent: 'center', width: '100%', padding: '0.75rem', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
               >
-                📞 CALL (216) 569-3344
+                📞 CALL {DEALER.phone}
               </a>
               <button
                 onClick={() => toggleSaved(vehicle.id)}
@@ -355,7 +356,7 @@ export function VehicleDetailPage() {
             SCHEDULE
           </button>
           <a
-            href="tel:+12165693344"
+            href={DEALER.phoneTel}
             style={{ flex: 1, borderRadius: '4px', justifyContent: 'center', fontSize: '0.72rem', padding: '0.75rem 0.5rem', background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.2)', color: '#f0f2f8', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '0.25rem', fontFamily: 'Barlow, Manrope, sans-serif', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em' }}
           >
             📞 CALL

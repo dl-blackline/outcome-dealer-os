@@ -62,14 +62,23 @@ export function NcmFooter() {
             </p>
             {/* Social icons */}
             <div className="flex items-center gap-3 mt-4">
-              {['f', 'in', 'yt', 'tk'].map((s) => (
-                <div
-                  key={s}
-                  className="flex items-center justify-center w-8 h-8 rounded text-xs font-bold"
-                  style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#8898b8' }}
+              {[
+                { label: 'Facebook', href: 'https://www.facebook.com/nationalcarmart', icon: 'f' },
+                { label: 'Instagram', href: 'https://www.instagram.com/nationalcarmart', icon: 'in' },
+                { label: 'YouTube', href: 'https://www.youtube.com/@nationalcarmart', icon: 'yt' },
+                { label: 'TikTok', href: 'https://www.tiktok.com/@nationalcarmart', icon: 'tk' },
+              ].map(({ label, href, icon }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`Follow National Car Mart on ${label}`}
+                  className="flex items-center justify-center w-8 h-8 rounded text-xs font-bold transition-colors"
+                  style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.12)', color: '#8898b8', textDecoration: 'none' }}
                 >
-                  {s}
-                </div>
+                  {icon}
+                </a>
               ))}
             </div>
           </div>
@@ -84,10 +93,7 @@ export function NcmFooter() {
                 <li key={link.path}>
                   <button
                     onClick={() => navigate(link.path)}
-                    className="text-sm transition-colors"
-                    style={{ color: 'rgba(255,255,255,0.7)' }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}
+                    className="ncm-footer-link"
                   >
                     {link.label}
                   </button>

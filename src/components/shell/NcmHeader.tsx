@@ -4,12 +4,12 @@ import { DEALER } from '@/lib/dealer.constants'
 import { List, X, CaretDown, Heart } from '@phosphor-icons/react'
 
 const NAV = [
-  { label: 'Inventory', path: '/shop' },
-  { label: 'Financing', path: '/finance' },
-  { label: 'Trade', path: '/trade' },
-  { label: 'Service', path: '/schedule' },
-  { label: 'About', path: '/#about' },
-  { label: 'Contact', path: '/#contact' },
+  { label: 'Inventory', path: '/shop', hasDropdown: true },
+  { label: 'Financing', path: '/finance', hasDropdown: true },
+  { label: 'Trade', path: '/trade', hasDropdown: true },
+  { label: 'Service', path: '/schedule', hasDropdown: true },
+  { label: 'About', path: '/#about', hasDropdown: true },
+  { label: 'Contact', path: '/#contact', hasDropdown: false },
 ]
 
 export function NcmHeader() {
@@ -64,7 +64,7 @@ export function NcmHeader() {
                 data-active={isActive ? 'true' : undefined}
               >
                 {item.label}
-                {item.label !== 'Contact' && <CaretDown size={11} weight="bold" style={{ opacity: 0.6 }} />}
+                {item.hasDropdown && <CaretDown size={11} weight="bold" style={{ opacity: 0.6 }} />}
               </button>
             )
           })}
@@ -115,14 +115,7 @@ export function NcmHeader() {
               <button
                 key={item.label}
                 onClick={() => handleNav(item.path)}
-                className="w-full text-left px-3 py-3 rounded text-sm font-semibold uppercase tracking-wider transition-colors"
-                style={{
-                  color: 'rgba(255,255,255,0.85)',
-                  letterSpacing: '0.08em',
-                  fontFamily: 'Barlow, Manrope, sans-serif',
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.color = '#fff'; e.currentTarget.style.background = 'rgba(255,255,255,0.05)' }}
-                onMouseLeave={(e) => { e.currentTarget.style.color = 'rgba(255,255,255,0.85)'; e.currentTarget.style.background = 'transparent' }}
+                className="ncm-mobile-nav-item w-full text-left px-3 py-3 rounded text-sm font-semibold uppercase tracking-wider transition-colors"
               >
                 {item.label}
               </button>
