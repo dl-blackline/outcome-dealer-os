@@ -182,9 +182,9 @@ export function InventoryListPage() {
             <table className="w-full text-[0.8rem]">
               <thead>
                 <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                  {['Stock #', 'Vehicle', 'Miles', 'Days', 'Status', 'Price', 'Market Gap', ''].map((h, i) => (
+                  {['Stock #', 'Vehicle', 'Miles', 'Days', 'Status', 'Price', 'Market Gap', 'Open'].map((h, i) => (
                     <th
-                      key={`${h}-${i}`}
+                      key={i}
                       className={`px-4 py-3 font-semibold text-[0.65rem] uppercase tracking-wider text-white/30 ${i >= 5 ? 'text-right' : 'text-left'}`}
                     >
                       {h}
