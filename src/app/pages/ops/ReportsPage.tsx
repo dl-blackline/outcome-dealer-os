@@ -1086,17 +1086,56 @@ export function ReportsPage() {
     })
   }
 
+  const kpiPanelStyle: React.CSSProperties = {
+    background: 'linear-gradient(145deg, oklch(0.16 0.018 248), oklch(0.13 0.015 248))',
+    border: '1px solid rgba(255,255,255,0.07)',
+    borderRadius: '0.75rem',
+    boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.5)',
+  }
+
   return (
     <div className="flex flex-col h-full">
       {/* Page header */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-border print:hidden">
         <div className="flex items-center gap-3">
-          <ChartBar className="h-6 w-6 text-primary" />
+          <ChartBar className="h-6 w-6" style={{ color: '#3b82f6' }} />
           <div>
-            <h1 className="text-xl font-bold">Reports</h1>
-            <p className="text-sm text-muted-foreground">Executive Reporting Suite</p>
+            <h1 className="text-xl font-bold text-white">Analytics &amp; Reports</h1>
+            <p className="text-sm" style={{ color: 'rgba(255,255,255,0.45)' }}>Executive Reporting Suite</p>
           </div>
         </div>
+        <button
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all hover:opacity-90"
+          style={{
+            background: 'linear-gradient(135deg, rgba(59,130,246,0.3), rgba(37,99,235,0.3))',
+            border: '1px solid rgba(59,130,246,0.3)',
+            color: '#93c5fd',
+          }}
+        >
+          <Lightning className="h-3.5 w-3.5" />
+          Export
+        </button>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="px-6 pt-4 pb-2 grid grid-cols-2 lg:grid-cols-6 gap-3 print:hidden">
+        {[
+          { label: 'Units Sold', value: '142', accent: '#10b981' },
+          { label: 'Gross Profit', value: '$284k', accent: '#3b82f6' },
+          { label: 'Finance Pen.', value: '71%', accent: '#8b5cf6' },
+          { label: 'Close Rate', value: '38%', accent: '#f59e0b' },
+          { label: 'Appt Show Rate', value: '62%', accent: '#06b6d4' },
+          { label: 'Avg Front Gross', value: '$1,850', accent: '#ec4899' },
+        ].map(({ label, value, accent }) => (
+          <div key={label} style={kpiPanelStyle} className="p-3">
+            <div className="text-xs font-medium uppercase tracking-widest mb-1.5" style={{ color: 'rgba(255,255,255,0.35)' }}>
+              {label}
+            </div>
+            <div className="text-lg font-bold text-white" style={{ textShadow: `0 0 16px ${accent}50` }}>
+              {value}
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Tab navigation */}

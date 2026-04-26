@@ -150,25 +150,25 @@ export function AppShell() {
   }, [currentPath, guardResult, navigate])
 
   if (status === 'loading') {
-    return <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">Loading secure workspace…</div>
+    return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground" style={{ background: '#07080d' }}>Loading secure workspace…</div>
   }
 
   if (shouldRedirectToLogin) {
-    return <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">Redirecting to login…</div>
+    return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground" style={{ background: '#07080d' }}>Redirecting to login…</div>
   }
 
   const currentUser = user!
 
   if (guardResult && !guardResult.allowed) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">
+      <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground" style={{ background: '#07080d' }}>
         Redirecting to authorized workspace…
       </div>
     )
   }
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className="flex h-screen" style={{ background: 'linear-gradient(180deg, #07080d 0%, #060810 100%)' }}>
       <AppSidebar
         currentPath={currentPath}
         currentRole={currentUser.role}

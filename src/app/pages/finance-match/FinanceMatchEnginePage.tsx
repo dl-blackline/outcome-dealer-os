@@ -291,12 +291,73 @@ export function FinanceMatchEnginePage() {
 
   return (
     <div className="ods-page space-y-4">
-      <div className="flex items-center gap-3">
-        <Intersect className="h-6 w-6 text-primary" />
-        <div>
-          <h1 className="text-xl font-bold">Bank Match Engine</h1>
-          <p className="text-sm text-muted-foreground">Match deal structure against lender programs in real-time</p>
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div
+            className="flex h-9 w-9 items-center justify-center rounded-lg"
+            style={{
+              background: 'linear-gradient(135deg, rgba(59,130,246,0.3), rgba(37,99,235,0.25))',
+              border: '1px solid rgba(59,130,246,0.4)',
+              boxShadow: '0 0 16px rgba(59,130,246,0.2)',
+            }}
+          >
+            <Intersect className="h-5 w-5" style={{ color: '#93c5fd' }} />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-white">Finance Center</h1>
+            <p className="text-sm mt-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>
+              Match deal structure against lender programs in real-time
+            </p>
+          </div>
         </div>
+      </div>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          {
+            label: 'Pending Applications',
+            value: results.filter(r => r.status === 'review').length.toString() || '—',
+            accent: '#f59e0b',
+          },
+          {
+            label: 'Approvals Today',
+            value: results.filter(r => r.status === 'greenlight').length.toString() || '—',
+            accent: '#10b981',
+          },
+          {
+            label: 'Avg APR',
+            value: input.proposedRate ? `${input.proposedRate.toFixed(1)}%` : '—',
+            accent: '#3b82f6',
+          },
+          {
+            label: 'Stips Outstanding',
+            value: results.filter(r => r.status === 'info_needed').length.toString() || '—',
+            accent: '#8b5cf6',
+          },
+        ].map(({ label, value, accent }) => (
+          <div
+            key={label}
+            style={{
+              background: 'linear-gradient(145deg, oklch(0.16 0.018 248), oklch(0.13 0.015 248))',
+              border: '1px solid rgba(255,255,255,0.07)',
+              borderRadius: '0.75rem',
+              boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.5)',
+            }}
+            className="p-4"
+          >
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-medium uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                {label}
+              </span>
+              <span className="h-2 w-2 rounded-full" style={{ background: accent, boxShadow: `0 0 6px ${accent}` }} />
+            </div>
+            <div className="text-2xl font-bold text-white" style={{ textShadow: `0 0 20px ${accent}60` }}>
+              {value}
+            </div>
+          </div>
+        ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
