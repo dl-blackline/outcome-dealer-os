@@ -7,6 +7,21 @@
   --vault-glow: color-mix(in oklab, var(--vault-ice) 55%, white 45%);
   --vault-panel: linear-gradient(165deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02));
   --vault-shadow: 0 24px 70px rgba(0, 0, 0, 0.46);
+
+  /* NCM brand tokens */
+  --ncm-red: #d41a1a;
+  --ncm-red-hover: #b81515;
+  --ncm-red-light: #f03030;
+  --ncm-blue: #1e3a8a;
+  --ncm-blue-accent: #2563eb;
+  --ncm-dark: #0a0a0f;
+  --ncm-dark-panel: #111118;
+  --ncm-dark-card: #16161f;
+  --ncm-steel: #1e2030;
+  --ncm-border: rgba(255,255,255,0.10);
+  --ncm-border-accent: rgba(212, 26, 26, 0.45);
+  --ncm-font-display: 'Barlow Condensed', 'Syncopate', system-ui, sans-serif;
+  --ncm-font-body: 'Barlow', 'Manrope', system-ui, sans-serif;
 }
 
 @layer base {
@@ -562,5 +577,282 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   NCM — National Car Mart brand component layer
+   ═══════════════════════════════════════════════════════════════════ */
+
+@layer components {
+
+  .ncm-page {
+    background: var(--ncm-dark);
+    min-height: 100vh;
+    color: #f0f2f8;
+  }
+
+  .ncm-panel {
+    background: var(--ncm-dark-card);
+    border: 1px solid var(--ncm-border);
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+  }
+
+  .ncm-panel-steel {
+    background: var(--ncm-steel);
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .ncm-btn-red {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #d41a1a 0%, #b01212 100%);
+    color: #fff;
+    border: 1px solid rgba(255, 80, 80, 0.35);
+    font-family: var(--ncm-font-body);
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.65rem 1.4rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background 180ms ease, transform 150ms ease, box-shadow 150ms ease;
+    box-shadow: 0 4px 20px rgba(212, 26, 26, 0.45);
+    white-space: nowrap;
+  }
+
+  .ncm-btn-red:hover {
+    background: linear-gradient(135deg, #e82020 0%, #c01515 100%);
+    transform: translateY(-1px);
+    box-shadow: 0 6px 28px rgba(212, 26, 26, 0.62);
+  }
+
+  .ncm-btn-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: rgba(255,255,255,0.05);
+    color: #f0f2f8;
+    border: 1px solid rgba(255,255,255,0.35);
+    font-family: var(--ncm-font-body);
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.65rem 1.4rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background 180ms ease, border-color 180ms ease;
+    white-space: nowrap;
+  }
+
+  .ncm-btn-outline:hover {
+    background: rgba(255,255,255,0.10);
+    border-color: rgba(255,255,255,0.6);
+  }
+
+  .ncm-btn-blue {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 100%);
+    color: #fff;
+    border: 1px solid rgba(96, 165, 250, 0.35);
+    font-family: var(--ncm-font-body);
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 0.65rem 1.4rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    transition: background 180ms ease, transform 150ms ease;
+    box-shadow: 0 4px 20px rgba(29, 78, 216, 0.4);
+    white-space: nowrap;
+  }
+
+  .ncm-btn-blue:hover {
+    background: linear-gradient(135deg, #1e4fbe 0%, #2563eb 100%);
+    transform: translateY(-1px);
+  }
+
+  .ncm-display {
+    font-family: var(--ncm-font-display);
+    font-weight: 800;
+    text-transform: uppercase;
+    line-height: 0.9;
+    letter-spacing: 0.01em;
+  }
+
+  .ncm-nav-item {
+    font-family: var(--ncm-font-body);
+    font-weight: 600;
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.88);
+    padding: 0.35rem 0.1rem;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 150ms ease, border-color 150ms ease;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    background: transparent;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+  }
+
+  .ncm-nav-item:hover,
+  .ncm-nav-item[data-active='true'] {
+    color: #fff;
+    border-bottom-color: var(--ncm-red);
+  }
+
+  .ncm-badge-new {
+    background: linear-gradient(90deg, #16a34a, #15803d);
+    color: #fff;
+    font-family: var(--ncm-font-body);
+    font-weight: 700;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.22rem 0.6rem;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  .ncm-badge-value {
+    background: linear-gradient(90deg, #2563eb, #1d4ed8);
+    color: #fff;
+    font-family: var(--ncm-font-body);
+    font-weight: 700;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.22rem 0.6rem;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  .ncm-badge-family {
+    background: linear-gradient(90deg, #d41a1a, #b01212);
+    color: #fff;
+    font-family: var(--ncm-font-body);
+    font-weight: 700;
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.22rem 0.6rem;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  .ncm-price {
+    color: #f03030;
+    font-family: var(--ncm-font-display);
+    font-weight: 800;
+    letter-spacing: 0.01em;
+  }
+
+  .ncm-monthly {
+    color: #60a5fa;
+    font-family: var(--ncm-font-body);
+    font-weight: 700;
+  }
+
+  .ncm-inventory-card {
+    background: var(--ncm-dark-card);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color 200ms ease, transform 200ms ease, box-shadow 200ms ease;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ncm-inventory-card:hover {
+    border-color: rgba(212, 26, 26, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+  }
+
+  .ncm-service-card {
+    background: var(--ncm-dark-card);
+    border: 1px solid rgba(255,255,255,0.08);
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    transition: border-color 200ms ease, background 200ms ease;
+    cursor: pointer;
+  }
+
+  .ncm-service-card:hover {
+    border-color: rgba(212,26,26,0.4);
+    background: #1a1a24;
+  }
+
+  .ncm-step-badge {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--ncm-red);
+    color: #fff;
+    font-family: var(--ncm-font-body);
+    font-weight: 800;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .ncm-filter-rail {
+    background: #111118;
+    border-right: 1px solid rgba(255,255,255,0.08);
+    flex-shrink: 0;
+  }
+
+  /* Mobile nav item */
+  .ncm-mobile-nav-item {
+    font-family: 'Barlow', 'Manrope', sans-serif;
+    font-weight: 600;
+    font-size: 0.875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.85);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+
+  .ncm-mobile-nav-item:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  /* Footer quick-link */
+  .ncm-footer-link {
+    font-family: 'Barlow', 'Manrope', sans-serif;
+    font-size: 0.875rem;
+    color: rgba(255, 255, 255, 0.7);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    text-align: left;
+    transition: color 150ms ease;
+  }
+
+  .ncm-footer-link:hover {
+    color: #fff;
   }
 }
