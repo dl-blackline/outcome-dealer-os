@@ -1,10 +1,10 @@
 import { useMemo, useState, useCallback } from 'react'
-import { SectionHeader } from '@/components/core/SectionHeader'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Textarea } from '@/components/ui/textarea'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
+import { Lightning } from '@phosphor-icons/react'
 import { ASSISTANT_ACTIONS, findAssistantAction } from '@/domains/assistant/assistant.actions'
 import { buildAssistantReport, getAssistantArchitectureSummary } from '@/domains/assistant/assistant.engine'
 import { saveAssistantWorklog, useAssistantWorklogs } from '@/domains/assistant/assistant.worklog'
@@ -301,228 +301,387 @@ export function AssistantOpsPage() {
 
   return (
     <div className="ods-page ods-flow-lg">
-      <SectionHeader
-        title="Assistant Ops Console"
-        description="Full-spectrum internal AI operating agent for debugging, workflow tracing, safe patch proposals, and approval-gated fixes."
-        action={<Badge variant="outline">Internal AI Operating Layer</Badge>}
-      />
-
-      {/* ── Input panel ── */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Assistant Action Registry</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-wrap gap-2">
-            {ASSISTANT_ACTIONS.map(actionOption => (
-              <Button
-                key={actionOption.id}
-                type="button"
-                size="sm"
-                variant={actionOption.id === actionId ? 'default' : 'outline'}
-                onClick={() => setActionId(actionOption.id)}
-              >
-                {actionOption.label}
-              </Button>
-            ))}
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div
+            className="flex h-9 w-9 items-center justify-center rounded-lg"
+            style={{
+              background: 'linear-gradient(135deg, rgba(139,92,246,0.3), rgba(109,40,217,0.3))',
+              border: '1px solid rgba(139,92,246,0.4)',
+              boxShadow: '0 0 16px rgba(139,92,246,0.25)',
+            }}
+          >
+            <Lightning className="h-5 w-5" style={{ color: '#c4b5fd' }} />
           </div>
-          <p className="text-sm text-muted-foreground">{action.description}</p>
-          <div className="grid gap-3 md:grid-cols-2">
-            <label className="text-sm">
-              <span className="mb-1 block text-muted-foreground">Lead hint (optional)</span>
-              <select
-                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm"
-                value={leadHint}
-                onChange={ev => setLeadHint(ev.target.value)}
-              >
-                <option value="">No lead selected</option>
-                {leads.data.map(lead => (
-                  <option key={lead.id} value={lead.id}>
-                    {lead.customerName} ({lead.id})
-                  </option>
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight text-white">AI Copilot</h1>
+            <p className="text-sm mt-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>
+              Internal AI operating agent — debugging, workflow tracing, patch proposals
+            </p>
+          </div>
+        </div>
+        <div
+          className="text-xs px-2.5 py-1 rounded-full font-medium"
+          style={{ background: 'rgba(139,92,246,0.15)', color: '#c4b5fd', border: '1px solid rgba(139,92,246,0.3)' }}
+        >
+          Internal AI Operating Layer
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* ── Main chat/analysis area (2/3) ── */}
+        <div className="lg:col-span-2 space-y-4">
+          {/* Action selector card */}
+          <div style={{
+            background: 'linear-gradient(145deg, oklch(0.16 0.018 248), oklch(0.13 0.015 248))',
+            border: '1px solid rgba(255,255,255,0.07)',
+            borderRadius: '0.75rem',
+            boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.5)',
+          }}>
+            <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }} className="px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                Action Registry
+              </p>
+            </div>
+            <div className="p-4 space-y-4">
+              <div className="flex flex-wrap gap-2">
+                {ASSISTANT_ACTIONS.map(actionOption => (
+                  <button
+                    key={actionOption.id}
+                    type="button"
+                    onClick={() => setActionId(actionOption.id)}
+                    className="px-3 py-1.5 rounded-lg text-xs font-medium transition-all"
+                    style={actionOption.id === actionId ? {
+                      background: 'linear-gradient(135deg, rgba(139,92,246,0.3), rgba(109,40,217,0.25))',
+                      color: '#c4b5fd',
+                      border: '1px solid rgba(139,92,246,0.4)',
+                      boxShadow: '0 0 10px rgba(139,92,246,0.2)',
+                    } : {
+                      background: 'rgba(255,255,255,0.04)',
+                      color: 'rgba(255,255,255,0.5)',
+                      border: '1px solid rgba(255,255,255,0.08)',
+                    }}
+                  >
+                    {actionOption.label}
+                  </button>
                 ))}
-              </select>
-            </label>
-            <div className="text-xs text-muted-foreground rounded-md border border-border p-3">
-              <div>Leads: {leads.data.length}</div>
-              <div>Events: {events.data.length}</div>
-              <div>Tasks: {tasks.data.length}</div>
-              <div>Pending approvals: {approvals.data.filter(item => item.status === 'pending').length}</div>
-              <div>Unhealthy integrations: {integrations.data.filter(item => item.status !== 'healthy').length}</div>
+              </div>
+              <p className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>{action.description}</p>
+              <div className="grid gap-3 md:grid-cols-2">
+                <label className="text-xs">
+                  <span className="block mb-1.5 font-medium uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                    Lead Hint (optional)
+                  </span>
+                  <select
+                    className="h-9 w-full rounded-lg text-sm px-3"
+                    style={{
+                      background: 'rgba(255,255,255,0.04)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      color: 'rgba(255,255,255,0.7)',
+                    }}
+                    value={leadHint}
+                    onChange={ev => setLeadHint(ev.target.value)}
+                  >
+                    <option value="">No lead selected</option>
+                    {leads.data.map(lead => (
+                      <option key={lead.id} value={lead.id}>
+                        {lead.customerName} ({lead.id})
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              {/* Prompt Composer */}
+              <div className="space-y-2">
+                <Textarea
+                  value={prompt}
+                  onChange={ev => setPrompt(ev.target.value)}
+                  className="min-h-[8rem] resize-none"
+                  style={{
+                    background: 'rgba(255,255,255,0.03)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    color: 'rgba(255,255,255,0.8)',
+                    borderRadius: '0.5rem',
+                  }}
+                  placeholder="Describe the bug, workflow issue, deploy/config failure, or improvement request…"
+                />
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => void runAnalysis()}
+                    className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90"
+                    style={{
+                      background: 'linear-gradient(135deg, rgba(139,92,246,0.8), rgba(109,40,217,0.8))',
+                      boxShadow: '0 0 16px rgba(139,92,246,0.3)',
+                    }}
+                  >
+                    <Lightning className="h-4 w-4" />
+                    Run Analysis
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => { setPrompt(''); setReport(null) }}
+                    className="px-4 py-2 rounded-lg text-sm font-medium transition-all"
+                    style={{
+                      background: 'rgba(255,255,255,0.05)',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      color: 'rgba(255,255,255,0.5)',
+                    }}
+                  >
+                    Reset
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
-          <Textarea
-            value={prompt}
-            onChange={ev => setPrompt(ev.target.value)}
-            className="min-h-[8rem]"
-            placeholder="Describe the bug, workflow issue, deploy/config failure, or improvement request."
-          />
-          <div className="flex gap-2">
-            <Button type="button" onClick={() => void runAnalysis()}>Run analysis</Button>
-            <Button type="button" variant="outline" onClick={() => { setPrompt(''); setReport(null) }}>Reset</Button>
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* ── Tabbed results ── */}
-      <Tabs defaultValue="analysis">
-        <TabsList>
-          <TabsTrigger value="analysis">Analysis</TabsTrigger>
-          <TabsTrigger value="patches">
-            Patch Proposals
-            {report && report.codePatchProposals.length > 0 && (
-              <Badge variant="secondary" className="ml-1 text-[10px] px-1 py-0">{report.codePatchProposals.length}</Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="timeline">
-            Timeline
-            {timeline.length > 0 && (
-              <Badge variant="secondary" className="ml-1 text-[10px] px-1 py-0">{timeline.length}</Badge>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="fixes">Fix Approvals</TabsTrigger>
-          <TabsTrigger value="history">History</TabsTrigger>
-        </TabsList>
-
-        {/* ── Analysis tab ── */}
-        <TabsContent value="analysis" className="space-y-6 mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Assistant Architecture Snapshot</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="list-disc space-y-1 pl-5 text-sm">
-                {architectureSummary.map(line => <li key={line}>{line}</li>)}
-              </ul>
-            </CardContent>
-          </Card>
-
-          {report && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Structured Investigation Output</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4 text-sm">
-                <div><strong>Objective:</strong> {report.objective}</div>
-                <div><strong>Diagnosis:</strong> {report.diagnosis}</div>
-                <div><strong>Root Cause:</strong> {report.rootCause}</div>
-                <div className="flex items-center gap-2">
-                  <strong>Confidence:</strong>
-                  <Badge>{Math.round(report.confidence * 100)}%</Badge>
-                </div>
-                <div>
-                  <strong>Impacted Layers:</strong>
-                  <div className="mt-1 flex flex-wrap gap-1">
-                    {report.impactedLayers.map(layer => <Badge variant="secondary" key={layer}>{layer}</Badge>)}
-                  </div>
-                </div>
-                <div>
-                  <strong>Impacted Files:</strong>
-                  <ul className="list-disc space-y-1 pl-5 text-xs">
-                    {report.impactedFiles.map(file => <li key={file}>{file}</li>)}
-                  </ul>
-                </div>
-                <div>
-                  <strong>Fix / Improvement Path:</strong>
-                  <ul className="list-disc space-y-1 pl-5">
-                    {report.fixOrImprovementPath.map(step => <li key={step}>{step}</li>)}
-                  </ul>
-                </div>
-                <div>
-                  <strong>Validation Steps:</strong>
-                  <ul className="list-disc space-y-1 pl-5">
-                    {report.validationSteps.map(step => <li key={step}>{step}</li>)}
-                  </ul>
-                </div>
-                <div>
-                  <strong>Risks / Follow-ups:</strong>
-                  <ul className="list-disc space-y-1 pl-5">
-                    {report.risksAndFollowUps.map(item => <li key={item}>{item}</li>)}
-                  </ul>
-                </div>
-                <div>
-                  <strong>Self-review Quality Gate:</strong>
-                  <ul className="list-disc space-y-1 pl-5">
-                    {report.selfReviewChecklist.map(item => <li key={item}>{item}</li>)}
-                  </ul>
-                </div>
-                <div><strong>Worklog Summary:</strong> {report.worklogSummary}</div>
-
-                {/* Deploy diagnostics inline in analysis if present */}
-                {report.deployDiagnostics.length > 0 && (
-                  <div>
-                    <strong className="block mb-2">Deploy / Env Diagnostics:</strong>
-                    <DeployDiagnosticsPanel diagnostics={report.deployDiagnostics} />
-                  </div>
+          {/* Results tabs */}
+          <Tabs defaultValue="analysis">
+            <TabsList>
+              <TabsTrigger value="analysis">Analysis</TabsTrigger>
+              <TabsTrigger value="patches">
+                Patch Proposals
+                {report && report.codePatchProposals.length > 0 && (
+                  <Badge variant="secondary" className="ml-1 text-[10px] px-1 py-0">{report.codePatchProposals.length}</Badge>
                 )}
-              </CardContent>
-            </Card>
-          )}
-        </TabsContent>
+              </TabsTrigger>
+              <TabsTrigger value="timeline">
+                Timeline
+                {timeline.length > 0 && (
+                  <Badge variant="secondary" className="ml-1 text-[10px] px-1 py-0">{timeline.length}</Badge>
+                )}
+              </TabsTrigger>
+              <TabsTrigger value="fixes">Fix Approvals</TabsTrigger>
+              <TabsTrigger value="history">History</TabsTrigger>
+            </TabsList>
 
-        {/* ── Patch proposals tab ── */}
-        <TabsContent value="patches" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Code Patch Proposals</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <PatchProposalsPanel proposals={report?.codePatchProposals ?? []} />
-            </CardContent>
-          </Card>
-        </TabsContent>
+            <TabsContent value="analysis" className="space-y-6 mt-4">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Assistant Architecture Snapshot</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="list-disc space-y-1 pl-5 text-sm">
+                    {architectureSummary.map(line => <li key={line}>{line}</li>)}
+                  </ul>
+                </CardContent>
+              </Card>
 
-        {/* ── Timeline tab ── */}
-        <TabsContent value="timeline" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Lead Timeline Correlation</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <TimelinePanel events={timeline} />
-            </CardContent>
-          </Card>
-        </TabsContent>
+              {report && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Structured Investigation Output</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4 text-sm">
+                    <div><strong>Objective:</strong> {report.objective}</div>
+                    <div><strong>Diagnosis:</strong> {report.diagnosis}</div>
+                    <div><strong>Root Cause:</strong> {report.rootCause}</div>
+                    <div className="flex items-center gap-2">
+                      <strong>Confidence:</strong>
+                      <Badge>{Math.round(report.confidence * 100)}%</Badge>
+                    </div>
+                    <div>
+                      <strong>Impacted Layers:</strong>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {report.impactedLayers.map(layer => <Badge variant="secondary" key={layer}>{layer}</Badge>)}
+                      </div>
+                    </div>
+                    <div>
+                      <strong>Impacted Files:</strong>
+                      <ul className="list-disc space-y-1 pl-5 text-xs">
+                        {report.impactedFiles.map(file => <li key={file}>{file}</li>)}
+                      </ul>
+                    </div>
+                    <div>
+                      <strong>Fix / Improvement Path:</strong>
+                      <ul className="list-disc space-y-1 pl-5">
+                        {report.fixOrImprovementPath.map(step => <li key={step}>{step}</li>)}
+                      </ul>
+                    </div>
+                    <div>
+                      <strong>Validation Steps:</strong>
+                      <ul className="list-disc space-y-1 pl-5">
+                        {report.validationSteps.map(step => <li key={step}>{step}</li>)}
+                      </ul>
+                    </div>
+                    <div>
+                      <strong>Risks / Follow-ups:</strong>
+                      <ul className="list-disc space-y-1 pl-5">
+                        {report.risksAndFollowUps.map(item => <li key={item}>{item}</li>)}
+                      </ul>
+                    </div>
+                    <div>
+                      <strong>Self-review Quality Gate:</strong>
+                      <ul className="list-disc space-y-1 pl-5">
+                        {report.selfReviewChecklist.map(item => <li key={item}>{item}</li>)}
+                      </ul>
+                    </div>
+                    <div><strong>Worklog Summary:</strong> {report.worklogSummary}</div>
 
-        {/* ── Fix approvals tab ── */}
-        <TabsContent value="fixes" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Approval-Gated Fix Proposals</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <FixProposalsPanel
-                report={report}
-                actionId={actionId}
-                onSubmit={handleProposalSubmitted}
-              />
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* ── History tab ── */}
-        <TabsContent value="history" className="mt-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Investigation History (Server-Persisted)</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {worklogs.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No worklogs yet. Run an analysis to begin the audit trail.</p>
-              ) : (
-                worklogs.map(entry => (
-                  <div key={entry.id} className="rounded-md border border-border p-3 text-xs space-y-1">
-                    <div className="font-medium">{entry.issueSummary}</div>
-                    <div className="text-muted-foreground">{entry.actionId} • {formatTimestamp(entry.timestamp)}</div>
-                    <div><strong>Likely cause:</strong> {entry.likelyCause}</div>
-                    <div><strong>Files:</strong> {entry.filesInspected.slice(0, 3).join(', ')}{entry.filesInspected.length > 3 ? ` +${entry.filesInspected.length - 3} more` : ''}</div>
-                  </div>
-                ))
+                    {report.deployDiagnostics.length > 0 && (
+                      <div>
+                        <strong className="block mb-2">Deploy / Env Diagnostics:</strong>
+                        <DeployDiagnosticsPanel diagnostics={report.deployDiagnostics} />
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
               )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </TabsContent>
+
+            <TabsContent value="patches" className="mt-4">
+              <Card>
+                <CardHeader><CardTitle>Code Patch Proposals</CardTitle></CardHeader>
+                <CardContent>
+                  <PatchProposalsPanel proposals={report?.codePatchProposals ?? []} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="timeline" className="mt-4">
+              <Card>
+                <CardHeader><CardTitle>Lead Timeline Correlation</CardTitle></CardHeader>
+                <CardContent>
+                  <TimelinePanel events={timeline} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="fixes" className="mt-4">
+              <Card>
+                <CardHeader><CardTitle>Approval-Gated Fix Proposals</CardTitle></CardHeader>
+                <CardContent>
+                  <FixProposalsPanel
+                    report={report}
+                    actionId={actionId}
+                    onSubmit={handleProposalSubmitted}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="history" className="mt-4">
+              <Card>
+                <CardHeader><CardTitle>Investigation History (Server-Persisted)</CardTitle></CardHeader>
+                <CardContent className="space-y-3">
+                  {worklogs.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">No worklogs yet. Run an analysis to begin the audit trail.</p>
+                  ) : (
+                    worklogs.map(entry => (
+                      <div key={entry.id} className="rounded-md border border-border p-3 text-xs space-y-1">
+                        <div className="font-medium">{entry.issueSummary}</div>
+                        <div className="text-muted-foreground">{entry.actionId} • {formatTimestamp(entry.timestamp)}</div>
+                        <div><strong>Likely cause:</strong> {entry.likelyCause}</div>
+                        <div><strong>Files:</strong> {entry.filesInspected.slice(0, 3).join(', ')}{entry.filesInspected.length > 3 ? ` +${entry.filesInspected.length - 3} more` : ''}</div>
+                      </div>
+                    ))
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        {/* ── Right Context Sidebar (1/3) ── */}
+        <div className="space-y-4">
+          {/* Suggested Actions */}
+          <div style={{
+            background: 'linear-gradient(145deg, oklch(0.16 0.018 248), oklch(0.13 0.015 248))',
+            border: '1px solid rgba(139,92,246,0.2)',
+            borderRadius: '0.75rem',
+            boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.5)',
+          }}>
+            <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }} className="px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#c4b5fd' }}>
+                Suggested Actions
+              </p>
+            </div>
+            <div className="p-3 space-y-1">
+              {ASSISTANT_ACTIONS.slice(0, 5).map(a => (
+                <button
+                  key={a.id}
+                  onClick={() => setActionId(a.id)}
+                  className="w-full text-left px-3 py-2 rounded-lg text-xs transition-all"
+                  style={{
+                    color: actionId === a.id ? '#c4b5fd' : 'rgba(255,255,255,0.5)',
+                    background: actionId === a.id ? 'rgba(139,92,246,0.12)' : 'transparent',
+                  }}
+                  onMouseEnter={e => {
+                    if (actionId !== a.id) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.04)'
+                  }}
+                  onMouseLeave={e => {
+                    if (actionId !== a.id) (e.currentTarget as HTMLButtonElement).style.background = 'transparent'
+                  }}
+                >
+                  {a.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Context Panel */}
+          <div style={{
+            background: 'linear-gradient(145deg, oklch(0.16 0.018 248), oklch(0.13 0.015 248))',
+            border: '1px solid rgba(255,255,255,0.07)',
+            borderRadius: '0.75rem',
+            boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.5)',
+          }}>
+            <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }} className="px-4 py-3">
+              <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                Context
+              </p>
+            </div>
+            <div className="p-4 space-y-3">
+              {[
+                { label: 'Leads', value: leads.data.length },
+                { label: 'Events', value: events.data.length },
+                { label: 'Tasks', value: tasks.data.length },
+                { label: 'Pending Approvals', value: approvals.data.filter(item => item.status === 'pending').length },
+                { label: 'Unhealthy Integrations', value: integrations.data.filter(item => item.status !== 'healthy').length },
+              ].map(({ label, value }) => (
+                <div key={label} className="flex items-center justify-between">
+                  <span className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>{label}</span>
+                  <span className="text-xs font-semibold text-white">{value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Selected Lead Context */}
+          {selectedLead && (
+            <div style={{
+              background: 'linear-gradient(145deg, oklch(0.16 0.018 248), oklch(0.13 0.015 248))',
+              border: '1px solid rgba(139,92,246,0.25)',
+              borderRadius: '0.75rem',
+              boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.5)',
+            }}>
+              <div style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }} className="px-4 py-3">
+                <p className="text-xs font-semibold uppercase tracking-widest" style={{ color: '#c4b5fd' }}>
+                  Selected Lead
+                </p>
+              </div>
+              <div className="p-4 space-y-2 text-xs">
+                <div className="font-medium text-white">{selectedLead.customerName}</div>
+                <div className="space-y-1">
+                  <div className="flex justify-between">
+                    <span style={{ color: 'rgba(255,255,255,0.4)' }}>Related Events</span>
+                    <span className="text-white">{relatedEventNames.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span style={{ color: 'rgba(255,255,255,0.4)' }}>Related Tasks</span>
+                    <span className="text-white">{relatedTaskTitles.length}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span style={{ color: 'rgba(255,255,255,0.4)' }}>Timeline Events</span>
+                    <span className="text-white">{timeline.length}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   )
 }

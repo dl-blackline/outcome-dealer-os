@@ -1,8 +1,5 @@
 import { useState } from 'react'
-import { SectionHeader } from '@/components/core/SectionHeader'
 import { StickyTableShell } from '@/components/core/StickyTableShell'
-import { StatusPill } from '@/components/core/StatusPill'
-import { Button } from '@/components/ui/button'
 import {
   AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter,
   AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction,
@@ -10,9 +7,28 @@ import {
 import { useRouter } from '@/app/router'
 import { useDeals, useDealMutations } from '@/domains/deals/deal.hooks'
 import { type MockDeal } from '@/lib/mockData'
-import { Plus, PencilSimple, Trash, SpinnerGap, Warning } from '@phosphor-icons/react'
+import {
+  Plus, PencilSimple, Trash, SpinnerGap, Warning,
+  CurrencyDollar, ChartBar, Lightning, CheckCircle,
+} from '@phosphor-icons/react'
 
-const STATUSES = ['all', 'structured', 'quoted', 'signed', 'funded', 'sold_pending_delivery', 'delivered'] as const
+const PANEL_STYLE: React.CSSProperties = {
+  background: 'linear-gradient(145deg, oklch(0.16 0.018 248), oklch(0.13 0.015 248))',
+  border: '1px solid rgba(255,255,255,0.07)',
+  borderRadius: '0.75rem',
+  boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.5)',
+}
+
+const DEAL_TABS = ['all', 'quoted', 'signed', 'funded', 'cancelled'] as const
+type DealTab = (typeof DEAL_TABS)[number]
+
+const TAB_LABELS: Record<DealTab, string> = {
+  all: 'All',
+  quoted: 'Quoted',
+  signed: 'Signed',
+  funded: 'Funded',
+  cancelled: 'Cancelled',
+}
 
 const STATUS_LABELS: Record<string, string> = {
   all: 'All',
@@ -22,6 +38,20 @@ const STATUS_LABELS: Record<string, string> = {
   funded: 'Funded',
   sold_pending_delivery: 'Sold',
   delivered: 'Delivered',
+  cancelled: 'Cancelled',
+}
+
+function statusBadge(status: string) {
+  const base = 'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold tracking-wide'
+  if (status === 'funded' || status === 'delivered' || status === 'sold_pending_delivery')
+    return `${base} bg-emerald-500/15 text-emerald-400 border border-emerald-500/30`
+  if (status === 'signed')
+    return `${base} bg-blue-500/15 text-blue-400 border border-blue-500/30`
+  if (status === 'quoted' || status === 'structured')
+    return `${base} bg-amber-500/15 text-amber-400 border border-amber-500/30`
+  if (status === 'cancelled')
+    return `${base} bg-red-500/10 text-red-400/70 border border-red-500/20`
+  return `${base} bg-white/5 text-white/50 border border-white/10`
 }
 
 export function DealListPage() {
@@ -34,6 +64,11 @@ export function DealListPage() {
 
   const filtered = deals.data.filter(d => tab === 'all' || d.status === tab)
 
+  const activeDeals = deals.data.filter(d => !['delivered', 'cancelled'].includes(d.status)).length
+  const fundedThisMonth = deals.data.filter(d => d.status === 'funded').length
+  const totalPipeline = deals.data.reduce((sum, d) => sum + d.amount, 0)
+  const avgFrontGross = deals.data.length > 0 ? totalPipeline / deals.data.length : 0
+
   async function confirmDelete() {
     if (!deleteTarget) return
     setDeleting(true)
@@ -44,76 +79,174 @@ export function DealListPage() {
   }
 
   if (deals.loading) {
-    return <div className="flex items-center justify-center py-24"><SpinnerGap className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+    return (
+      <div className="flex items-center justify-center py-24">
+        <SpinnerGap className="h-8 w-8 animate-spin" style={{ color: 'oklch(0.6 0.2 25)' }} />
+      </div>
+    )
   }
 
   return (
     <div className="ods-page ods-flow-lg">
-      <SectionHeader title="Deals" description="Active and completed deal pipeline" />
-      <div className="ods-toolbar ods-sticky-toolbar justify-between">
-        <div className="ods-toolbar w-fit gap-0 overflow-hidden rounded-lg p-0">
-          {STATUSES.map(s => (
-            <button key={s} onClick={() => setTab(s)} className={`px-3 py-1.5 text-sm capitalize ${tab === s ? 'bg-primary text-primary-foreground' : 'hover:bg-accent/50 text-muted-foreground'}`}>{STATUS_LABELS[s] ?? s}</button>
-          ))}
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-white">Deal Desk</h1>
+          <p className="text-sm mt-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>
+            Active and completed deal pipeline
+          </p>
         </div>
-        <Button size="sm" onClick={() => navigate('/app/records/deals/new')} className="gap-2 shrink-0">
-          <Plus className="h-4 w-4" /> New Deal
-        </Button>
+        <button
+          onClick={() => navigate('/app/records/deals/new')}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-[0.98]"
+          style={{
+            background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+            boxShadow: '0 0 20px rgba(220,38,38,0.35), 0 2px 8px rgba(0,0,0,0.4)',
+          }}
+        >
+          <Plus className="h-4 w-4" />
+          New Deal
+        </button>
       </div>
-      <StickyTableShell scrollOffset="17rem">
-        <table className="w-full text-sm">
-          <thead><tr className="border-b border-border">
-            <th className="px-4 py-3 text-left font-medium">Customer</th>
-            <th className="px-4 py-3 text-left font-medium">Vehicle</th>
-            <th className="px-4 py-3 text-right font-medium">Amount</th>
-            <th className="px-4 py-3 text-left font-medium">Status</th>
-            <th className="px-4 py-3 text-right font-medium">Created</th>
-            <th className="px-4 py-3 text-right font-medium">Actions</th>
-          </tr></thead>
-          <tbody>
-            {filtered.length === 0 ? (
-              <tr><td colSpan={6} className="px-4 py-12 text-center">
-                <div className="space-y-3">
-                  <p className="text-sm text-muted-foreground">No deals yet.</p>
-                  <Button size="sm" onClick={() => navigate('/app/records/deals/new')} className="gap-2">
-                    <Plus className="h-4 w-4" /> Create Deal
-                  </Button>
-                </div>
-              </td></tr>
-            ) : filtered.map(deal => (
-              <tr key={deal.id} className="border-b border-border last:border-0 hover:bg-accent/30 transition-colors">
-                <td className="px-4 py-3 font-medium cursor-pointer" onClick={() => navigate(`/app/records/deals/${deal.id}`)}>{deal.customerName}</td>
-                <td className="px-4 py-3 text-muted-foreground cursor-pointer" onClick={() => navigate(`/app/records/deals/${deal.id}`)}>{deal.vehicleDescription}</td>
-                <td className="px-4 py-3 text-right font-semibold cursor-pointer" onClick={() => navigate(`/app/records/deals/${deal.id}`)}>${deal.amount.toLocaleString()}</td>
-                <td className="px-4 py-3 cursor-pointer" onClick={() => navigate(`/app/records/deals/${deal.id}`)}>
-                  <StatusPill variant={deal.status === 'delivered' ? 'success' : deal.status === 'sold_pending_delivery' ? 'success' : deal.status === 'funded' ? 'success' : deal.status === 'signed' ? 'info' : deal.status === 'quoted' ? 'warning' : 'neutral'}>{STATUS_LABELS[deal.status] ?? deal.status}</StatusPill>
-                </td>
-                <td className="px-4 py-3 text-right text-muted-foreground cursor-pointer" onClick={() => navigate(`/app/records/deals/${deal.id}`)}>{new Date(deal.createdAt).toLocaleDateString()}</td>
-                <td className="px-4 py-3 text-right">
-                  <div className="flex items-center justify-end gap-1">
-                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0" title="Edit" onClick={() => navigate(`/app/records/deals/${deal.id}/edit`)}>
-                      <PencilSimple className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-destructive hover:text-destructive" title="Delete" onClick={() => setDeleteTarget(deal)}>
-                      <Trash className="h-3.5 w-3.5" />
-                    </Button>
-                  </div>
-                </td>
+
+      {/* KPI Cards */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: 'Active Deals', value: activeDeals.toString(), Icon: Lightning, accent: '#3b82f6' },
+          { label: 'Funded This Month', value: fundedThisMonth.toString(), Icon: CheckCircle, accent: '#10b981' },
+          { label: 'Total Pipeline', value: `$${(totalPipeline / 1000).toFixed(0)}k`, Icon: CurrencyDollar, accent: '#f59e0b' },
+          { label: 'Avg Front Gross', value: `$${avgFrontGross.toLocaleString('en-US', { maximumFractionDigits: 0 })}`, Icon: ChartBar, accent: '#8b5cf6' },
+        ].map(({ label, value, Icon, accent }) => (
+          <div key={label} style={PANEL_STYLE} className="p-4">
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-xs font-medium uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
+                {label}
+              </span>
+              <Icon className="h-4 w-4" style={{ color: accent }} />
+            </div>
+            <div className="text-2xl font-bold text-white" style={{ textShadow: `0 0 20px ${accent}60` }}>
+              {value}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Status Filter Tabs */}
+      <div style={{ display: 'flex', gap: '2px', padding: '4px', ...PANEL_STYLE, width: 'fit-content' }}>
+        {DEAL_TABS.map(t => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className="px-3 py-1.5 rounded-md text-sm font-medium transition-all"
+            style={tab === t ? {
+              background: 'linear-gradient(135deg, rgba(220,38,38,0.3), rgba(185,28,28,0.3))',
+              color: '#f87171',
+              boxShadow: '0 0 12px rgba(220,38,38,0.2)',
+            } : {
+              color: 'rgba(255,255,255,0.4)',
+            }}
+          >
+            {TAB_LABELS[t]}
+          </button>
+        ))}
+      </div>
+
+      {/* Premium Table */}
+      <div style={PANEL_STYLE} className="overflow-hidden">
+        <StickyTableShell scrollOffset="17rem">
+          <table className="w-full text-sm">
+            <thead>
+              <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                {['Customer', 'Vehicle', 'Sale Price', 'Status', 'Created', 'Actions'].map((h, i) => (
+                  <th
+                    key={h}
+                    className={`px-4 py-3 text-xs font-semibold uppercase tracking-widest ${i >= 2 ? 'text-right' : 'text-left'}`}
+                    style={{ color: 'rgba(255,255,255,0.35)' }}
+                  >
+                    {h}
+                  </th>
+                ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </StickyTableShell>
+            </thead>
+            <tbody>
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="px-4 py-16 text-center">
+                    <p className="text-sm mb-3" style={{ color: 'rgba(255,255,255,0.3)' }}>No deals found.</p>
+                    <button
+                      onClick={() => navigate('/app/records/deals/new')}
+                      className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-white transition-all hover:opacity-90"
+                      style={{ background: 'linear-gradient(135deg, #dc2626, #b91c1c)' }}
+                    >
+                      <Plus className="h-4 w-4" /> Create Deal
+                    </button>
+                  </td>
+                </tr>
+              ) : filtered.map(deal => (
+                <tr
+                  key={deal.id}
+                  className="transition-colors cursor-pointer group"
+                  style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLTableRowElement).style.background = 'rgba(255,255,255,0.03)' }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLTableRowElement).style.background = '' }}
+                >
+                  <td className="px-4 py-3 font-medium text-white" onClick={() => navigate(`/app/records/deals/${deal.id}`)}>
+                    {deal.customerName}
+                  </td>
+                  <td className="px-4 py-3" style={{ color: 'rgba(255,255,255,0.5)' }} onClick={() => navigate(`/app/records/deals/${deal.id}`)}>
+                    {deal.vehicleDescription}
+                  </td>
+                  <td className="px-4 py-3 text-right font-semibold text-white" onClick={() => navigate(`/app/records/deals/${deal.id}`)}>
+                    ${deal.amount.toLocaleString()}
+                  </td>
+                  <td className="px-4 py-3 text-right" onClick={() => navigate(`/app/records/deals/${deal.id}`)}>
+                    <span className={statusBadge(deal.status)}>{STATUS_LABELS[deal.status] ?? deal.status}</span>
+                  </td>
+                  <td className="px-4 py-3 text-right" style={{ color: 'rgba(255,255,255,0.4)' }} onClick={() => navigate(`/app/records/deals/${deal.id}`)}>
+                    {new Date(deal.createdAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        title="Edit"
+                        onClick={() => navigate(`/app/records/deals/${deal.id}/edit`)}
+                        className="h-7 w-7 rounded flex items-center justify-center transition-all"
+                        style={{ color: 'rgba(255,255,255,0.4)' }}
+                        onMouseEnter={e => { const el = e.currentTarget; el.style.color = 'white'; el.style.background = 'rgba(255,255,255,0.08)' }}
+                        onMouseLeave={e => { const el = e.currentTarget; el.style.color = 'rgba(255,255,255,0.4)'; el.style.background = '' }}
+                      >
+                        <PencilSimple className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        title="Delete"
+                        onClick={() => setDeleteTarget(deal)}
+                        className="h-7 w-7 rounded flex items-center justify-center transition-all"
+                        style={{ color: 'rgba(239,68,68,0.5)' }}
+                        onMouseEnter={e => { const el = e.currentTarget; el.style.color = '#ef4444'; el.style.background = 'rgba(239,68,68,0.1)' }}
+                        onMouseLeave={e => { const el = e.currentTarget; el.style.color = 'rgba(239,68,68,0.5)'; el.style.background = '' }}
+                      >
+                        <Trash className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </StickyTableShell>
+      </div>
 
       <AlertDialog open={!!deleteTarget} onOpenChange={open => { if (!open) setDeleteTarget(null) }}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Deal</AlertDialogTitle>
             <AlertDialogDescription>
-              Permanently delete the deal for <strong>{deleteTarget?.customerName}</strong>{deleteTarget?.vehicleDescription ? ` — ${deleteTarget.vehicleDescription}` : ''}?
+              Permanently delete the deal for <strong>{deleteTarget?.customerName}</strong>
+              {deleteTarget?.vehicleDescription ? ` — ${deleteTarget.vehicleDescription}` : ''}?
               {deleteTarget?.status === 'funded' && (
                 <span className="block mt-2 font-medium text-amber-600">
-                  <Warning className="inline h-4 w-4 mr-1" aria-hidden="true" />This deal is funded. Ensure deletion is intentional.
+                  <Warning className="inline h-4 w-4 mr-1" aria-hidden="true" />
+                  This deal is funded. Ensure deletion is intentional.
                 </span>
               )}
               {' '}This action cannot be undone.
