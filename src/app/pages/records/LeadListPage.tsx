@@ -303,7 +303,7 @@ export function LeadListPage() {
                       </div>
                     </td>
                     <td className="px-3 py-2.5 text-white/55" onClick={() => navigate(`/app/records/leads/${lead.id}`)}>
-                      <div className="text-[0.73rem]">{lead.interestedVehicle || '2024 Toyota RAV4'}</div>
+                      <div className="text-[0.73rem]">{lead.interestedVehicle || '—'}</div>
                       <div className="text-[0.62rem] text-white/30">AWD</div>
                     </td>
                     <td className="px-3 py-2.5 text-white/50 text-[0.73rem]" onClick={() => navigate(`/app/records/leads/${lead.id}`)}>
