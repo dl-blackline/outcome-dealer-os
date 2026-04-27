@@ -1,3 +1,5 @@
+import { describe, it, expect } from 'vitest'
+
 import { publishEvent } from '@/domains/events/event.publisher'
 import { getEventsByEntity } from '@/domains/events/event.service'
 

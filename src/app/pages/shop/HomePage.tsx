@@ -104,7 +104,13 @@ export function HomePage() {
 
   return (
     <div className="ncm-page" style={{ background: 'var(--bg-base)' }}>
-      <section className="ncm-hero-depth" style={{ minHeight: '640px' }}>
+      <section
+        className="ncm-hero-depth"
+        style={{
+          minHeight: '640px',
+          backgroundImage: 'radial-gradient(circle at 14% 18%, rgba(223,36,36,0.28), transparent 42%), radial-gradient(circle at 84% 8%, rgba(44,105,255,0.26), transparent 40%), linear-gradient(118deg, rgba(8, 10, 18, 0.95), rgba(7, 9, 16, 0.8))',
+        }}
+      >
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1 }}>
           <div style={{ position: 'absolute', top: '31%', left: '-6%', width: '70%', height: '2px', transform: 'rotate(-4deg)', background: 'linear-gradient(90deg, transparent 0%, rgba(223,36,36,0.88) 45%, transparent 100%)' }} />
           <div style={{ position: 'absolute', top: '38%', left: '-5%', width: '76%', height: '1px', transform: 'rotate(-3deg)', background: 'linear-gradient(90deg, transparent 0%, rgba(44,105,255,0.75) 42%, transparent 100%)' }} />
@@ -157,6 +163,75 @@ export function HomePage() {
                 style={{ borderRadius: '0.55rem' }}
               >
                 VALUE YOUR TRADE <CaretRight size={14} weight="bold" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section style={{ paddingBottom: '2rem' }}>
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+            <div className="ncm-section-shell" style={{ overflow: 'hidden', padding: 0 }}>
+              <div style={{ position: 'relative', minHeight: '250px' }}>
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'radial-gradient(circle at 20% 30%, rgba(239,68,68,0.33), transparent 40%), radial-gradient(circle at 76% 16%, rgba(56,189,248,0.28), transparent 40%), linear-gradient(140deg, #10131f, #0b0e17)',
+                  }}
+                />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,10,18,0.24) 5%, rgba(8,10,18,0.84) 100%)' }} />
+                <div style={{ position: 'absolute', left: '-8%', top: '28%', width: '72%', height: '2px', transform: 'rotate(-5deg)', background: 'linear-gradient(90deg, transparent 0%, rgba(239,68,68,0.85) 45%, transparent 100%)' }} />
+                <div style={{ position: 'absolute', left: '-5%', top: '40%', width: '76%', height: '1px', transform: 'rotate(-3deg)', background: 'linear-gradient(90deg, transparent 0%, rgba(56,189,248,0.7) 42%, transparent 100%)' }} />
+                <div style={{ position: 'relative', zIndex: 2, padding: '1.05rem 1rem' }}>
+                  <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.66rem', color: '#a7b8d9', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Design Language</div>
+                  <div style={{ marginTop: '0.35rem', fontFamily: 'Barlow Condensed, Syncopate, sans-serif', fontWeight: 800, fontSize: '1.15rem', color: '#f4f8ff', textTransform: 'uppercase', lineHeight: 1.05 }}>
+                    Aggressive Metal UI
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="ncm-section-shell" style={{ overflow: 'hidden', padding: 0 }}>
+              <div style={{ position: 'relative', minHeight: '250px' }}>
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'radial-gradient(circle at 72% 22%, rgba(244,63,94,0.3), transparent 42%), radial-gradient(circle at 24% 18%, rgba(59,130,246,0.22), transparent 44%), linear-gradient(135deg, #0d101c, #111a2a)',
+                  }}
+                />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,10,18,0.2) 12%, rgba(8,10,18,0.86) 100%)' }} />
+                <div style={{ position: 'absolute', right: '-8%', top: '26%', width: '70%', height: '2px', transform: 'rotate(4deg)', background: 'linear-gradient(90deg, transparent 0%, rgba(59,130,246,0.76) 45%, transparent 100%)' }} />
+                <div style={{ position: 'relative', zIndex: 2, padding: '1.05rem 1rem' }}>
+                  <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.66rem', color: '#a7b8d9', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Brand Direction</div>
+                  <div style={{ marginTop: '0.35rem', fontFamily: 'Barlow Condensed, Syncopate, sans-serif', fontWeight: 800, fontSize: '1.15rem', color: '#f4f8ff', textTransform: 'uppercase', lineHeight: 1.05 }}>
+                    Premium Performance Identity
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="ncm-section-shell" style={{ padding: '1rem' }}>
+              <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.66rem', color: '#a7b8d9', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+                Design Notes
+              </div>
+              <h3 style={{ marginTop: '0.42rem', fontFamily: 'Barlow Condensed, Syncopate, sans-serif', fontWeight: 800, fontSize: '1.22rem', color: '#f4f8ff', textTransform: 'uppercase', lineHeight: 1.08 }}>
+                Mockup Language Is Now Live
+              </h3>
+              <div style={{ marginTop: '0.58rem', display: 'grid', gap: '0.45rem', fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.8rem', color: '#9ab0d4' }}>
+                <span>• Steel-toned hero treatment and cinematic contrast</span>
+                <span>• Bold type hierarchy for high-performance merchandising</span>
+                <span>• Red-blue action rail for financing and trade conversion</span>
+                <span>• Brand-first visual modules built as live coded UI</span>
+              </div>
+              <button
+                onClick={() => navigate('/shop')}
+                className="ncm-btn-red mt-4"
+                style={{ borderRadius: '0.52rem', fontSize: '0.7rem', padding: '0.6rem 0.85rem' }}
+              >
+                SHOP THIS LOOK <CaretRight size={12} weight="bold" />
               </button>
             </div>
           </div>

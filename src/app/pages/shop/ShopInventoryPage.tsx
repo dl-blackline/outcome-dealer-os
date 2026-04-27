@@ -244,7 +244,14 @@ export function ShopInventoryPage() {
 
   return (
     <div style={{ background: '#0a0a0f', minHeight: '100vh' }}>
-      <section className="ncm-hero-depth" style={{ padding: '2.8rem 0 2.2rem', borderBottom: '1px solid var(--border-subtle)' }}>
+      <section
+        className="ncm-hero-depth"
+        style={{
+          padding: '2.8rem 0 2.2rem',
+          borderBottom: '1px solid var(--border-subtle)',
+          backgroundImage: 'radial-gradient(circle at 14% 18%, rgba(239,68,68,0.28), transparent 42%), radial-gradient(circle at 86% 8%, rgba(56,189,248,0.24), transparent 40%), linear-gradient(110deg, rgba(8, 10, 18, 0.92), rgba(8, 10, 18, 0.82))',
+        }}
+      >
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8" style={{ position: 'relative', zIndex: 2 }}>
           <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.7rem', letterSpacing: '0.2em', color: '#9caed2', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
             PREMIUM PRE-OWNED VEHICLES  ◆  FAST APPROVALS  ◆  CLEVELAND CONFIDENCE
@@ -270,6 +277,41 @@ export function ShopInventoryPage() {
             <button onClick={() => document.querySelector('.ncm-filter-rail')?.scrollIntoView({ behavior: 'smooth', block: 'start' })} className="ncm-btn-blue" style={{ borderRadius: '0.55rem', height: '44px', gap: '0.5rem' }}>
               SEARCH INVENTORY <MagnifyingGlass size={15} />
             </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-[1.1fr_0.9fr] gap-3 mt-4">
+            <div className="ncm-section-shell" style={{ padding: '0.9rem 1rem' }}>
+              <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.67rem', letterSpacing: '0.13em', textTransform: 'uppercase', color: '#a4b8dd' }}>
+                Visual Language
+              </div>
+              <h2 style={{ marginTop: '0.3rem', fontFamily: 'Barlow Condensed, Syncopate, sans-serif', fontWeight: 800, fontSize: 'clamp(1.1rem, 2.6vw, 1.8rem)', textTransform: 'uppercase', lineHeight: 1.02, color: '#f4f8ff' }}>
+                Inventory Mockup Implemented Into Live Grid
+              </h2>
+              <p style={{ marginTop: '0.45rem', maxWidth: '44rem', fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.8rem', color: '#9ab1d6', lineHeight: 1.6 }}>
+                This page now uses the same cinematic showroom style from your inventory mockup: metallic contrast, aggressive typography, and quick-action conversion controls.
+              </p>
+            </div>
+            <div className="ncm-section-shell" style={{ overflow: 'hidden', padding: 0 }}>
+              <div style={{ position: 'relative', minHeight: '138px' }}>
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'radial-gradient(circle at 22% 30%, rgba(239,68,68,0.32), transparent 40%), radial-gradient(circle at 78% 20%, rgba(56,189,248,0.28), transparent 42%), linear-gradient(140deg, #10131f, #0b0e17)',
+                  }}
+                />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,10,18,0.26), rgba(8,10,18,0.86))' }} />
+                <div style={{ position: 'absolute', left: '-8%', top: '30%', width: '70%', height: '2px', transform: 'rotate(-4deg)', background: 'linear-gradient(90deg, transparent 0%, rgba(239,68,68,0.84) 44%, transparent 100%)' }} />
+                <div style={{ position: 'relative', zIndex: 2, padding: '0.8rem 0.9rem' }}>
+                  <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.65rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#9fb3d7' }}>
+                    Performance Theme
+                  </div>
+                  <div style={{ marginTop: '0.28rem', fontFamily: 'Barlow Condensed, Syncopate, sans-serif', fontWeight: 800, fontSize: '1.08rem', textTransform: 'uppercase', lineHeight: 1.05, color: '#f4f8ff' }}>
+                    Dealer OS Showroom Rail
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>

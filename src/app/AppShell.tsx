@@ -119,6 +119,136 @@ function resolvePageComponent(currentPath: string): React.ComponentType | null {
   return null
 }
 
+interface MockupVisualContext {
+  title: string
+  subtitle: string
+  chip: string
+}
+
+function getMockupVisualContext(currentPath: string): MockupVisualContext | null {
+  if (currentPath === '/app/dashboard' || currentPath === '/app/workstation') {
+    return {
+      title: 'Control Center',
+      subtitle: 'Executive operations snapshot and real-time command view.',
+      chip: '01 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/records/leads')) {
+    return {
+      title: 'Leads Command Center',
+      subtitle: 'Pipeline velocity, ownership, and priority lead flow.',
+      chip: '02 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/records/inventory')) {
+    return {
+      title: 'Inventory Command',
+      subtitle: 'Turn-rate visibility with frontline and recon alignment.',
+      chip: '03 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/records/households')) {
+    return {
+      title: 'Customer 360',
+      subtitle: 'Household behavior, relationship depth, and lifetime value.',
+      chip: '04 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/records/deals')) {
+    return {
+      title: 'Deal Desk',
+      subtitle: 'Desk flow, approvals, and deal progression at a glance.',
+      chip: '05 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/records/credit-applications')) {
+    return {
+      title: 'Finance Applications',
+      subtitle: 'Credit intake, lender readiness, and structured funding workflow.',
+      chip: '06 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/finance')) {
+    return {
+      title: 'Finance Center',
+      subtitle: 'Program matching, lender readiness, and risk-aware structuring.',
+      chip: '06 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/ops/events') || currentPath.startsWith('/app/playbook/timeline')) {
+    return {
+      title: 'Calendar Execution',
+      subtitle: 'Execution cadence, milestones, and cross-team timing signals.',
+      chip: '07 Reference',
+    }
+  }
+
+  if (
+    currentPath.startsWith('/app/ops/approvals') ||
+    currentPath.startsWith('/app/ops/audit') ||
+    currentPath.startsWith('/app/ops/recon') ||
+    currentPath.startsWith('/app/ops/key-control') ||
+    currentPath.startsWith('/app/ops/back-office') ||
+    currentPath.startsWith('/app/ops/documents') ||
+    currentPath.startsWith('/app/ops/operating-review')
+  ) {
+    return {
+      title: 'Operations Command',
+      subtitle: 'Approval, compliance, and execution controls synchronized in one operational plane.',
+      chip: '01 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/ops/reports') || currentPath.startsWith('/app/ops/intelligence')) {
+    return {
+      title: 'Analytics Reports',
+      subtitle: 'KPI trends, conversion intelligence, and performance drill-downs.',
+      chip: '08 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/ops/assistant')) {
+    return {
+      title: 'AI Copilot',
+      subtitle: 'Operational copiloting, diagnostics, and decision support.',
+      chip: '09 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/settings')) {
+    return {
+      title: 'Settings Admin',
+      subtitle: 'Role governance, integrations, and system configuration control.',
+      chip: '10 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/playbook')) {
+    return {
+      title: 'Execution Playbook',
+      subtitle: 'Project cadence, decisions, and timeline execution anchored to weekly operating rhythm.',
+      chip: '07 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app')) {
+    return {
+      title: 'Dealer Command Surface',
+      subtitle: 'Unified control plane for sales, ops, and finance execution.',
+      chip: '01 Reference',
+    }
+  }
+
+  return null
+}
+
 export function AppShell() {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
@@ -129,6 +259,7 @@ export function AppShell() {
   const PageComponent = resolvePageComponent(currentPath)
   const routeDefinition = findMatchingRoute(currentPath)
   const isKnownAppRoute = currentPath.startsWith('/app') && Boolean(routeDefinition)
+  const mockupVisual = getMockupVisualContext(currentPath)
 
   const guardResult = useMemo(() => {
     if (!user || !routeDefinition) return null
@@ -192,24 +323,62 @@ export function AppShell() {
           onThemeToggle={toggleTheme}
         />
 
-        <main className="ods-shell-main flex-1 overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable] px-3 pb-20 pt-4 sm:px-6 sm:pb-24 sm:pt-6 lg:px-8 lg:pb-28 lg:pt-8 xl:px-10">
-          {PageComponent ? (
-            <PageComponent />
-          ) : isKnownAppRoute ? (
-            <RouteNotFound
-              title="Workspace Page Not Found"
-              message="This internal route could not be resolved. It may have moved or the link is invalid."
-              actionLabel="Go to Dashboard"
-              onAction={() => navigate('/app/dashboard')}
-            />
-          ) : (
-            <RouteNotFound
-              title="Unknown Internal Route"
-              message="This path is outside registered internal routes."
-              actionLabel="Go to Dashboard"
-              onAction={() => navigate('/app/dashboard')}
-            />
+        <main
+          className="ods-shell-main flex-1 overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable] px-3 pb-20 pt-4 sm:px-6 sm:pb-24 sm:pt-6 lg:px-8 lg:pb-28 lg:pt-8 xl:px-10"
+          style={
+            mockupVisual
+              ? {
+                  backgroundImage: `radial-gradient(circle at 18% 10%, rgba(59, 130, 246, 0.12), transparent 44%), radial-gradient(circle at 82% 2%, rgba(220, 38, 38, 0.1), transparent 42%)`,
+                }
+              : undefined
+          }
+        >
+          {mockupVisual && (
+            <section className="mb-4 overflow-hidden rounded-2xl border border-white/15 shadow-[0_20px_80px_rgba(2,8,23,0.38)]">
+              <div
+                style={{
+                  position: 'relative',
+                  minHeight: '180px',
+                  backgroundImage: 'radial-gradient(circle at 12% 8%, rgba(239,68,68,0.3), transparent 40%), radial-gradient(circle at 82% 6%, rgba(56,189,248,0.24), transparent 38%), linear-gradient(112deg, rgba(2, 8, 23, 0.94), rgba(15, 23, 42, 0.86))',
+                }}
+              >
+                <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(180deg, rgba(15,23,42,0.22) 0%, rgba(15,23,42,0.86) 100%)' }} />
+                <div className="absolute left-[-4%] top-[26%] h-px w-[54%]" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(239,68,68,0.62) 44%, transparent 100%)' }} />
+                <div className="absolute left-[-2%] top-[37%] h-px w-[58%]" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(56,189,248,0.48) 42%, transparent 100%)' }} />
+                <div className="relative z-10 px-4 py-5 sm:px-6 sm:py-6">
+                  <span className="inline-flex items-center rounded-full border border-white/30 bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-100">
+                    {mockupVisual.chip}
+                  </span>
+                  <h2 className="mt-3 text-2xl font-bold uppercase tracking-[0.08em] text-slate-50 sm:text-3xl">
+                    {mockupVisual.title}
+                  </h2>
+                  <p className="mt-2 max-w-3xl text-sm text-slate-200/90 sm:text-[15px]">
+                    {mockupVisual.subtitle}
+                  </p>
+                </div>
+              </div>
+            </section>
           )}
+
+          <div className={mockupVisual ? 'rounded-2xl border border-white/10 bg-background/88 p-2 backdrop-blur-md sm:p-3' : undefined}>
+            {PageComponent ? (
+              <PageComponent />
+            ) : isKnownAppRoute ? (
+              <RouteNotFound
+                title="Workspace Page Not Found"
+                message="This internal route could not be resolved. It may have moved or the link is invalid."
+                actionLabel="Go to Dashboard"
+                onAction={() => navigate('/app/dashboard')}
+              />
+            ) : (
+              <RouteNotFound
+                title="Unknown Internal Route"
+                message="This path is outside registered internal routes."
+                actionLabel="Go to Dashboard"
+                onAction={() => navigate('/app/dashboard')}
+              />
+            )}
+          </div>
         </main>
         <OperationsFooter />
       </div>

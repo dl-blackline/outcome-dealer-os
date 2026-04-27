@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { ReferenceHero } from '@/components/core/ReferenceHero'
 import {
   ChartBar,
   Lightning,
@@ -54,6 +55,7 @@ import { cn } from '@/lib/utils'
 import { StickyTableShell } from '@/components/core/StickyTableShell'
 import { useReportingRuntime } from '@/domains/reporting/reporting.runtime'
 import { REPORT_TEMPLATES, TEMPLATES_BY_CATEGORY } from '@/domains/reporting/reporting.templates'
+import { MOCKUP_REFERENCES } from '@/app/mockupReferences'
 import type {
   ReportCategory,
   ReportDataSource,
@@ -1136,6 +1138,34 @@ export function ReportsPage() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="px-6 pt-4">
+        <ReferenceHero reference={MOCKUP_REFERENCES.analyticsReports} />
+        <section className="mb-4 rounded-2xl border border-white/15 bg-linear-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 p-4 shadow-[0_22px_70px_rgba(2,6,23,0.42)]">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+            <div className="rounded-xl border border-blue-300/20 bg-slate-900/80 p-3">
+              <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Saved Reports</p>
+              <p className="mt-1 text-2xl font-bold text-slate-50">{savedReports.length}</p>
+            </div>
+            <div className="rounded-xl border border-violet-300/20 bg-slate-900/80 p-3">
+              <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Schedules</p>
+              <p className="mt-1 text-2xl font-bold text-slate-50">{scheduledReports.length}</p>
+            </div>
+            <div className="rounded-xl border border-cyan-300/20 bg-slate-900/80 p-3">
+              <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Templates</p>
+              <p className="mt-1 text-2xl font-bold text-slate-50">{REPORT_TEMPLATES.length}</p>
+            </div>
+            <div className="rounded-xl border border-emerald-300/20 bg-slate-900/80 p-3">
+              <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Successful Deliveries</p>
+              <p className="mt-1 text-2xl font-bold text-slate-50">{deliveryHistory.filter((item) => item.status === 'sent').length}</p>
+            </div>
+            <div className="rounded-xl border border-amber-300/20 bg-slate-900/80 p-3">
+              <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Failed Deliveries</p>
+              <p className="mt-1 text-2xl font-bold text-slate-50">{deliveryHistory.filter((item) => item.status === 'failed').length}</p>
+            </div>
+          </div>
+        </section>
       </div>
 
       {/* Tab navigation */}
