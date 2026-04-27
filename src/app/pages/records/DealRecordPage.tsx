@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { SectionHeader } from '@/components/core/SectionHeader'
+import { ReferenceHero } from '@/components/core/ReferenceHero'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { EntityBadge } from '@/components/core/EntityBadge'
@@ -38,6 +39,7 @@ import {
   Tag,
   Truck,
 } from '@phosphor-icons/react'
+import { MOCKUP_REFERENCES } from '@/app/mockupReferences'
 
 const STAGES = ['structured', 'quoted', 'signed', 'funded', 'sold_pending_delivery', 'delivered'] as const
 const STAGE_LABELS: Record<string, string> = {
@@ -208,6 +210,64 @@ export function DealRecordPage() {
           </Button>
         </div>
       </div>
+
+      <ReferenceHero reference={MOCKUP_REFERENCES.dealDesk} />
+
+      <section className="rounded-2xl border border-white/15 bg-linear-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 p-4 shadow-[0_22px_70px_rgba(2,6,23,0.42)]">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-xl border border-blue-300/20 bg-slate-900/80 p-3">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Deal Amount</p>
+            <p className="mt-1 text-2xl font-bold text-slate-50">${deal.amount.toLocaleString()}</p>
+          </div>
+          <div className="rounded-xl border border-cyan-300/20 bg-slate-900/80 p-3">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Front Gross</p>
+            <p className="mt-1 text-2xl font-bold text-slate-50">${deal.frontGross.toLocaleString()}</p>
+          </div>
+          <div className="rounded-xl border border-emerald-300/20 bg-slate-900/80 p-3">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Back Gross</p>
+            <p className="mt-1 text-2xl font-bold text-slate-50">${deal.backGross.toLocaleString()}</p>
+          </div>
+          <div className="rounded-xl border border-amber-300/20 bg-slate-900/80 p-3">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Current Stage</p>
+            <p className="mt-1 text-lg font-bold uppercase tracking-[0.09em] text-slate-50">{STAGE_LABELS[deal.status] ?? deal.status}</p>
+          </div>
+        </div>
+
+        <div className="mt-3 grid gap-3 lg:grid-cols-[1.2fr_0.8fr]">
+          <div className="rounded-xl border border-slate-700/70 bg-slate-950/75 p-3">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-300">Desk Action Rail</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {isSold ? (
+                <Button variant="outline" size="sm" className="gap-2 border-slate-600 text-slate-100 hover:bg-slate-800" onClick={() => navigate(`/app/records/deals/${dealId}/sold`)}>
+                  <Tag className="h-4 w-4" /> View Sold Record
+                </Button>
+              ) : (
+                <Button size="sm" className="gap-2 bg-green-600 hover:bg-green-500 text-white" onClick={() => { setSoldError(null); setShowMarkSoldDialog(true) }}>
+                  <Tag className="h-4 w-4" /> Mark Sold
+                </Button>
+              )}
+              <Button variant="outline" size="sm" className="gap-2 border-slate-600 text-slate-100 hover:bg-slate-800" onClick={() => navigate(`/app/records/deals/${dealId}/edit`)}>
+                <PencilSimple className="h-4 w-4" /> Edit Deal
+              </Button>
+              <Button variant="outline" size="sm" className="gap-2 border-slate-600 text-slate-100 hover:bg-slate-800" onClick={() => navigate(`/app/records/deals/${dealId}/forms`)}>
+                <Printer className="h-4 w-4" /> Print Forms
+              </Button>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-slate-700/70 bg-slate-950/75 p-3 text-xs text-slate-300">
+            <p className="text-[10px] uppercase tracking-[0.2em] text-slate-300">Desk Flags</p>
+            <div className="mt-2 space-y-2">
+              <div className="rounded-md border border-amber-400/30 bg-amber-500/10 px-2 py-1.5 text-amber-100">
+                {approvals.length} approval checks linked to this desk file.
+              </div>
+              <div className="rounded-md border border-blue-400/30 bg-blue-500/10 px-2 py-1.5 text-blue-100">
+                {events.length} timeline events on this transaction.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <Card><CardContent className="py-4"><div className="flex items-center justify-between">
         {STAGES.map((s, i) => (

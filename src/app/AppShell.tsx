@@ -57,6 +57,16 @@ import { FinanceMatchEnginePage } from '@/app/pages/finance-match/FinanceMatchEn
 import { ProgramLibraryPage } from '@/app/pages/finance-match/ProgramLibraryPage'
 import { ProgramReviewPage } from '@/app/pages/finance-match/ProgramReviewPage'
 import { LenderProgramDetailPage } from '@/app/pages/finance-match/LenderProgramDetailPage'
+import controlCenterMockup from '../../01_control_center.png'
+import leadsCommandCenterMockup from '../../02_leads_command_center.png'
+import inventoryCommandMockup from '../../03_inventory_command.png'
+import customer360Mockup from '../../04_customer_360.png'
+import dealDeskMockup from '../../05_deal_desk.png'
+import financeCenterMockup from '../../06_finance_center.png'
+import calendarExecutionMockup from '../../07_calendar_execution.png'
+import analyticsReportsMockup from '../../08_analytics_reports.png'
+import aiCopilotMockup from '../../09_ai_copilot.png'
+import settingsAdminMockup from '../../10_settings_admin.png'
 
 const ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/app/dashboard': DashboardPage,
@@ -116,6 +126,151 @@ function resolvePageComponent(currentPath: string): React.ComponentType | null {
   return null
 }
 
+interface MockupVisualContext {
+  image: string
+  title: string
+  subtitle: string
+  chip: string
+}
+
+function getMockupVisualContext(currentPath: string): MockupVisualContext | null {
+  if (currentPath === '/app/dashboard' || currentPath === '/app/workstation') {
+    return {
+      image: controlCenterMockup,
+      title: 'Control Center',
+      subtitle: 'Executive operations snapshot and real-time command view.',
+      chip: '01 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/records/leads')) {
+    return {
+      image: leadsCommandCenterMockup,
+      title: 'Leads Command Center',
+      subtitle: 'Pipeline velocity, ownership, and priority lead flow.',
+      chip: '02 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/records/inventory')) {
+    return {
+      image: inventoryCommandMockup,
+      title: 'Inventory Command',
+      subtitle: 'Turn-rate visibility with frontline and recon alignment.',
+      chip: '03 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/records/households')) {
+    return {
+      image: customer360Mockup,
+      title: 'Customer 360',
+      subtitle: 'Household behavior, relationship depth, and lifetime value.',
+      chip: '04 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/records/deals')) {
+    return {
+      image: dealDeskMockup,
+      title: 'Deal Desk',
+      subtitle: 'Desk flow, approvals, and deal progression at a glance.',
+      chip: '05 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/records/credit-applications')) {
+    return {
+      image: financeCenterMockup,
+      title: 'Finance Applications',
+      subtitle: 'Credit intake, lender readiness, and structured funding workflow.',
+      chip: '06 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/finance')) {
+    return {
+      image: financeCenterMockup,
+      title: 'Finance Center',
+      subtitle: 'Program matching, lender readiness, and risk-aware structuring.',
+      chip: '06 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/ops/events') || currentPath.startsWith('/app/playbook/timeline')) {
+    return {
+      image: calendarExecutionMockup,
+      title: 'Calendar Execution',
+      subtitle: 'Execution cadence, milestones, and cross-team timing signals.',
+      chip: '07 Reference',
+    }
+  }
+
+  if (
+    currentPath.startsWith('/app/ops/approvals') ||
+    currentPath.startsWith('/app/ops/audit') ||
+    currentPath.startsWith('/app/ops/recon') ||
+    currentPath.startsWith('/app/ops/key-control') ||
+    currentPath.startsWith('/app/ops/back-office') ||
+    currentPath.startsWith('/app/ops/documents') ||
+    currentPath.startsWith('/app/ops/operating-review')
+  ) {
+    return {
+      image: controlCenterMockup,
+      title: 'Operations Command',
+      subtitle: 'Approval, compliance, and execution controls synchronized in one operational plane.',
+      chip: '01 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/ops/reports') || currentPath.startsWith('/app/ops/intelligence')) {
+    return {
+      image: analyticsReportsMockup,
+      title: 'Analytics Reports',
+      subtitle: 'KPI trends, conversion intelligence, and performance drill-downs.',
+      chip: '08 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/ops/assistant')) {
+    return {
+      image: aiCopilotMockup,
+      title: 'AI Copilot',
+      subtitle: 'Operational copiloting, diagnostics, and decision support.',
+      chip: '09 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/settings')) {
+    return {
+      image: settingsAdminMockup,
+      title: 'Settings Admin',
+      subtitle: 'Role governance, integrations, and system configuration control.',
+      chip: '10 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app/playbook')) {
+    return {
+      image: calendarExecutionMockup,
+      title: 'Execution Playbook',
+      subtitle: 'Project cadence, decisions, and timeline execution anchored to weekly operating rhythm.',
+      chip: '07 Reference',
+    }
+  }
+
+  if (currentPath.startsWith('/app')) {
+    return {
+      image: controlCenterMockup,
+      title: 'Dealer Command Surface',
+      subtitle: 'Unified control plane for sales, ops, and finance execution.',
+      chip: '01 Reference',
+    }
+  }
+
+  return null
+}
+
 export function AppShell() {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
   const [notificationsOpen, setNotificationsOpen] = useState(false)
@@ -126,6 +281,7 @@ export function AppShell() {
   const PageComponent = resolvePageComponent(currentPath)
   const routeDefinition = findMatchingRoute(currentPath)
   const isKnownAppRoute = currentPath.startsWith('/app') && Boolean(routeDefinition)
+  const mockupVisual = getMockupVisualContext(currentPath)
 
   const guardResult = useMemo(() => {
     if (!user || !routeDefinition) return null
@@ -189,24 +345,62 @@ export function AppShell() {
           onThemeToggle={toggleTheme}
         />
 
-        <main className="ods-shell-main flex-1 overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable] px-3 pb-20 pt-4 sm:px-6 sm:pb-24 sm:pt-6 lg:px-8 lg:pb-28 lg:pt-8 xl:px-10">
-          {PageComponent ? (
-            <PageComponent />
-          ) : isKnownAppRoute ? (
-            <RouteNotFound
-              title="Workspace Page Not Found"
-              message="This internal route could not be resolved. It may have moved or the link is invalid."
-              actionLabel="Go to Dashboard"
-              onAction={() => navigate('/app/dashboard')}
-            />
-          ) : (
-            <RouteNotFound
-              title="Unknown Internal Route"
-              message="This path is outside registered internal routes."
-              actionLabel="Go to Dashboard"
-              onAction={() => navigate('/app/dashboard')}
-            />
+        <main
+          className="ods-shell-main flex-1 overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable] px-3 pb-20 pt-4 sm:px-6 sm:pb-24 sm:pt-6 lg:px-8 lg:pb-28 lg:pt-8 xl:px-10"
+          style={
+            mockupVisual
+              ? {
+                  backgroundImage: `radial-gradient(circle at 18% 10%, rgba(59, 130, 246, 0.12), transparent 44%), radial-gradient(circle at 82% 2%, rgba(220, 38, 38, 0.1), transparent 42%)`,
+                }
+              : undefined
+          }
+        >
+          {mockupVisual && (
+            <section className="mb-4 overflow-hidden rounded-2xl border border-white/15 shadow-[0_20px_80px_rgba(2,8,23,0.38)]">
+              <div
+                style={{
+                  position: 'relative',
+                  minHeight: '180px',
+                  backgroundImage: `linear-gradient(112deg, rgba(2, 8, 23, 0.9), rgba(15, 23, 42, 0.72)), url(${mockupVisual.image})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                }}
+              >
+                <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(180deg, rgba(15,23,42,0.22) 0%, rgba(15,23,42,0.86) 100%)' }} />
+                <div className="relative z-10 px-4 py-5 sm:px-6 sm:py-6">
+                  <span className="inline-flex items-center rounded-full border border-white/30 bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-100">
+                    {mockupVisual.chip}
+                  </span>
+                  <h2 className="mt-3 text-2xl font-bold uppercase tracking-[0.08em] text-slate-50 sm:text-3xl">
+                    {mockupVisual.title}
+                  </h2>
+                  <p className="mt-2 max-w-3xl text-sm text-slate-200/90 sm:text-[15px]">
+                    {mockupVisual.subtitle}
+                  </p>
+                </div>
+              </div>
+            </section>
           )}
+
+          <div className={mockupVisual ? 'rounded-2xl border border-white/10 bg-background/88 p-2 backdrop-blur-md sm:p-3' : undefined}>
+            {PageComponent ? (
+              <PageComponent />
+            ) : isKnownAppRoute ? (
+              <RouteNotFound
+                title="Workspace Page Not Found"
+                message="This internal route could not be resolved. It may have moved or the link is invalid."
+                actionLabel="Go to Dashboard"
+                onAction={() => navigate('/app/dashboard')}
+              />
+            ) : (
+              <RouteNotFound
+                title="Unknown Internal Route"
+                message="This path is outside registered internal routes."
+                actionLabel="Go to Dashboard"
+                onAction={() => navigate('/app/dashboard')}
+              />
+            )}
+          </div>
         </main>
       </div>
 

@@ -1,3 +1,5 @@
+import { describe, it, expect } from 'vitest'
+
 import { writeAuditLog, getAuditLogsByEntity } from '@/domains/audit/audit.service'
 
 describe('Audit Service', () => {

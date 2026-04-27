@@ -212,7 +212,7 @@ export interface CreateDecisionInput {
   tags?: string[]
 }
 
-export interface UpdateDecisionInput extends Partial<Omit<CreateDecisionInput, 'playbookId'>> {}
+export type UpdateDecisionInput = Partial<Omit<CreateDecisionInput, 'playbookId'>>
 
 // ─── Action Item ──────────────────────────────────────────────────────────────
 
@@ -245,7 +245,7 @@ export interface CreateActionItemInput {
   createdBy?: string
 }
 
-export interface UpdateActionItemInput extends Partial<Omit<CreateActionItemInput, 'playbookId' | 'createdBy'>> {}
+export type UpdateActionItemInput = Partial<Omit<CreateActionItemInput, 'playbookId' | 'createdBy'>>
 
 // ─── Timeline Event ───────────────────────────────────────────────────────────
 

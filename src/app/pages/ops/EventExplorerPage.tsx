@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { SectionHeader } from '@/components/core/SectionHeader'
+import { ReferenceHero } from '@/components/core/ReferenceHero'
 import { StatusPill } from '@/components/core/StatusPill'
 import { EntityBadge } from '@/components/core/EntityBadge'
 import { Card, CardContent } from '@/components/ui/card'
 import { useEvents } from '@/domains/events/event.hooks'
 import { Lightning, User, Robot, Gear, SpinnerGap } from '@phosphor-icons/react'
+import { MOCKUP_REFERENCES } from '@/app/mockupReferences'
 
 const ACTOR_ICON = { user: User, agent: Robot, system: Gear }
 const ENTITY_VARIANT: Record<string, 'lead' | 'deal' | 'inventory' | 'approval'> = { lead: 'lead', deal: 'deal', inventory: 'inventory', approval: 'approval' }
@@ -26,6 +28,9 @@ export function EventExplorerPage() {
   const actors = ['all', 'user', 'agent', 'system']
   const sorted = [...events.data].sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())
   const filtered = sorted.filter(e => (entityFilter === 'all' || e.entityType === entityFilter) && (actorFilter === 'all' || e.actorType === actorFilter))
+  const warningCount = events.data.filter((e) => eventSeverityVariant(e.eventName) === 'warning').length
+  const successCount = events.data.filter((e) => eventSeverityVariant(e.eventName) === 'success').length
+  const infoCount = events.data.filter((e) => eventSeverityVariant(e.eventName) === 'info').length
 
   if (events.loading) {
     return <div className="flex items-center justify-center py-24"><SpinnerGap className="h-8 w-8 animate-spin text-muted-foreground" /></div>
@@ -34,6 +39,29 @@ export function EventExplorerPage() {
   return (
     <div className="ods-page ods-flow-lg">
       <SectionHeader title="Event Stream" description="Real-time event log for the operating system" action={<div className="flex items-center gap-2"><Lightning className="h-5 w-5 text-primary" /><span className="text-sm text-muted-foreground">{events.data.length} events</span></div>} />
+      <ReferenceHero reference={MOCKUP_REFERENCES.calendarExecution} />
+
+      <section className="rounded-2xl border border-white/15 bg-linear-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 p-4 shadow-[0_22px_70px_rgba(2,6,23,0.42)]">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-xl border border-blue-300/20 bg-slate-900/80 p-3">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Total Events</p>
+            <p className="mt-1 text-2xl font-bold text-slate-50">{events.data.length}</p>
+          </div>
+          <div className="rounded-xl border border-amber-300/20 bg-slate-900/80 p-3">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Warnings</p>
+            <p className="mt-1 text-2xl font-bold text-slate-50">{warningCount}</p>
+          </div>
+          <div className="rounded-xl border border-emerald-300/20 bg-slate-900/80 p-3">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Success</p>
+            <p className="mt-1 text-2xl font-bold text-slate-50">{successCount}</p>
+          </div>
+          <div className="rounded-xl border border-cyan-300/20 bg-slate-900/80 p-3">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Info</p>
+            <p className="mt-1 text-2xl font-bold text-slate-50">{infoCount}</p>
+          </div>
+        </div>
+      </section>
+
       <div className="ods-toolbar ods-sticky-toolbar flex items-center gap-3">
         <select value={entityFilter} onChange={e => setEntityFilter(e.target.value)} className="h-8 rounded-md border border-input bg-background px-2 text-sm capitalize">
           {entities.map(e => <option key={e} value={e}>{e === 'all' ? 'All entities' : e}</option>)}

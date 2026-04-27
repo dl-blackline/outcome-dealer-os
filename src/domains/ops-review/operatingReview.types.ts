@@ -112,4 +112,4 @@ export interface OperatingObservationCreateInput {
   pinned?: boolean
 }
 
-export interface OperatingObservationUpdateInput extends Partial<OperatingObservationCreateInput> {}
+export type OperatingObservationUpdateInput = Partial<OperatingObservationCreateInput>

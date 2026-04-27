@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { SectionHeader } from '@/components/core/SectionHeader'
+import { ReferenceHero } from '@/components/core/ReferenceHero'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { StatusPill } from '@/components/core/StatusPill'
 import { Button } from '@/components/ui/button'
@@ -21,6 +22,7 @@ import {
   CheckCircle,
   Truck,
 } from '@phosphor-icons/react'
+import { MOCKUP_REFERENCES } from '@/app/mockupReferences'
 
 export function HouseholdRecordPage() {
   const { params, navigate } = useRouter()
@@ -54,6 +56,44 @@ export function HouseholdRecordPage() {
         title={hh.name}
         description={`Household record • Created ${new Date(hh.createdAt).toLocaleDateString()}`}
       />
+      <ReferenceHero reference={MOCKUP_REFERENCES.customer360} />
+
+      <section className="rounded-2xl border border-white/15 bg-linear-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 p-4 shadow-[0_22px_70px_rgba(2,6,23,0.42)]">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-xl border border-blue-300/20 bg-slate-900/80 p-3">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Household Value</p>
+            <p className="mt-1 text-2xl font-bold text-slate-50">${hh.lifetimeValue.toLocaleString()}</p>
+          </div>
+          <div className="rounded-xl border border-amber-300/20 bg-slate-900/80 p-3">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Loyalty Score</p>
+            <p className="mt-1 text-2xl font-bold text-slate-50">{hh.loyaltyScore}</p>
+          </div>
+          <div className="rounded-xl border border-cyan-300/20 bg-slate-900/80 p-3">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Linked Leads</p>
+            <p className="mt-1 text-2xl font-bold text-slate-50">{linkedLeads.length}</p>
+          </div>
+          <div className="rounded-xl border border-emerald-300/20 bg-slate-900/80 p-3">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Purchased Vehicles</p>
+            <p className="mt-1 text-2xl font-bold text-slate-50">{purchasedVehicles.length}</p>
+          </div>
+        </div>
+
+        <div className="mt-3 rounded-xl border border-slate-700/70 bg-slate-950/75 p-3">
+          <p className="text-[10px] uppercase tracking-[0.2em] text-slate-300">360 Action Rail</p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <Button size="sm" className="gap-2 bg-blue-600 hover:bg-blue-500" onClick={() => navigate('/app/records/leads/new')}>
+              New Lead
+            </Button>
+            <Button variant="outline" size="sm" className="gap-2 border-slate-600 text-slate-100 hover:bg-slate-800" onClick={() => navigate('/app/records/deals/new')}>
+              Start Deal
+            </Button>
+            <Button variant="outline" size="sm" className="gap-2 border-slate-600 text-slate-100 hover:bg-slate-800" onClick={() => navigate('/app/records/households')}>
+              Return to Households
+            </Button>
+          </div>
+        </div>
+      </section>
+
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="pb-2"><CardTitle className="text-sm font-medium">Lifetime Value</CardTitle></CardHeader>

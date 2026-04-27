@@ -5,6 +5,9 @@ import { useInventoryCatalog } from '@/domains/inventory/inventory.runtime'
 import { computePaymentEstimate } from '@/domains/buyer-hub/buyerHub.types'
 import { InventoryPhotoImage } from '@/components/inventory/InventoryPhotoImage'
 import { DEALER } from '@/lib/dealer.constants'
+import heroPerformanceMockup from '../../../../01_site_mockups/sleek_performance_car_dealership_homepage_mockup.png'
+import muscleUIMockup from '../../../../01_site_mockups/sleek_muscle_car_dealer_website_ui.png'
+import premiumBrandingMockup from '../../../../01_site_mockups/powerful_branding_for_a_premium_car_dealership.png'
 
 function formatPrice(value: number) {
   return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(value)
@@ -104,7 +107,15 @@ export function HomePage() {
 
   return (
     <div className="ncm-page" style={{ background: 'var(--bg-base)' }}>
-      <section className="ncm-hero-depth" style={{ minHeight: '640px' }}>
+      <section
+        className="ncm-hero-depth"
+        style={{
+          minHeight: '640px',
+          backgroundImage: `linear-gradient(118deg, rgba(8, 10, 18, 0.95), rgba(7, 9, 16, 0.78)), url(${heroPerformanceMockup})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center 26%',
+        }}
+      >
         <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1 }}>
           <div style={{ position: 'absolute', top: '31%', left: '-6%', width: '70%', height: '2px', transform: 'rotate(-4deg)', background: 'linear-gradient(90deg, transparent 0%, rgba(223,36,36,0.88) 45%, transparent 100%)' }} />
           <div style={{ position: 'absolute', top: '38%', left: '-5%', width: '76%', height: '1px', transform: 'rotate(-3deg)', background: 'linear-gradient(90deg, transparent 0%, rgba(44,105,255,0.75) 42%, transparent 100%)' }} />
@@ -157,6 +168,68 @@ export function HomePage() {
                 style={{ borderRadius: '0.55rem' }}
               >
                 VALUE YOUR TRADE <CaretRight size={14} weight="bold" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section style={{ paddingBottom: '2rem' }}>
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+            <div className="ncm-section-shell" style={{ overflow: 'hidden', padding: 0 }}>
+              <div style={{ position: 'relative', minHeight: '250px' }}>
+                <img
+                  src={muscleUIMockup}
+                  alt="Muscle car mockup styling"
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,10,18,0.32) 5%, rgba(8,10,18,0.88) 100%)' }} />
+                <div style={{ position: 'relative', zIndex: 2, padding: '1.05rem 1rem' }}>
+                  <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.66rem', color: '#a7b8d9', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Mockup Integrated</div>
+                  <div style={{ marginTop: '0.35rem', fontFamily: 'Barlow Condensed, Syncopate, sans-serif', fontWeight: 800, fontSize: '1.15rem', color: '#f4f8ff', textTransform: 'uppercase', lineHeight: 1.05 }}>
+                    Aggressive Metal UI
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="ncm-section-shell" style={{ overflow: 'hidden', padding: 0 }}>
+              <div style={{ position: 'relative', minHeight: '250px' }}>
+                <img
+                  src={premiumBrandingMockup}
+                  alt="Premium dealership branding mockup"
+                  style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,10,18,0.25) 12%, rgba(8,10,18,0.88) 100%)' }} />
+                <div style={{ position: 'relative', zIndex: 2, padding: '1.05rem 1rem' }}>
+                  <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.66rem', color: '#a7b8d9', letterSpacing: '0.14em', textTransform: 'uppercase' }}>Brand Direction</div>
+                  <div style={{ marginTop: '0.35rem', fontFamily: 'Barlow Condensed, Syncopate, sans-serif', fontWeight: 800, fontSize: '1.15rem', color: '#f4f8ff', textTransform: 'uppercase', lineHeight: 1.05 }}>
+                    Premium Performance Identity
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="ncm-section-shell" style={{ padding: '1rem' }}>
+              <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.66rem', color: '#a7b8d9', letterSpacing: '0.14em', textTransform: 'uppercase' }}>
+                Design Notes
+              </div>
+              <h3 style={{ marginTop: '0.42rem', fontFamily: 'Barlow Condensed, Syncopate, sans-serif', fontWeight: 800, fontSize: '1.22rem', color: '#f4f8ff', textTransform: 'uppercase', lineHeight: 1.08 }}>
+                Mockup Language Is Now Live
+              </h3>
+              <div style={{ marginTop: '0.58rem', display: 'grid', gap: '0.45rem', fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.8rem', color: '#9ab0d4' }}>
+                <span>• Steel-toned hero treatment and cinematic contrast</span>
+                <span>• Bold type hierarchy for high-performance merchandising</span>
+                <span>• Red-blue action rail for financing and trade conversion</span>
+                <span>• Brand-first visual modules tied to mockup references</span>
+              </div>
+              <button
+                onClick={() => navigate('/shop')}
+                className="ncm-btn-red mt-4"
+                style={{ borderRadius: '0.52rem', fontSize: '0.7rem', padding: '0.6rem 0.85rem' }}
+              >
+                SHOP THIS LOOK <CaretRight size={12} weight="bold" />
               </button>
             </div>
           </div>

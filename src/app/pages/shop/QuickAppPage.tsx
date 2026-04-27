@@ -33,6 +33,7 @@ import {
   Warning,
   UsersThree,
 } from '@phosphor-icons/react'
+import approvalsMockup from '../../../../01_site_mockups/fast_easy_car_approvals_at_night.png'
 
 type ApplicantKey = 'primary' | 'co'
 type ApplicationType = 'individual' | 'joint'
@@ -928,6 +929,29 @@ export function QuickAppPage() {
 
   return (
     <div className="ods-buyer-page mx-auto max-w-3xl space-y-8 px-3 pb-24 pt-6 sm:px-4 sm:pt-8">
+      <section
+        style={{
+          borderRadius: '1.25rem',
+          overflow: 'hidden',
+          border: '1px solid rgba(255,255,255,0.12)',
+          backgroundImage: `linear-gradient(120deg, rgba(10, 14, 24, 0.9), rgba(10, 14, 24, 0.7)), url(${approvalsMockup})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      >
+        <div style={{ padding: '1.05rem 1rem' }}>
+          <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.66rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#9fb5dc' }}>
+            Mockup Applied
+          </div>
+          <h2 style={{ marginTop: '0.3rem', fontFamily: 'Barlow Condensed, Syncopate, sans-serif', fontWeight: 800, fontSize: 'clamp(1.05rem, 2.6vw, 1.7rem)', textTransform: 'uppercase', lineHeight: 1.05, color: '#f2f7ff' }}>
+            Fast & Easy Approvals at Night
+          </h2>
+          <p style={{ marginTop: '0.4rem', maxWidth: '34rem', fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.8rem', color: '#a7bcdf', lineHeight: 1.55 }}>
+            The application experience now reflects your approvals mockup direction: high-contrast surface, quick progression cues, and conversion-first framing.
+          </p>
+        </div>
+      </section>
+
       {selectedUnit ? <SelectedVehicleContext unit={selectedUnit} label="Vehicle In Focus" /> : null}
       <div className="rounded-3xl border border-border bg-card/80 p-6 sm:p-7">
         <Button variant="ghost" size="sm" className="mb-4 rounded-full border border-border px-4 text-xs uppercase tracking-[0.14em]" onClick={() => navigate('/finance')}>

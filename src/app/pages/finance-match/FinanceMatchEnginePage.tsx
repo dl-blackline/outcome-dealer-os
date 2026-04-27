@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { ReferenceHero } from '@/components/core/ReferenceHero'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -33,6 +34,7 @@ import {
 } from '@/domains/finance-match/finance-match.types'
 import { buildDealCalculations } from '@/domains/finance-match/finance-match.calculations'
 import { useRunFinanceMatch } from '@/domains/finance-match/finance-match.hooks'
+import { MOCKUP_REFERENCES } from '@/app/mockupReferences'
 
 const DEFAULT_INPUT: DealStructureInput = {
   creditScore: undefined,
@@ -291,74 +293,52 @@ export function FinanceMatchEnginePage() {
 
   return (
     <div className="ods-page space-y-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div
-            className="flex h-9 w-9 items-center justify-center rounded-lg"
-            style={{
-              background: 'linear-gradient(135deg, rgba(59,130,246,0.3), rgba(37,99,235,0.25))',
-              border: '1px solid rgba(59,130,246,0.4)',
-              boxShadow: '0 0 16px rgba(59,130,246,0.2)',
-            }}
-          >
-            <Intersect className="h-5 w-5" style={{ color: '#93c5fd' }} />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-white">Finance Center</h1>
-            <p className="text-sm mt-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>
-              Match deal structure against lender programs in real-time
-            </p>
-          </div>
+      <div className="flex items-center gap-3">
+        <Intersect className="h-6 w-6 text-primary" />
+        <div>
+          <h1 className="text-xl font-bold">Bank Match Engine</h1>
+          <p className="text-sm text-muted-foreground">Match deal structure against lender programs in real-time</p>
         </div>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          {
-            label: 'Pending Applications',
-            value: results.filter(r => r.status === 'review').length.toString() || '—',
-            accent: '#f59e0b',
-          },
-          {
-            label: 'Approvals Today',
-            value: results.filter(r => r.status === 'greenlight').length.toString() || '—',
-            accent: '#10b981',
-          },
-          {
-            label: 'Avg APR',
-            value: input.proposedRate ? `${input.proposedRate.toFixed(1)}%` : '—',
-            accent: '#3b82f6',
-          },
-          {
-            label: 'Stips Outstanding',
-            value: results.filter(r => r.status === 'info_needed').length.toString() || '—',
-            accent: '#8b5cf6',
-          },
-        ].map(({ label, value, accent }) => (
-          <div
-            key={label}
-            style={{
-              background: 'linear-gradient(145deg, oklch(0.16 0.018 248), oklch(0.13 0.015 248))',
-              border: '1px solid rgba(255,255,255,0.07)',
-              borderRadius: '0.75rem',
-              boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.5)',
-            }}
-            className="p-4"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-xs font-medium uppercase tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>
-                {label}
-              </span>
-              <span className="h-2 w-2 rounded-full" style={{ background: accent, boxShadow: `0 0 6px ${accent}` }} />
-            </div>
-            <div className="text-2xl font-bold text-white" style={{ textShadow: `0 0 20px ${accent}60` }}>
-              {value}
-            </div>
+      <ReferenceHero reference={MOCKUP_REFERENCES.financeCenter} />
+
+      <section className="rounded-2xl border border-white/15 bg-linear-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 p-4 shadow-[0_22px_70px_rgba(2,6,23,0.42)]">
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+          <div className="rounded-xl border border-blue-300/20 bg-slate-900/80 p-3">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Amount Financed</p>
+            <p className="mt-1 text-xl font-bold text-slate-50">${calc.amountFinanced.toLocaleString()}</p>
           </div>
-        ))}
-      </div>
+          <div className="rounded-xl border border-cyan-300/20 bg-slate-900/80 p-3">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">LTV</p>
+            <p className="mt-1 text-xl font-bold text-slate-50">{calc.ltv != null ? `${calc.ltv.toFixed(1)}%` : '—'}</p>
+          </div>
+          <div className="rounded-xl border border-amber-300/20 bg-slate-900/80 p-3">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">PTI</p>
+            <p className="mt-1 text-xl font-bold text-slate-50">{calc.pti != null ? `${calc.pti.toFixed(1)}%` : '—'}</p>
+          </div>
+          <div className="rounded-xl border border-violet-300/20 bg-slate-900/80 p-3">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">DTI</p>
+            <p className="mt-1 text-xl font-bold text-slate-50">{calc.dti != null ? `${calc.dti.toFixed(1)}%` : '—'}</p>
+          </div>
+          <div className="rounded-xl border border-emerald-300/20 bg-slate-900/80 p-3">
+            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Program Hits</p>
+            <p className="mt-1 text-xl font-bold text-slate-50">{results.length}</p>
+          </div>
+        </div>
+
+        <div className="mt-3 rounded-xl border border-slate-700/70 bg-slate-950/75 p-3">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-[10px] uppercase tracking-[0.2em] text-slate-300">Decision Actions</p>
+              <p className="text-xs text-slate-400">Run lender matching, then filter by risk status and confidence.</p>
+            </div>
+            <Button size="sm" disabled={isRunning} onClick={() => void handleRunMatch()} className="gap-2 bg-blue-600 hover:bg-blue-500">
+              {isRunning ? <SpinnerGap className="h-4 w-4 animate-spin" /> : <Lightning className="h-4 w-4" />} Run Match
+            </Button>
+          </div>
+        </div>
+      </section>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* ── Left Column: Form ── */}
