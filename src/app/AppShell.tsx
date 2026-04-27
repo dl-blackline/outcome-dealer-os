@@ -36,6 +36,7 @@ import { AICopilotPage } from '@/app/pages/ops/AICopilotPage'
 import { IntelligencePage } from '@/app/pages/ops/IntelligencePage'
 import { OperatingReviewPage } from '@/app/pages/ops/OperatingReviewPage'
 import { ReportsPage } from '@/app/pages/ops/ReportsPage'
+import { AnalyticsPage } from '@/app/pages/ops/AnalyticsPage'
 import { ReconPage } from '@/app/pages/ops/ReconPage'
 import { BackOfficePage } from '@/app/pages/ops/BackOfficePage'
 import { DocumentVaultPage } from '@/app/pages/ops/DocumentVaultPage'
@@ -90,6 +91,7 @@ const ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/app/ops/back-office': BackOfficePage,
   '/app/ops/documents': DocumentVaultPage,
   '/app/ops/reports': ReportsPage,
+  '/app/ops/analytics': AnalyticsPage,
   '/app/settings/roles': RolesSettingsPage,
   '/app/settings/integrations': IntegrationsSettingsPage,
   '/app/settings/inventory-import': InventoryImportPage,
