@@ -3,6 +3,7 @@ import { useRouter } from '@/app/router'
 import { useAuth } from '@/domains/auth'
 import { AppSidebar } from '@/components/shell/AppSidebar'
 import { Topbar } from '@/components/shell/Topbar'
+import { OperationsFooter } from '@/components/shell/OperationsFooter'
 import { CommandPalette } from '@/components/shell/CommandPalette'
 import { NotificationCenter } from '@/components/shell/NotificationCenter'
 import { RouteNotFound } from '@/components/shell/RouteNotFound'
@@ -31,10 +32,11 @@ import { InventoryUnitPage } from '@/app/pages/records/InventoryUnitPage'
 import { EventExplorerPage } from '@/app/pages/ops/EventExplorerPage'
 import { ApprovalQueuePage } from '@/app/pages/ops/ApprovalQueuePage'
 import { AuditExplorerPage } from '@/app/pages/ops/AuditExplorerPage'
-import { AssistantOpsPage } from '@/app/pages/ops/AssistantOpsPage'
+import { AICopilotPage } from '@/app/pages/ops/AICopilotPage'
 import { IntelligencePage } from '@/app/pages/ops/IntelligencePage'
 import { OperatingReviewPage } from '@/app/pages/ops/OperatingReviewPage'
 import { ReportsPage } from '@/app/pages/ops/ReportsPage'
+import { AnalyticsPage } from '@/app/pages/ops/AnalyticsPage'
 import { ReconPage } from '@/app/pages/ops/ReconPage'
 import { BackOfficePage } from '@/app/pages/ops/BackOfficePage'
 import { DocumentVaultPage } from '@/app/pages/ops/DocumentVaultPage'
@@ -81,7 +83,7 @@ const ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/app/ops/events': EventExplorerPage,
   '/app/ops/approvals': ApprovalQueuePage,
   '/app/ops/audit': AuditExplorerPage,
-  '/app/ops/assistant': AssistantOpsPage,
+  '/app/ops/assistant': AICopilotPage,
   '/app/ops/intelligence': IntelligencePage,
   '/app/ops/operating-review': OperatingReviewPage,
   '/app/ops/recon': ReconPage,
@@ -89,6 +91,7 @@ const ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/app/ops/back-office': BackOfficePage,
   '/app/ops/documents': DocumentVaultPage,
   '/app/ops/reports': ReportsPage,
+  '/app/ops/analytics': AnalyticsPage,
   '/app/settings/roles': RolesSettingsPage,
   '/app/settings/integrations': IntegrationsSettingsPage,
   '/app/settings/inventory-import': InventoryImportPage,
@@ -377,6 +380,7 @@ export function AppShell() {
             )}
           </div>
         </main>
+        <OperationsFooter />
       </div>
 
       <CommandPalette

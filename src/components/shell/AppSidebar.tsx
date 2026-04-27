@@ -46,7 +46,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: 'Finance', href: '/app/finance/match-engine', icon: Intersect, group: 'finance' },
   { label: 'Calendar', href: '/app/ops/events', icon: CalendarBlank, group: 'operations' },
   { label: 'Tasks', href: '/app/workstation', icon: CheckSquare, group: 'workstation', badge: 5, badgeColor: 'orange' },
-  { label: 'Reports', href: '/app/ops/reports', icon: ChartBar, group: 'operations' },
+  { label: 'Analytics', href: '/app/ops/analytics', icon: ChartBar, group: 'operations' },
   { label: 'AI Copilot', href: '/app/ops/assistant', icon: Robot, group: 'operations' },
   { label: 'Settings', href: '/app/settings/roles', icon: Gear, group: 'settings' },
   { label: 'Credit Apps', href: '/app/records/credit-applications', icon: ClipboardText, group: 'records' },
@@ -75,6 +75,7 @@ const PRIMARY_NAV = [
   '/app/finance/match-engine',
   '/app/ops/events',
   '/app/ops/reports',
+  '/app/ops/analytics',
   '/app/ops/assistant',
   '/app/settings/roles',
 ]

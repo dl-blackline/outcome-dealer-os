@@ -1,12 +1,17 @@
 import { useState } from 'react'
-import { SectionHeader } from '@/components/core/SectionHeader'
-import { ReferenceHero } from '@/components/core/ReferenceHero'
-import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
 import { APP_ROLES, ROLE_LABELS, ROLE_NAV_GROUPS } from '@/domains/roles/roles'
 import { ROLE_PERMISSIONS } from '@/domains/roles/permissions'
-import { CaretRight, CaretDown, ShieldCheck, Info } from '@phosphor-icons/react'
-import { MOCKUP_REFERENCES } from '@/app/mockupReferences'
+import {
+  CaretRight, CaretDown, ShieldCheck, Info,
+  Gear, UsersThree, Plugs, Target, Bell, Palette, Lock,
+} from '@phosphor-icons/react'
+
+const PANEL_STYLE: React.CSSProperties = {
+  background: 'linear-gradient(145deg, oklch(0.16 0.018 248), oklch(0.13 0.015 248))',
+  border: '1px solid rgba(255,255,255,0.07)',
+  borderRadius: '0.75rem',
+  boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.5)',
+}
 
 const ROLE_DESCRIPTIONS: Record<string, string> = {
   owner: 'Full operational visibility and control. Access to all settings, approvals, and business intelligence.',
@@ -24,91 +29,279 @@ const ROLE_DESCRIPTIONS: Record<string, string> = {
   admin: 'System administrator. Full access to settings, roles, and integrations.',
 }
 
+const NAV_ITEMS = [
+  { id: 'general', label: 'General', Icon: Gear },
+  { id: 'roles', label: 'Users & Roles', Icon: UsersThree },
+  { id: 'integrations', label: 'Integrations', Icon: Plugs },
+  { id: 'goals', label: 'Goals', Icon: Target },
+  { id: 'notifications', label: 'Notifications', Icon: Bell },
+  { id: 'branding', label: 'Branding', Icon: Palette },
+  { id: 'security', label: 'Security', Icon: Lock },
+]
+
 export function RolesSettingsPage() {
   const [expandedRole, setExpandedRole] = useState<string | null>(null)
+  const [activeNav, setActiveNav] = useState('roles')
 
   return (
     <div className="ods-page ods-flow-lg">
-      <SectionHeader title="Roles & Permissions" description="View role definitions and permission assignments" />
-      <ReferenceHero reference={MOCKUP_REFERENCES.settingsAdmin} />
+      {/* Header */}
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-white">Settings &amp; Admin</h1>
+        <p className="text-sm mt-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>
+          System configuration, roles, integrations, and preferences
+        </p>
+      </div>
 
-      <section className="rounded-2xl border border-white/15 bg-linear-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 p-4 shadow-[0_22px_70px_rgba(2,6,23,0.42)]">
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-xl border border-blue-300/20 bg-slate-900/80 p-3">
-            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Configured Roles</p>
-            <p className="mt-1 text-2xl font-bold text-slate-50">{APP_ROLES.length}</p>
-          </div>
-          <div className="rounded-xl border border-cyan-300/20 bg-slate-900/80 p-3">
-            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Total Permissions</p>
-            <p className="mt-1 text-2xl font-bold text-slate-50">{Object.values(ROLE_PERMISSIONS).reduce((sum, list) => sum + list.length, 0)}</p>
-          </div>
-          <div className="rounded-xl border border-violet-300/20 bg-slate-900/80 p-3">
-            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Navigation Groups</p>
-            <p className="mt-1 text-2xl font-bold text-slate-50">{new Set(Object.values(ROLE_NAV_GROUPS).flat()).size}</p>
-          </div>
-          <div className="rounded-xl border border-amber-300/20 bg-slate-900/80 p-3">
-            <p className="text-[10px] uppercase tracking-[0.22em] text-slate-300">Expanded Role</p>
-            <p className="mt-1 text-lg font-bold uppercase tracking-[0.08em] text-slate-50">{expandedRole ? ROLE_LABELS[expandedRole as keyof typeof ROLE_LABELS] : 'None'}</p>
-          </div>
-        </div>
-      </section>
+      <div className="flex gap-6">
+        {/* Left Sub-Nav */}
+        <nav
+          className="shrink-0 w-52 rounded-xl p-2 space-y-0.5"
+          style={{ ...PANEL_STYLE, alignSelf: 'flex-start' }}
+        >
+          <p className="text-[0.6rem] font-semibold uppercase tracking-widest px-3 pt-2 pb-1.5" style={{ color: 'rgba(255,255,255,0.25)' }}>
+            Settings
+          </p>
+          {NAV_ITEMS.map(({ id, label, Icon }) => {
+            const isActive = activeNav === id
+            return (
+              <button
+                key={id}
+                onClick={() => setActiveNav(id)}
+                className="w-full flex items-center gap-3 px-3 py-2.5 text-sm font-medium transition-all text-left rounded-lg relative overflow-hidden"
+                style={isActive ? {
+                  background: 'linear-gradient(90deg, rgba(227,24,55,0.15) 0%, rgba(227,24,55,0.05) 100%)',
+                  color: '#fff',
+                  borderLeft: '2px solid #e31837',
+                  paddingLeft: '10px',
+                } : {
+                  color: 'rgba(255,255,255,0.4)',
+                  borderLeft: '2px solid transparent',
+                  paddingLeft: '10px',
+                }}
+                onMouseEnter={e => {
+                  if (!isActive) (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.75)'
+                }}
+                onMouseLeave={e => {
+                  if (!isActive) (e.currentTarget as HTMLButtonElement).style.color = 'rgba(255,255,255,0.4)'
+                }}
+              >
+                <Icon
+                  className="h-4 w-4 shrink-0"
+                  style={{ color: isActive ? '#e31837' : 'inherit' }}
+                />
+                {label}
+              </button>
+            )
+          })}
+        </nav>
 
-      <Card className="border-blue-500/20 bg-blue-500/5">
-        <CardContent className="flex items-start gap-3 py-4">
-          <Info className="h-5 w-5 text-blue-500 mt-0.5 shrink-0" />
-          <div className="text-sm">
-            <p className="font-medium">Role-Based Access Control</p>
-            <p className="text-muted-foreground mt-1">
-              {APP_ROLES.length} roles defined with separation of duties. Roles determine navigation access, record permissions, and approval authority.
-              Permission assignments are enforced at the routing and service layers.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+        {/* Main Content */}
+        <div className="flex-1 min-w-0 space-y-4">
+          {activeNav === 'roles' && (
+            <>
+              {/* Info banner */}
+              <div style={{ ...PANEL_STYLE, border: '1px solid rgba(99,102,241,0.2)' }} className="p-4 flex items-start gap-3">
+                <Info className="h-5 w-5 mt-0.5 shrink-0" style={{ color: '#818cf8' }} />
+                <div>
+                  <p className="text-sm font-medium text-white">Role-Based Access Control</p>
+                  <p className="text-xs mt-1" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                    {APP_ROLES.length} roles defined with separation of duties. Roles determine navigation access, record permissions, and approval authority.
+                    Permission assignments are enforced at the routing and service layers.
+                  </p>
+                </div>
+              </div>
 
-      <div className="space-y-2">
-        {APP_ROLES.map(role => {
-          const perms = ROLE_PERMISSIONS[role]
-          const navGroups = ROLE_NAV_GROUPS[role]
-          const expanded = expandedRole === role
-          return (
-            <Card key={role} className={expanded ? 'ring-1 ring-primary/30' : ''}>
-              <CardContent className="p-0">
-                <button onClick={() => setExpandedRole(expanded ? null : role)} className="flex w-full items-center justify-between p-4 text-left hover:bg-accent/20 transition-colors">
-                  <div className="flex items-center gap-3">
-                    <ShieldCheck className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">{ROLE_LABELS[role]}</p>
-                      <p className="text-xs text-muted-foreground">{ROLE_DESCRIPTIONS[role] ?? role}</p>
+              {/* Roles list */}
+              <div className="space-y-2">
+                {APP_ROLES.map(role => {
+                  const perms = ROLE_PERMISSIONS[role]
+                  const navGroups = ROLE_NAV_GROUPS[role]
+                  const expanded = expandedRole === role
+                  return (
+                    <div key={role} style={{ ...PANEL_STYLE, ...(expanded ? { border: '1px solid rgba(99,102,241,0.3)' } : {}) }}>
+                      <button
+                        onClick={() => setExpandedRole(expanded ? null : role)}
+                        className="flex w-full items-center justify-between p-4 text-left transition-colors rounded-t-xl"
+                        onMouseEnter={e => { (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.02)' }}
+                        onMouseLeave={e => { (e.currentTarget as HTMLButtonElement).style.background = '' }}
+                      >
+                        <div className="flex items-center gap-3">
+                          <ShieldCheck className="h-5 w-5" style={{ color: expanded ? '#818cf8' : 'rgba(255,255,255,0.3)' }} />
+                          <div>
+                            <p className="font-medium text-sm text-white">{ROLE_LABELS[role]}</p>
+                            <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.4)' }}>{ROLE_DESCRIPTIONS[role] ?? role}</p>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="text-xs px-2 py-0.5 rounded-full font-medium"
+                            style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(255,255,255,0.5)' }}
+                          >
+                            {perms.length} permissions
+                          </span>
+                          {expanded
+                            ? <CaretDown className="h-4 w-4" style={{ color: 'rgba(255,255,255,0.4)' }} />
+                            : <CaretRight className="h-4 w-4" style={{ color: 'rgba(255,255,255,0.4)' }} />
+                          }
+                        </div>
+                      </button>
+                      {expanded && (
+                        <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }} className="px-4 py-3 space-y-3">
+                          <div>
+                            <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                              Navigation Access
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {navGroups.map(g => (
+                                <span
+                                  key={g}
+                                  className="text-xs px-2 py-0.5 rounded capitalize"
+                                  style={{ background: 'rgba(99,102,241,0.12)', color: '#a5b4fc', border: '1px solid rgba(99,102,241,0.2)' }}
+                                >
+                                  {g}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-xs font-semibold uppercase tracking-widest mb-2" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                              Permissions
+                            </p>
+                            <div className="flex flex-wrap gap-1.5">
+                               {perms.map(p => (
+                                 <span
+                                   key={p}
+                                   className="text-[0.67rem] px-2 py-0.5 rounded font-medium"
+                                   style={{ background: 'rgba(44,105,255,0.12)', color: '#93c5fd', border: '1px solid rgba(44,105,255,0.2)' }}
+                                 >
+                                   {p.replace(/_/g, ' ')}
+                                 </span>
+                               ))}
+                            </div>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary">{perms.length} permissions</Badge>
-                    {expanded ? <CaretDown className="h-4 w-4" /> : <CaretRight className="h-4 w-4" />}
-                  </div>
+                  )
+                })}
+              </div>
+            </>
+          )}
+
+          {activeNav === 'general' && (
+            <div className="space-y-4">
+              <div style={PANEL_STYLE} className="p-5">
+                <h3 className="text-sm font-semibold text-white mb-4">Dealership Information</h3>
+                <div className="space-y-4">
+                  {[
+                    { label: 'Dealership Name', placeholder: 'National Car Mart', type: 'text' },
+                    { label: 'DBA / Trade Name', placeholder: 'NCM Auto Group', type: 'text' },
+                    { label: 'Dealer License #', placeholder: 'DL-2024-00193', type: 'text' },
+                    { label: 'Website URL', placeholder: 'https://nationalcarmart.com', type: 'url' },
+                  ].map(f => (
+                    <div key={f.label}>
+                      <label className="block text-xs font-medium mb-1.5" style={{ color: 'rgba(255,255,255,0.5)' }}>{f.label}</label>
+                      <input
+                        type={f.type}
+                        placeholder={f.placeholder}
+                        className="w-full rounded-lg px-3 py-2.5 text-sm text-white/80 outline-none transition-colors"
+                        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={PANEL_STYLE} className="p-5">
+                <h3 className="text-sm font-semibold text-white mb-4">Regional Settings</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    { label: 'Timezone', options: ['America/Chicago', 'America/New_York', 'America/Los_Angeles', 'America/Denver'] },
+                    { label: 'Currency', options: ['USD — US Dollar', 'CAD — Canadian Dollar', 'EUR — Euro'] },
+                    { label: 'Date Format', options: ['MM/DD/YYYY', 'DD/MM/YYYY', 'YYYY-MM-DD'] },
+                    { label: 'Distance Unit', options: ['Miles', 'Kilometers'] },
+                  ].map(f => (
+                    <div key={f.label}>
+                      <label className="block text-xs font-medium mb-1.5" style={{ color: 'rgba(255,255,255,0.5)' }}>{f.label}</label>
+                      <select
+                        className="w-full rounded-lg px-3 py-2.5 text-sm text-white/70 outline-none"
+                        style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)' }}
+                      >
+                        {f.options.map(o => <option key={o}>{o}</option>)}
+                      </select>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex justify-end">
+                <button
+                  className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white transition-colors"
+                  style={{ background: 'linear-gradient(135deg, #e31837, #a01228)' }}
+                >
+                  Save Changes
                 </button>
-                {expanded && (
-                  <div className="border-t border-border px-4 py-3 space-y-3">
+              </div>
+            </div>
+          )}
+
+          {activeNav === 'notifications' && (
+            <div style={PANEL_STYLE} className="p-5">
+              <h3 className="text-sm font-semibold text-white mb-1">Notification Preferences</h3>
+              <p className="text-xs mb-5" style={{ color: 'rgba(255,255,255,0.4)' }}>Configure when and how you receive system alerts</p>
+              <div className="space-y-1">
+                {[
+                  { label: 'New lead assigned', desc: 'Notify when a lead is routed to you', on: true },
+                  { label: 'Deal approved / declined', desc: 'Updates on deal desk decisions', on: true },
+                  { label: 'Aged unit alerts', desc: 'Units approaching 30, 45, 60 day thresholds', on: true },
+                  { label: 'Appointment reminders', desc: '1 hour before scheduled appointments', on: false },
+                  { label: 'Finance deal funded', desc: 'Confirmation when lender funds a deal', on: true },
+                  { label: 'Daily digest', desc: 'Morning summary of previous day performance', on: false },
+                  { label: 'AI Copilot suggestions', desc: 'Proactive AI recommendations for your pipeline', on: true },
+                  { label: 'System maintenance', desc: 'Scheduled downtime and update notices', on: false },
+                ].map(n => (
+                  <div
+                    key={n.label}
+                    className="flex items-center justify-between py-3"
+                    style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}
+                  >
                     <div>
-                      <p className="text-xs font-medium text-muted-foreground mb-1.5">Navigation Access</p>
-                      <div className="flex flex-wrap gap-1.5">
-                        {navGroups.map(g => (
-                          <Badge key={g} variant="outline" className="text-xs capitalize">{g}</Badge>
-                        ))}
-                      </div>
+                      <p className="text-sm font-medium text-white/80">{n.label}</p>
+                      <p className="text-xs mt-0.5" style={{ color: 'rgba(255,255,255,0.35)' }}>{n.desc}</p>
                     </div>
-                    <div>
-                      <p className="text-xs font-medium text-muted-foreground mb-1.5">Permissions</p>
-                      <div className="flex flex-wrap gap-1.5">{perms.map(p => (
-                        <Badge key={p} variant="outline" className="text-xs">{p.replace(/_/g, ' ')}</Badge>
-                      ))}</div>
-                    </div>
+                    <button
+                      className="relative h-6 w-11 rounded-full transition-colors shrink-0"
+                      style={{ background: n.on ? '#e31837' : 'rgba(255,255,255,0.12)' }}
+                    >
+                      <span
+                        className="absolute top-0.5 h-5 w-5 rounded-full bg-white transition-all"
+                        style={{ left: n.on ? '22px' : '2px' }}
+                      />
+                    </button>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          )
-        })}
+                ))}
+              </div>
+            </div>
+          )}
+
+          {activeNav !== 'roles' && activeNav !== 'general' && activeNav !== 'notifications' && (
+            <div style={PANEL_STYLE} className="p-12 flex flex-col items-center justify-center text-center">
+              {(() => {
+                const item = NAV_ITEMS.find(n => n.id === activeNav)
+                if (!item) return null
+                const { Icon } = item
+                return (
+                  <>
+                    <Icon className="h-10 w-10 mb-3" style={{ color: 'rgba(99,102,241,0.4)' }} />
+                    <p className="font-medium text-white">{item.label}</p>
+                    <p className="text-sm mt-1" style={{ color: 'rgba(255,255,255,0.35)' }}>
+                      This section is coming soon.
+                    </p>
+                  </>
+                )
+              })()}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   )
