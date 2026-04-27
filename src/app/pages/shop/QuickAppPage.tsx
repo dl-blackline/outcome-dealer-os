@@ -33,7 +33,6 @@ import {
   Warning,
   UsersThree,
 } from '@phosphor-icons/react'
-import approvalsMockup from '../../../../01_site_mockups/fast_easy_car_approvals_at_night.png'
 
 type ApplicantKey = 'primary' | 'co'
 type ApplicationType = 'individual' | 'joint'
@@ -934,20 +933,18 @@ export function QuickAppPage() {
           borderRadius: '1.25rem',
           overflow: 'hidden',
           border: '1px solid rgba(255,255,255,0.12)',
-          backgroundImage: `linear-gradient(120deg, rgba(10, 14, 24, 0.9), rgba(10, 14, 24, 0.7)), url(${approvalsMockup})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundImage: 'radial-gradient(circle at 14% 18%, rgba(239,68,68,0.26), transparent 42%), radial-gradient(circle at 84% 10%, rgba(56,189,248,0.24), transparent 40%), linear-gradient(120deg, rgba(10, 14, 24, 0.92), rgba(10, 14, 24, 0.78))',
         }}
       >
         <div style={{ padding: '1.05rem 1rem' }}>
           <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.66rem', letterSpacing: '0.14em', textTransform: 'uppercase', color: '#9fb5dc' }}>
-            Mockup Applied
+            Fast Approval Flow
           </div>
           <h2 style={{ marginTop: '0.3rem', fontFamily: 'Barlow Condensed, Syncopate, sans-serif', fontWeight: 800, fontSize: 'clamp(1.05rem, 2.6vw, 1.7rem)', textTransform: 'uppercase', lineHeight: 1.05, color: '#f2f7ff' }}>
             Fast & Easy Approvals at Night
           </h2>
           <p style={{ marginTop: '0.4rem', maxWidth: '34rem', fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.8rem', color: '#a7bcdf', lineHeight: 1.55 }}>
-            The application experience now reflects your approvals mockup direction: high-contrast surface, quick progression cues, and conversion-first framing.
+            The application experience is now fully coded to mirror your approvals direction: high-contrast surface, quick progression cues, and conversion-first framing.
           </p>
         </div>
       </section>

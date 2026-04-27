@@ -57,16 +57,6 @@ import { FinanceMatchEnginePage } from '@/app/pages/finance-match/FinanceMatchEn
 import { ProgramLibraryPage } from '@/app/pages/finance-match/ProgramLibraryPage'
 import { ProgramReviewPage } from '@/app/pages/finance-match/ProgramReviewPage'
 import { LenderProgramDetailPage } from '@/app/pages/finance-match/LenderProgramDetailPage'
-import controlCenterMockup from '../../01_control_center.png'
-import leadsCommandCenterMockup from '../../02_leads_command_center.png'
-import inventoryCommandMockup from '../../03_inventory_command.png'
-import customer360Mockup from '../../04_customer_360.png'
-import dealDeskMockup from '../../05_deal_desk.png'
-import financeCenterMockup from '../../06_finance_center.png'
-import calendarExecutionMockup from '../../07_calendar_execution.png'
-import analyticsReportsMockup from '../../08_analytics_reports.png'
-import aiCopilotMockup from '../../09_ai_copilot.png'
-import settingsAdminMockup from '../../10_settings_admin.png'
 
 const ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/app/dashboard': DashboardPage,
@@ -127,7 +117,6 @@ function resolvePageComponent(currentPath: string): React.ComponentType | null {
 }
 
 interface MockupVisualContext {
-  image: string
   title: string
   subtitle: string
   chip: string
@@ -136,7 +125,6 @@ interface MockupVisualContext {
 function getMockupVisualContext(currentPath: string): MockupVisualContext | null {
   if (currentPath === '/app/dashboard' || currentPath === '/app/workstation') {
     return {
-      image: controlCenterMockup,
       title: 'Control Center',
       subtitle: 'Executive operations snapshot and real-time command view.',
       chip: '01 Reference',
@@ -145,7 +133,6 @@ function getMockupVisualContext(currentPath: string): MockupVisualContext | null
 
   if (currentPath.startsWith('/app/records/leads')) {
     return {
-      image: leadsCommandCenterMockup,
       title: 'Leads Command Center',
       subtitle: 'Pipeline velocity, ownership, and priority lead flow.',
       chip: '02 Reference',
@@ -154,7 +141,6 @@ function getMockupVisualContext(currentPath: string): MockupVisualContext | null
 
   if (currentPath.startsWith('/app/records/inventory')) {
     return {
-      image: inventoryCommandMockup,
       title: 'Inventory Command',
       subtitle: 'Turn-rate visibility with frontline and recon alignment.',
       chip: '03 Reference',
@@ -163,7 +149,6 @@ function getMockupVisualContext(currentPath: string): MockupVisualContext | null
 
   if (currentPath.startsWith('/app/records/households')) {
     return {
-      image: customer360Mockup,
       title: 'Customer 360',
       subtitle: 'Household behavior, relationship depth, and lifetime value.',
       chip: '04 Reference',
@@ -172,7 +157,6 @@ function getMockupVisualContext(currentPath: string): MockupVisualContext | null
 
   if (currentPath.startsWith('/app/records/deals')) {
     return {
-      image: dealDeskMockup,
       title: 'Deal Desk',
       subtitle: 'Desk flow, approvals, and deal progression at a glance.',
       chip: '05 Reference',
@@ -181,7 +165,6 @@ function getMockupVisualContext(currentPath: string): MockupVisualContext | null
 
   if (currentPath.startsWith('/app/records/credit-applications')) {
     return {
-      image: financeCenterMockup,
       title: 'Finance Applications',
       subtitle: 'Credit intake, lender readiness, and structured funding workflow.',
       chip: '06 Reference',
@@ -190,7 +173,6 @@ function getMockupVisualContext(currentPath: string): MockupVisualContext | null
 
   if (currentPath.startsWith('/app/finance')) {
     return {
-      image: financeCenterMockup,
       title: 'Finance Center',
       subtitle: 'Program matching, lender readiness, and risk-aware structuring.',
       chip: '06 Reference',
@@ -199,7 +181,6 @@ function getMockupVisualContext(currentPath: string): MockupVisualContext | null
 
   if (currentPath.startsWith('/app/ops/events') || currentPath.startsWith('/app/playbook/timeline')) {
     return {
-      image: calendarExecutionMockup,
       title: 'Calendar Execution',
       subtitle: 'Execution cadence, milestones, and cross-team timing signals.',
       chip: '07 Reference',
@@ -216,7 +197,6 @@ function getMockupVisualContext(currentPath: string): MockupVisualContext | null
     currentPath.startsWith('/app/ops/operating-review')
   ) {
     return {
-      image: controlCenterMockup,
       title: 'Operations Command',
       subtitle: 'Approval, compliance, and execution controls synchronized in one operational plane.',
       chip: '01 Reference',
@@ -225,7 +205,6 @@ function getMockupVisualContext(currentPath: string): MockupVisualContext | null
 
   if (currentPath.startsWith('/app/ops/reports') || currentPath.startsWith('/app/ops/intelligence')) {
     return {
-      image: analyticsReportsMockup,
       title: 'Analytics Reports',
       subtitle: 'KPI trends, conversion intelligence, and performance drill-downs.',
       chip: '08 Reference',
@@ -234,7 +213,6 @@ function getMockupVisualContext(currentPath: string): MockupVisualContext | null
 
   if (currentPath.startsWith('/app/ops/assistant')) {
     return {
-      image: aiCopilotMockup,
       title: 'AI Copilot',
       subtitle: 'Operational copiloting, diagnostics, and decision support.',
       chip: '09 Reference',
@@ -243,7 +221,6 @@ function getMockupVisualContext(currentPath: string): MockupVisualContext | null
 
   if (currentPath.startsWith('/app/settings')) {
     return {
-      image: settingsAdminMockup,
       title: 'Settings Admin',
       subtitle: 'Role governance, integrations, and system configuration control.',
       chip: '10 Reference',
@@ -252,7 +229,6 @@ function getMockupVisualContext(currentPath: string): MockupVisualContext | null
 
   if (currentPath.startsWith('/app/playbook')) {
     return {
-      image: calendarExecutionMockup,
       title: 'Execution Playbook',
       subtitle: 'Project cadence, decisions, and timeline execution anchored to weekly operating rhythm.',
       chip: '07 Reference',
@@ -261,7 +237,6 @@ function getMockupVisualContext(currentPath: string): MockupVisualContext | null
 
   if (currentPath.startsWith('/app')) {
     return {
-      image: controlCenterMockup,
       title: 'Dealer Command Surface',
       subtitle: 'Unified control plane for sales, ops, and finance execution.',
       chip: '01 Reference',
@@ -361,12 +336,12 @@ export function AppShell() {
                 style={{
                   position: 'relative',
                   minHeight: '180px',
-                  backgroundImage: `linear-gradient(112deg, rgba(2, 8, 23, 0.9), rgba(15, 23, 42, 0.72)), url(${mockupVisual.image})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
+                  backgroundImage: 'radial-gradient(circle at 12% 8%, rgba(239,68,68,0.3), transparent 40%), radial-gradient(circle at 82% 6%, rgba(56,189,248,0.24), transparent 38%), linear-gradient(112deg, rgba(2, 8, 23, 0.94), rgba(15, 23, 42, 0.86))',
                 }}
               >
                 <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(180deg, rgba(15,23,42,0.22) 0%, rgba(15,23,42,0.86) 100%)' }} />
+                <div className="absolute left-[-4%] top-[26%] h-px w-[54%]" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(239,68,68,0.62) 44%, transparent 100%)' }} />
+                <div className="absolute left-[-2%] top-[37%] h-px w-[58%]" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(56,189,248,0.48) 42%, transparent 100%)' }} />
                 <div className="relative z-10 px-4 py-5 sm:px-6 sm:py-6">
                   <span className="inline-flex items-center rounded-full border border-white/30 bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-100">
                     {mockupVisual.chip}

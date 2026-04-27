@@ -7,8 +7,6 @@ import { computePaymentEstimate } from '@/domains/buyer-hub/buyerHub.types'
 import { InventoryPhotoImage } from '@/components/inventory/InventoryPhotoImage'
 import { isPlaceholderUrl } from '@/domains/inventory-photo/inventoryPhoto.placeholder'
 import { DEALER } from '@/lib/dealer.constants'
-import inventoryMockup from '../../../../01_site_mockups/sleek_car_dealership_inventory_page_design.png'
-import muscleUIMockup from '../../../../01_site_mockups/sleek_muscle_car_dealer_website_ui.png'
 import {
   MagnifyingGlass,
   SlidersHorizontal,
@@ -251,9 +249,7 @@ export function ShopInventoryPage() {
         style={{
           padding: '2.8rem 0 2.2rem',
           borderBottom: '1px solid var(--border-subtle)',
-          backgroundImage: `linear-gradient(110deg, rgba(8, 10, 18, 0.92), rgba(8, 10, 18, 0.78)), url(${inventoryMockup})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundImage: 'radial-gradient(circle at 14% 18%, rgba(239,68,68,0.28), transparent 42%), radial-gradient(circle at 86% 8%, rgba(56,189,248,0.24), transparent 40%), linear-gradient(110deg, rgba(8, 10, 18, 0.92), rgba(8, 10, 18, 0.82))',
         }}
       >
         <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8" style={{ position: 'relative', zIndex: 2 }}>
@@ -297,8 +293,15 @@ export function ShopInventoryPage() {
             </div>
             <div className="ncm-section-shell" style={{ overflow: 'hidden', padding: 0 }}>
               <div style={{ position: 'relative', minHeight: '138px' }}>
-                <img src={muscleUIMockup} alt="Inventory style reference" style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }} />
+                <div
+                  style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'radial-gradient(circle at 22% 30%, rgba(239,68,68,0.32), transparent 40%), radial-gradient(circle at 78% 20%, rgba(56,189,248,0.28), transparent 42%), linear-gradient(140deg, #10131f, #0b0e17)',
+                  }}
+                />
                 <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(8,10,18,0.26), rgba(8,10,18,0.86))' }} />
+                <div style={{ position: 'absolute', left: '-8%', top: '30%', width: '70%', height: '2px', transform: 'rotate(-4deg)', background: 'linear-gradient(90deg, transparent 0%, rgba(239,68,68,0.84) 44%, transparent 100%)' }} />
                 <div style={{ position: 'relative', zIndex: 2, padding: '0.8rem 0.9rem' }}>
                   <div style={{ fontFamily: 'Barlow, Manrope, sans-serif', fontSize: '0.65rem', letterSpacing: '0.12em', textTransform: 'uppercase', color: '#9fb3d7' }}>
                     Performance Theme
