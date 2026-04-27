@@ -3,6 +3,7 @@ import { useRouter } from '@/app/router'
 import { useAuth } from '@/domains/auth'
 import { AppSidebar } from '@/components/shell/AppSidebar'
 import { Topbar } from '@/components/shell/Topbar'
+import { OperationsFooter } from '@/components/shell/OperationsFooter'
 import { CommandPalette } from '@/components/shell/CommandPalette'
 import { NotificationCenter } from '@/components/shell/NotificationCenter'
 import { RouteNotFound } from '@/components/shell/RouteNotFound'
@@ -208,6 +209,7 @@ export function AppShell() {
             />
           )}
         </main>
+        <OperationsFooter />
       </div>
 
       <CommandPalette
