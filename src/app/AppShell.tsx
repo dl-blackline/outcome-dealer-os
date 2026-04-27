@@ -32,7 +32,7 @@ import { InventoryUnitPage } from '@/app/pages/records/InventoryUnitPage'
 import { EventExplorerPage } from '@/app/pages/ops/EventExplorerPage'
 import { ApprovalQueuePage } from '@/app/pages/ops/ApprovalQueuePage'
 import { AuditExplorerPage } from '@/app/pages/ops/AuditExplorerPage'
-import { AssistantOpsPage } from '@/app/pages/ops/AssistantOpsPage'
+import { AICopilotPage } from '@/app/pages/ops/AICopilotPage'
 import { IntelligencePage } from '@/app/pages/ops/IntelligencePage'
 import { OperatingReviewPage } from '@/app/pages/ops/OperatingReviewPage'
 import { ReportsPage } from '@/app/pages/ops/ReportsPage'
@@ -82,7 +82,7 @@ const ROUTE_COMPONENTS: Record<string, React.ComponentType> = {
   '/app/ops/events': EventExplorerPage,
   '/app/ops/approvals': ApprovalQueuePage,
   '/app/ops/audit': AuditExplorerPage,
-  '/app/ops/assistant': AssistantOpsPage,
+  '/app/ops/assistant': AICopilotPage,
   '/app/ops/intelligence': IntelligencePage,
   '/app/ops/operating-review': OperatingReviewPage,
   '/app/ops/recon': ReconPage,
