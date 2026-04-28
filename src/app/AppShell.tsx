@@ -125,6 +125,141 @@ interface MockupVisualContext {
   chip: string
 }
 
+interface RouteMockupHotspot {
+  left: string
+  top: string
+  width: string
+  height: string
+  to: string
+  title: string
+}
+
+interface RouteMockupConfig {
+  imageSrc: string
+  title: string
+  subtitle: string
+  hotspots: RouteMockupHotspot[]
+  cropLeftPct?: number
+}
+
+function getRouteMockupConfig(currentPath: string): RouteMockupConfig | null {
+  if (currentPath.startsWith('/app/dashboard')) {
+    return {
+      imageSrc: '/01_control_center.png',
+      title: 'Control Center',
+      subtitle: 'Mockup mode with live navigation overlays.',
+      cropLeftPct: 22,
+      hotspots: [
+        { left: '19%', top: '7.2%', width: '60%', height: '8.5%', to: '/app/records/deals', title: 'Open Deals' },
+        { left: '50.5%', top: '17.1%', width: '25.5%', height: '28.2%', to: '/app/records/leads', title: 'Open Leads' },
+        { left: '19%', top: '47.2%', width: '40%', height: '17.8%', to: '/app/records/inventory', title: 'Open Inventory' },
+        { left: '60%', top: '47.2%', width: '16%', height: '17.8%', to: '/app/workstation', title: 'Open Workstation' },
+      ],
+    }
+  }
+
+  if (currentPath.startsWith('/app/workstation')) {
+    return {
+      imageSrc: '/01_control_center.png',
+      title: 'Workstation Command',
+      subtitle: 'Mockup mode with live navigation overlays.',
+      cropLeftPct: 22,
+      hotspots: [
+        { left: '18%', top: '14%', width: '60%', height: '10%', to: '/app/workstation', title: 'Open Workstation Live Page' },
+        { left: '50.5%', top: '17.1%', width: '25.5%', height: '28.2%', to: '/app/records/leads', title: 'Open Leads' },
+        { left: '19%', top: '47.2%', width: '40%', height: '17.8%', to: '/app/records/inventory', title: 'Open Inventory' },
+      ],
+    }
+  }
+
+  if (currentPath.startsWith('/app/records/inventory')) {
+    return {
+      imageSrc: '/01_site_mockups/sleek_car_dealership_inventory_page_design.png',
+      title: 'Inventory Command',
+      subtitle: 'Mockup mode with live navigation overlays.',
+      hotspots: [
+        { left: '8%', top: '16%', width: '84%', height: '70%', to: '/app/records/inventory', title: 'Open Inventory Live Page' },
+      ],
+    }
+  }
+
+  if (currentPath.startsWith('/app/records/leads')) {
+    return {
+      imageSrc: '/01_site_mockups/sleek_muscle_car_dealer_website_ui.png',
+      title: 'Leads Command Center',
+      subtitle: 'Mockup mode with live navigation overlays.',
+      hotspots: [
+        { left: '8%', top: '16%', width: '84%', height: '70%', to: '/app/records/leads', title: 'Open Leads Live Page' },
+      ],
+    }
+  }
+
+  if (currentPath.startsWith('/app/records/deals')) {
+    return {
+      imageSrc: '/01_site_mockups/fast_easy_car_approvals_at_night.png',
+      title: 'Deal Desk Command',
+      subtitle: 'Mockup mode with live navigation overlays.',
+      hotspots: [
+        { left: '8%', top: '16%', width: '84%', height: '70%', to: '/app/records/deals', title: 'Open Deals Live Page' },
+        { left: '57%', top: '20%', width: '20%', height: '18%', to: '/app/records/credit-applications', title: 'Open Credit Applications' },
+      ],
+    }
+  }
+
+  if (currentPath.startsWith('/app/records/households')) {
+    return {
+      imageSrc: '/01_site_mockups/sleek_performance_car_dealership_homepage_mockup.png',
+      title: 'Customer Command Center',
+      subtitle: 'Mockup mode with live navigation overlays.',
+      hotspots: [
+        { left: '8%', top: '16%', width: '84%', height: '70%', to: '/app/records/households', title: 'Open Customers Live Page' },
+        { left: '62%', top: '56%', width: '16%', height: '10%', to: '/app/records/leads', title: 'Open Leads' },
+      ],
+    }
+  }
+
+  if (currentPath.startsWith('/app/records/credit-applications') || currentPath.startsWith('/app/finance')) {
+    return {
+      imageSrc: '/01_site_mockups/fast_easy_car_approvals_at_night.png',
+      title: 'Finance Command',
+      subtitle: 'Mockup mode with live navigation overlays.',
+      hotspots: [
+        { left: '8%', top: '16%', width: '84%', height: '70%', to: '/app/records/credit-applications', title: 'Open Credit Applications Live Page' },
+        { left: '66%', top: '21%', width: '16%', height: '12%', to: '/app/finance/match-engine', title: 'Open Match Engine' },
+      ],
+    }
+  }
+
+  if (currentPath.startsWith('/app/ops') || currentPath.startsWith('/app/settings') || currentPath.startsWith('/app/playbook')) {
+    return {
+      imageSrc: '/01_site_mockups/powerful_branding_for_a_premium_car_dealership.png',
+      title: 'Operations Command',
+      subtitle: 'Mockup mode with live navigation overlays.',
+      hotspots: [
+        { left: '8%', top: '16%', width: '84%', height: '70%', to: currentPath, title: 'Open Live Page' },
+        { left: '62%', top: '56%', width: '16%', height: '10%', to: '/app/ops/events', title: 'Open Events' },
+      ],
+    }
+  }
+
+  if (currentPath.startsWith('/app')) {
+    return {
+      imageSrc: '/01_control_center.png',
+      title: 'Dealer Command Surface',
+      subtitle: 'Mockup mode with live navigation overlays.',
+      cropLeftPct: 22,
+      hotspots: [
+        { left: '18%', top: '14%', width: '60%', height: '10%', to: '/app/dashboard', title: 'Open Control Center' },
+        { left: '50.5%', top: '17.1%', width: '25.5%', height: '28.2%', to: '/app/records/leads', title: 'Open Leads' },
+        { left: '19%', top: '47.2%', width: '40%', height: '17.8%', to: '/app/records/inventory', title: 'Open Inventory' },
+        { left: '60%', top: '47.2%', width: '16%', height: '17.8%', to: '/app/workstation', title: 'Open Workstation' },
+      ],
+    }
+  }
+
+  return null
+}
+
 function getMockupVisualContext(currentPath: string): MockupVisualContext | null {
   if (currentPath === '/app/dashboard' || currentPath === '/app/workstation') {
     return {
@@ -260,6 +395,7 @@ export function AppShell() {
   const routeDefinition = findMatchingRoute(currentPath)
   const isKnownAppRoute = currentPath.startsWith('/app') && Boolean(routeDefinition)
   const mockupVisual = getMockupVisualContext(currentPath)
+  const showReferenceBanner = false
 
   const guardResult = useMemo(() => {
     if (!user || !routeDefinition) return null
@@ -284,25 +420,25 @@ export function AppShell() {
   }, [currentPath, guardResult, navigate])
 
   if (status === 'loading') {
-    return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground" style={{ background: '#07080d' }}>Loading secure workspace…</div>
+    return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground" style={{ background: '#080A0D' }}>Loading secure workspace…</div>
   }
 
   if (shouldRedirectToLogin) {
-    return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground" style={{ background: '#07080d' }}>Redirecting to login…</div>
+    return <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground" style={{ background: '#080A0D' }}>Redirecting to login…</div>
   }
 
   const currentUser = user!
 
   if (guardResult && !guardResult.allowed) {
     return (
-      <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground" style={{ background: '#07080d' }}>
+      <div className="flex min-h-screen items-center justify-center text-sm text-muted-foreground" style={{ background: '#080A0D' }}>
         Redirecting to authorized workspace…
       </div>
     )
   }
 
   return (
-    <div className="flex h-screen" style={{ background: 'linear-gradient(180deg, #07080d 0%, #060810 100%)' }}>
+    <div className="flex h-screen" style={{ background: '#080A0D' }}>
       <AppSidebar
         currentPath={currentPath}
         currentRole={currentUser.role}
@@ -324,35 +460,31 @@ export function AppShell() {
         />
 
         <main
-          className="ods-shell-main flex-1 overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable] px-3 pb-20 pt-4 sm:px-6 sm:pb-24 sm:pt-6 lg:px-8 lg:pb-28 lg:pt-8 xl:px-10"
-          style={
-            mockupVisual
-              ? {
-                  backgroundImage: `radial-gradient(circle at 18% 10%, rgba(59, 130, 246, 0.12), transparent 44%), radial-gradient(circle at 82% 2%, rgba(220, 38, 38, 0.1), transparent 42%)`,
-                }
-              : undefined
-          }
+          className="ods-shell-main flex-1 overflow-y-auto overscroll-y-contain [scrollbar-gutter:stable] px-4 pb-20 pt-5 sm:px-6 sm:pb-24 sm:pt-6 lg:px-8 lg:pb-28 lg:pt-7 xl:px-10"
+          style={{
+            backgroundImage: `radial-gradient(ellipse at 15% 0%, rgba(227, 27, 55, 0.07), transparent 50%), radial-gradient(ellipse at 85% 0%, rgba(30, 58, 138, 0.07), transparent 50%), radial-gradient(ellipse at 50% 100%, rgba(0,0,0,0.4), transparent 60%)`,
+          }}
         >
-          {mockupVisual && (
-            <section className="mb-4 overflow-hidden rounded-2xl border border-white/15 shadow-[0_20px_80px_rgba(2,8,23,0.38)]">
+          {showReferenceBanner && (
+            <section className="mb-5 overflow-hidden rounded-2xl border border-white/10 shadow-[0_20px_80px_rgba(2,8,23,0.38)]">
               <div
                 style={{
                   position: 'relative',
                   minHeight: '180px',
-                  backgroundImage: 'radial-gradient(circle at 12% 8%, rgba(239,68,68,0.3), transparent 40%), radial-gradient(circle at 82% 6%, rgba(56,189,248,0.24), transparent 38%), linear-gradient(112deg, rgba(2, 8, 23, 0.94), rgba(15, 23, 42, 0.86))',
+                  backgroundImage: 'radial-gradient(circle at 12% 8%, rgba(227,27,55,0.28), transparent 40%), radial-gradient(circle at 82% 6%, rgba(30,58,138,0.22), transparent 38%), linear-gradient(112deg, rgba(8, 10, 13, 0.95), rgba(15, 18, 21, 0.90))',
                 }}
               >
-                <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(180deg, rgba(15,23,42,0.22) 0%, rgba(15,23,42,0.86) 100%)' }} />
-                <div className="absolute left-[-4%] top-[26%] h-px w-[54%]" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(239,68,68,0.62) 44%, transparent 100%)' }} />
-                <div className="absolute left-[-2%] top-[37%] h-px w-[58%]" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(56,189,248,0.48) 42%, transparent 100%)' }} />
+                <div className="absolute inset-0" style={{ backgroundImage: 'linear-gradient(180deg, rgba(8,10,13,0.15) 0%, rgba(8,10,13,0.85) 100%)' }} />
+                <div className="absolute left-[-4%] top-[26%] h-px w-[54%]" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(227,27,55,0.65) 44%, transparent 100%)' }} />
+                <div className="absolute left-[-2%] top-[37%] h-px w-[58%]" style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(30,58,138,0.5) 42%, transparent 100%)' }} />
                 <div className="relative z-10 px-4 py-5 sm:px-6 sm:py-6">
-                  <span className="inline-flex items-center rounded-full border border-white/30 bg-white/10 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-100">
+                  <span className="inline-flex items-center rounded-full border border-white/20 bg-white/8 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.2em]" style={{ color: '#C0C3C7' }}>
                     {mockupVisual.chip}
                   </span>
-                  <h2 className="mt-3 text-2xl font-bold uppercase tracking-[0.08em] text-slate-50 sm:text-3xl">
+                  <h2 className="mt-3 text-2xl font-bold uppercase tracking-[0.08em] text-white sm:text-3xl" style={{ fontFamily: 'Oswald, Barlow Condensed, Space Grotesk, sans-serif' }}>
                     {mockupVisual.title}
                   </h2>
-                  <p className="mt-2 max-w-3xl text-sm text-slate-200/90 sm:text-[15px]">
+                  <p className="mt-2 max-w-3xl text-sm sm:text-[15px]" style={{ color: 'rgba(192,195,199,0.75)' }}>
                     {mockupVisual.subtitle}
                   </p>
                 </div>
@@ -360,7 +492,7 @@ export function AppShell() {
             </section>
           )}
 
-          <div className={mockupVisual ? 'rounded-2xl border border-white/10 bg-background/88 p-2 backdrop-blur-md sm:p-3' : undefined}>
+          <div>
             {PageComponent ? (
               <PageComponent />
             ) : isKnownAppRoute ? (

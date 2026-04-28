@@ -3,11 +3,11 @@ import { Robot, PaperPlaneTilt, Paperclip, Microphone, Wrench, Lightning, Spinne
 import { useRouter } from '@/app/router'
 import { useLeads } from '@/domains/leads/lead.hooks'
 
-const PANEL_STYLE: React.CSSProperties = {
-  background: 'linear-gradient(145deg, oklch(0.16 0.018 248), oklch(0.13 0.015 248))',
-  border: '1px solid rgba(255,255,255,0.07)',
+const PANEL_STYLE: React.CSSProperties = { // NCM brand
+  background: 'linear-gradient(145deg, #0F1215 0%, #0C0E11 100%)',
+  border: '1px solid rgba(192,195,199,0.09)',
   borderRadius: '0.75rem',
-  boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.5)',
+  boxShadow: '0 0 0 1px rgba(192,195,199,0.04), 0 8px 32px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.04)',
 }
 
 type AtRiskDeal = { customer: string; vehicle: string; issue: string; status: string; gross: string }
@@ -146,7 +146,7 @@ export function AICopilotPage() {
                 <div
                   className={`px-4 py-3 rounded-xl text-[0.82rem] leading-relaxed ${msg.role === 'user' ? 'text-white/90' : 'text-white/80'}`}
                   style={msg.role === 'user' ? {
-                    background: 'linear-gradient(135deg, rgba(124,58,237,0.25), rgba(44,105,255,0.2))',
+                    background: 'linear-gradient(135deg, rgba(124,58,237,0.25), rgba(30,58,138,0.2))',
                     border: '1px solid rgba(124,58,237,0.25)',
                   } : {
                     background: 'rgba(255,255,255,0.04)',
@@ -327,7 +327,7 @@ export function AICopilotPage() {
           <div className="text-[0.72rem] font-bold uppercase tracking-widest text-white/60 mb-3">One-Click Actions</div>
           <div className="grid grid-cols-2 gap-2">
             {[
-              { label: 'Generate Report', color: '#2c69ff' },
+              { label: 'Generate Report', color: '#1E3A8A' },
               { label: 'Export Data', color: '#10b981' },
               { label: 'Alert Team', color: '#f97316' },
               { label: 'Schedule Follow-ups', color: '#7c3aed' },

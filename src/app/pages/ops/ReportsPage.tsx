@@ -1089,10 +1089,10 @@ export function ReportsPage() {
   }
 
   const kpiPanelStyle: React.CSSProperties = {
-    background: 'linear-gradient(145deg, oklch(0.16 0.018 248), oklch(0.13 0.015 248))',
-    border: '1px solid rgba(255,255,255,0.07)',
+    background: 'linear-gradient(145deg, #1B1E23 0%, #141720 100%)',
+    border: '1px solid rgba(192,195,199,0.09)',
     borderRadius: '0.75rem',
-    boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.5)',
+    boxShadow: '0 0 0 1px rgba(192,195,199,0.04), 0 8px 32px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.04)',
   }
 
   return (

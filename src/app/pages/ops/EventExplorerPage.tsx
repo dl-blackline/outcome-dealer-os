@@ -1,16 +1,16 @@
 import { useState } from 'react'
 import { CaretLeft, CaretRight, Plus } from '@phosphor-icons/react'
 
-const PANEL_STYLE: React.CSSProperties = {
-  background: 'linear-gradient(145deg, oklch(0.16 0.018 248), oklch(0.13 0.015 248))',
-  border: '1px solid rgba(255,255,255,0.07)',
+const PANEL_STYLE: React.CSSProperties = { // NCM brand
+  background: 'linear-gradient(145deg, #1B1E23 0%, #141720 100%)',
+  border: '1px solid rgba(192,195,199,0.09)',
   borderRadius: '0.75rem',
-  boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.5)',
+  boxShadow: '0 0 0 1px rgba(192,195,199,0.04), 0 8px 32px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.04)',
 }
 
 const EVENT_COLORS = {
-  appt: { bg: 'rgba(223,36,36,0.25)', border: '#df2424', text: '#fca5a5' },
-  desk: { bg: 'rgba(44,105,255,0.25)', border: '#2c69ff', text: '#93c5fd' },
+  appt: { bg: 'rgba(227,27,55,0.25)', border: '#E31B37', text: '#fca5a5' },
+  desk: { bg: 'rgba(30,58,138,0.25)', border: '#1E3A8A', text: '#93c5fd' },
   demo: { bg: 'rgba(124,58,237,0.25)', border: '#7c3aed', text: '#c4b5fd' },
   delivery: { bg: 'rgba(16,185,129,0.25)', border: '#10b981', text: '#6ee7b7' },
   team: { bg: 'rgba(245,158,11,0.25)', border: '#f59e0b', text: '#fcd34d' },
@@ -148,8 +148,8 @@ export function EventExplorerPage() {
           <div className="text-[0.65rem] font-bold uppercase tracking-widest text-white/40 mb-2.5">Quick Add</div>
           <div className="space-y-2">
             {[
-              { label: 'New Appointment', color: '#df2424', bg: 'rgba(223,36,36,0.15)', border: 'rgba(223,36,36,0.3)' },
-              { label: 'New Task', color: '#2c69ff', bg: 'rgba(44,105,255,0.15)', border: 'rgba(44,105,255,0.3)' },
+              { label: 'New Appointment', color: '#E31B37', bg: 'rgba(227,27,55,0.15)', border: 'rgba(227,27,55,0.3)' },
+              { label: 'New Task', color: '#1E3A8A', bg: 'rgba(30,58,138,0.15)', border: 'rgba(30,58,138,0.3)' },
               { label: 'Desk / Meeting', color: '#7c3aed', bg: 'rgba(124,58,237,0.15)', border: 'rgba(124,58,237,0.3)' },
               { label: 'Team Event', color: '#f59e0b', bg: 'rgba(245,158,11,0.15)', border: 'rgba(245,158,11,0.3)' },
             ].map(btn => (
@@ -216,14 +216,14 @@ export function EventExplorerPage() {
             {(['Month', 'Week', 'Day', 'Agenda'] as const).map((v) => (
               <button key={v} onClick={() => setViewMode(v.toLowerCase() as typeof viewMode)}
                 className="px-3 py-2 text-[0.75rem] font-medium transition-all"
-                style={viewMode === v.toLowerCase() ? { background: 'linear-gradient(135deg, #c01818, #e83232)', color: '#fff' } : { color: 'rgba(255,255,255,0.4)' }}
+                style={viewMode === v.toLowerCase() ? { background: 'linear-gradient(135deg, #E31B37 0%, #c0152d 100%)', color: '#fff' } : { color: 'rgba(255,255,255,0.4)' }}
               >{v}</button>
             ))}
           </div>
-          <select className="rounded-lg px-3 py-2 text-[0.73rem] text-white/60 outline-none" style={{ background: 'oklch(0.13 0.014 248)', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <select className="rounded-lg px-3 py-2 text-[0.73rem] text-white/60 outline-none" style={{ background: '#0B0D10', border: '1px solid rgba(255,255,255,0.1)' }}>
             <option>All Departments</option>
           </select>
-          <select className="rounded-lg px-3 py-2 text-[0.73rem] text-white/60 outline-none" style={{ background: 'oklch(0.13 0.014 248)', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <select className="rounded-lg px-3 py-2 text-[0.73rem] text-white/60 outline-none" style={{ background: '#0B0D10', border: '1px solid rgba(255,255,255,0.1)' }}>
             <option>All Salespeople</option>
           </select>
         </div>

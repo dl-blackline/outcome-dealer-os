@@ -13,10 +13,10 @@ import {
 } from '@phosphor-icons/react'
 
 const PANEL_STYLE: React.CSSProperties = {
-  background: 'linear-gradient(145deg, oklch(0.16 0.018 248), oklch(0.13 0.015 248))',
-  border: '1px solid rgba(255,255,255,0.07)',
+  background: 'linear-gradient(145deg, #0F1215 0%, #0C0E11 100%)',
+  border: '1px solid rgba(192,195,199,0.08)',
   borderRadius: '0.75rem',
-  boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.5)',
+  boxShadow: '0 8px 32px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.03)',
 }
 
 const DEAL_TABS = ['all', 'quoted', 'signed', 'funded', 'cancelled'] as const
@@ -81,32 +81,36 @@ export function DealListPage() {
   if (deals.loading) {
     return (
       <div className="flex items-center justify-center py-24">
-        <SpinnerGap className="h-8 w-8 animate-spin" style={{ color: 'oklch(0.6 0.2 25)' }} />
+        <SpinnerGap className="h-8 w-8 animate-spin" style={{ color: '#E31B37' }} />
       </div>
     )
   }
 
   return (
     <div className="ods-page ods-flow-lg">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-white">Deal Desk</h1>
-          <p className="text-sm mt-0.5" style={{ color: 'rgba(255,255,255,0.45)' }}>
-            Active and completed deal pipeline
-          </p>
+      {/* Header — bold mockup-style */}
+      <div className="relative overflow-hidden rounded-2xl px-6 py-6" style={{
+        background: 'linear-gradient(112deg, #0C0E13 0%, #0F1318 60%, #0A0C10 100%)',
+        border: '1px solid rgba(16,185,129,0.18)',
+        boxShadow: '0 0 60px rgba(16,185,129,0.04)',
+      }}>
+        <div className="absolute left-0 top-0 bottom-0 w-1" style={{ background: 'linear-gradient(180deg, #10b981 0%, #1E3A8A 100%)' }} />
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, #10b981 0%, rgba(16,185,129,0.3) 40%, transparent 100%)' }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(ellipse at 0% 50%, rgba(16,185,129,0.06) 0%, transparent 60%)' }} />
+        <div className="relative flex items-start justify-between">
+          <div className="pl-3">
+            <div className="text-[0.62rem] font-bold uppercase tracking-[0.25em] mb-1.5" style={{ color: '#34d399' }}>National Car Mart · Dealer OS</div>
+            <h1 className="text-3xl font-black uppercase text-white leading-none sm:text-4xl" style={{ fontFamily: 'Oswald, Barlow Condensed, Space Grotesk, sans-serif', letterSpacing: '0.04em' }}>DEAL DESK</h1>
+            <p className="text-[0.78rem] mt-1.5 font-medium" style={{ color: 'rgba(192,195,199,0.55)' }}>Active and completed deal pipeline · {activeDeals} active</p>
+          </div>
+          <button
+            onClick={() => navigate('/app/records/deals/new')}
+            className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-[0.8rem] font-bold text-white transition-all hover:brightness-115 hover:scale-[1.02] shrink-0"
+            style={{ background: 'linear-gradient(135deg, #dc2626, #b91c1c)', boxShadow: '0 2px 16px rgba(220,38,38,0.45)' }}
+          >
+            <Plus className="h-4 w-4" /> New Deal
+          </button>
         </div>
-        <button
-          onClick={() => navigate('/app/records/deals/new')}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold text-white transition-all hover:opacity-90 active:scale-[0.98]"
-          style={{
-            background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
-            boxShadow: '0 0 20px rgba(220,38,38,0.35), 0 2px 8px rgba(0,0,0,0.4)',
-          }}
-        >
-          <Plus className="h-4 w-4" />
-          New Deal
-        </button>
       </div>
 
       {/* KPI Cards */}

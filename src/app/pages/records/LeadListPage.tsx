@@ -10,10 +10,10 @@ import { type MockLead } from '@/lib/mockData'
 import { Plus, PencilSimple, Trash, SpinnerGap, MagnifyingGlass, Funnel, ArrowUpRight, TrendUp, Lightning, Clock, ChartLine } from '@phosphor-icons/react'
 
 const PIPELINE_STAGES = [
-  { label: 'NEW', color: '#2c69ff', count: 298, pct: '24%' },
+  { label: 'NEW', color: '#1E3A8A', count: 298, pct: '24%' },
   { label: 'CONTACTED', color: '#7c3aed', count: 236, pct: '19%' },
   { label: 'APPT SET', color: '#df7c00', count: 189, pct: '15%' },
-  { label: 'DEMO', color: '#df2424', count: 142, pct: '11%' },
+  { label: 'DEMO', color: '#E31B37', count: 142, pct: '11%' },
   { label: 'WORKING', color: '#f59e0b', count: 98, pct: '8%' },
   { label: 'SOLD', color: '#10b981', count: 76, pct: '6%' },
   { label: 'LOST', color: '#6b7280', count: 209, pct: '17%' },
@@ -36,18 +36,18 @@ const FOLLOW_UP_TODAY = [
 ]
 
 const ACTIVITY_FEED = [
-  { name: 'Maria Sanchez', action: 'opened email', time: '10:24 AM', color: '#2c69ff' },
+  { name: 'Maria Sanchez', action: 'opened email', time: '10:24 AM', color: '#1E3A8A' },
   { name: 'Chris Johnson', action: 'requested a test drive', time: '9:58 AM', color: '#7c3aed' },
   { name: 'Daniel Murphy', action: 'responded to text', time: '9:41 AM', color: '#10b981' },
   { name: 'New lead from Google Ads', action: '', time: '9:15 AM', color: '#f59e0b' },
-  { name: 'Amanda Lee', action: 'uploaded trade info', time: '8:32 AM', color: '#df2424' },
+  { name: 'Amanda Lee', action: 'uploaded trade info', time: '8:32 AM', color: '#E31B37' },
 ]
 
 const PANEL_STYLE: React.CSSProperties = {
-  background: 'linear-gradient(145deg, oklch(0.16 0.018 248), oklch(0.13 0.015 248))',
-  border: '1px solid rgba(255,255,255,0.07)',
+  background: 'linear-gradient(145deg, #0F1215 0%, #0C0E11 100%)',
+  border: '1px solid rgba(192,195,199,0.08)',
   borderRadius: '0.75rem',
-  boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.5)',
+  boxShadow: '0 0 0 1px rgba(192,195,199,0.03), 0 8px 40px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.03)',
 }
 
 function ScoreBadge({ score }: { score: number }) {
@@ -101,42 +101,34 @@ export function LeadListPage() {
   const conversionRate = totalLeads > 0 ? Math.round((convertedLeads / totalLeads) * 100) : 0
 
   return (
-    <div className="flex gap-4 pb-4 min-h-0">
+    <div className="flex gap-4 pb-6 min-h-0">
       {/* Main content */}
-      <div className="flex-1 min-w-0 space-y-4">
-        {/* Header */}
-        <div className="flex items-center justify-between">
-          <div>
-            <h1
-              className="text-xl font-black text-white tracking-tight"
-              style={{ fontFamily: 'Space Grotesk, sans-serif' }}
-            >
-              Lead Command Center
-            </h1>
-            <p className="text-[0.78rem] text-white/40 mt-0.5">
-              Manage, prioritize, and convert leads into loyal customers.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => navigate('/app/records/leads/new')}
-              className="flex items-center gap-2 rounded-lg px-4 py-2 text-[0.8rem] font-semibold text-white"
-              style={{ background: 'linear-gradient(135deg, #c01818, #e83232)', boxShadow: '0 2px 12px rgba(223,36,36,0.3)' }}
-            >
-              <Plus className="h-3.5 w-3.5" /> New Lead
-            </button>
-            <button
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-[0.78rem] font-medium text-white/60 transition-colors hover:text-white/80"
-              style={{ border: '1px solid rgba(255,255,255,0.1)' }}
-            >
-              Import
-            </button>
-            <button
-              className="flex items-center gap-2 rounded-lg px-3 py-2 text-[0.78rem] font-medium text-white/60 transition-colors hover:text-white/80"
-              style={{ border: '1px solid rgba(255,255,255,0.1)' }}
-            >
-              Bulk Actions
-            </button>
+      <div className="flex-1 min-w-0 space-y-5">
+        {/* Header — bold mockup-style */}
+        <div className="relative overflow-hidden rounded-2xl px-6 py-6" style={{
+          background: 'linear-gradient(112deg, #0C0E13 0%, #0F1318 60%, #0A0C10 100%)',
+          border: '1px solid rgba(227,27,55,0.18)',
+          boxShadow: '0 0 60px rgba(227,27,55,0.06)',
+        }}>
+          <div className="absolute left-0 top-0 bottom-0 w-1" style={{ background: 'linear-gradient(180deg, #E31B37 0%, #7c3aed 100%)' }} />
+          <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, #E31B37 0%, rgba(227,27,55,0.3) 40%, transparent 100%)' }} />
+          <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(ellipse at 0% 50%, rgba(227,27,55,0.07) 0%, transparent 60%)' }} />
+          <div className="relative flex items-start justify-between">
+            <div className="pl-3">
+              <div className="text-[0.62rem] font-bold uppercase tracking-[0.25em] mb-1.5" style={{ color: '#E31B37' }}>National Car Mart · Dealer OS</div>
+              <h1 className="text-3xl font-black uppercase text-white leading-none sm:text-4xl" style={{ fontFamily: 'Oswald, Barlow Condensed, Space Grotesk, sans-serif', letterSpacing: '0.04em', textShadow: '0 0 40px rgba(227,27,55,0.25)' }}>LEAD COMMAND CENTER</h1>
+              <p className="text-[0.78rem] mt-1.5 font-medium" style={{ color: 'rgba(192,195,199,0.55)' }}>Manage, prioritize, and convert leads · {totalLeads} total leads</p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+              <button
+                onClick={() => navigate('/app/records/leads/new')}
+                className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-[0.8rem] font-bold text-white transition-all hover:brightness-115 hover:scale-[1.02]"
+                style={{ background: 'linear-gradient(135deg, #E31B37 0%, #c0152d 100%)', boxShadow: '0 2px 16px rgba(227,27,55,0.5), 0 0 0 1px rgba(227,27,55,0.3)' }}
+              >
+                <Plus className="h-3.5 w-3.5" /> New Lead
+              </button>
+              <button className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-[0.78rem] font-medium text-white/60 hover:text-white/80 transition-colors" style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)' }}>Import</button>
+            </div>
           </div>
         </div>
 
@@ -150,14 +142,14 @@ export function LeadListPage() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="w-full rounded-lg py-2 pl-9 pr-4 text-[0.82rem] text-white/80 placeholder-white/25 outline-none transition-all"
-              style={{ background: 'oklch(0.13 0.014 248)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.5rem' }}
-              onFocus={e => (e.currentTarget.style.borderColor = 'rgba(223,36,36,0.5)')}
+              style={{ background: '#0B0D10', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '0.5rem' }}
+              onFocus={e => (e.currentTarget.style.borderColor = 'rgba(227,27,55,0.5)')}
               onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
             />
           </div>
           <select
             className="rounded-lg px-3 py-2 text-[0.78rem] text-white/60 outline-none"
-            style={{ background: 'oklch(0.13 0.014 248)', border: '1px solid rgba(255,255,255,0.1)' }}
+            style={{ background: '#0B0D10', border: '1px solid rgba(255,255,255,0.1)' }}
           >
             <option>All Sources</option>
             <option>Website</option>
@@ -168,7 +160,7 @@ export function LeadListPage() {
           </select>
           <select
             className="rounded-lg px-3 py-2 text-[0.78rem] text-white/60 outline-none"
-            style={{ background: 'oklch(0.13 0.014 248)', border: '1px solid rgba(255,255,255,0.1)' }}
+            style={{ background: '#0B0D10', border: '1px solid rgba(255,255,255,0.1)' }}
           >
             <option>All Statuses</option>
             <option>New</option>
@@ -178,7 +170,7 @@ export function LeadListPage() {
           </select>
           <select
             className="rounded-lg px-3 py-2 text-[0.78rem] text-white/60 outline-none"
-            style={{ background: 'oklch(0.13 0.014 248)', border: '1px solid rgba(255,255,255,0.1)' }}
+            style={{ background: '#0B0D10', border: '1px solid rgba(255,255,255,0.1)' }}
           >
             <option>All Salespeople</option>
           </select>
@@ -193,7 +185,7 @@ export function LeadListPage() {
         {/* KPI Cards */}
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
           {[
-            { label: 'TOTAL LEADS', value: totalLeads || 1248, delta: '+18% vs. Last 30 Days', accent: '#2c69ff', up: true },
+            { label: 'TOTAL LEADS', value: totalLeads || 1248, delta: '+18% vs. Last 30 Days', accent: '#1E3A8A', up: true },
             { label: 'NEW THIS WEEK', value: leads.data.filter(l => l.status === 'new').length || 236, delta: '+12% vs. Last Week', accent: '#7c3aed', up: true },
             { label: 'CONTACT RATE', value: `${totalLeads > 0 ? Math.round((contactedLeads / totalLeads) * 100) : 63}%`, delta: '+6.4% vs. Last 30 Days', accent: '#f97316', up: true },
             { label: 'APPOINTMENT RATE', value: '28.7%', delta: '+4.1% vs. Last 30 Days', accent: '#10b981', up: true },
@@ -270,7 +262,7 @@ export function LeadListPage() {
                         <button
                           onClick={() => navigate('/app/records/leads/new')}
                           className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white"
-                          style={{ background: 'linear-gradient(135deg, #c01818, #e83232)' }}
+                          style={{ background: 'linear-gradient(135deg, #E31B37 0%, #c0152d 100%)' }}
                         >
                           <Plus className="h-4 w-4" /> Create Lead
                         </button>
@@ -538,7 +530,7 @@ export function LeadListPage() {
       </div>
 
       <AlertDialog open={!!deleteTarget} onOpenChange={open => { if (!open) setDeleteTarget(null) }}>
-        <AlertDialogContent style={{ background: 'oklch(0.14 0.016 248)', border: '1px solid rgba(255,255,255,0.1)' }}>
+        <AlertDialogContent style={{ background: '#1B1E23', border: '1px solid rgba(192,195,199,0.10)' }}>
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">Delete Lead</AlertDialogTitle>
             <AlertDialogDescription className="text-white/50">
@@ -552,7 +544,7 @@ export function LeadListPage() {
             </AlertDialogCancel>
             <AlertDialogAction
               className="text-white"
-              style={{ background: 'linear-gradient(135deg, #c01818, #e83232)' }}
+              style={{ background: 'linear-gradient(135deg, #E31B37 0%, #c0152d 100%)' }}
               disabled={deleting}
               onClick={confirmDelete}
             >

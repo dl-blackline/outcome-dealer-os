@@ -26,29 +26,29 @@ interface TopbarProps {
 export function Topbar({ currentRole, userName, allowRoleSwitching, authMode, onRoleChange, onLogout, onCommandPaletteOpen, onNotificationsOpen }: TopbarProps) {
   return (
     <div
-      className="flex h-14 items-center gap-4 px-5 shrink-0 relative"
+      className="flex h-16 items-center gap-4 px-5 shrink-0 relative"
       style={{
-        background: 'linear-gradient(180deg, oklch(0.14 0.016 248) 0%, oklch(0.12 0.014 248) 100%)',
-        borderBottom: '1px solid rgba(255,255,255,0.07)',
-        boxShadow: '0 1px 0 rgba(223,36,36,0.25), 0 4px 20px rgba(0,0,0,0.4)',
+        background: 'linear-gradient(180deg, #0D0F14 0%, #0A0C10 100%)',
+        borderBottom: '1px solid rgba(192,195,199,0.07)',
+        boxShadow: '0 1px 0 rgba(227,27,55,0.25), 0 4px 24px rgba(0,0,0,0.7)',
       }}
     >
-      {/* Red accent line at bottom */}
+      {/* National Red accent line at bottom */}
       <div
         className="absolute bottom-0 left-0 right-0 h-px"
-        style={{ background: 'linear-gradient(90deg, transparent 0%, rgba(223,36,36,0.6) 30%, rgba(44,105,255,0.4) 70%, transparent 100%)' }}
+        style={{ background: 'linear-gradient(90deg, transparent 0%, #E31B37 20%, rgba(227,27,55,0.6) 50%, #1E3A8A 80%, transparent 100%)' }}
       />
 
       {/* Global search */}
       <button
         onClick={onCommandPaletteOpen}
-        className="flex flex-1 max-w-xl items-center gap-3 rounded-lg px-4 py-2 text-sm transition-all"
+        className="flex flex-1 max-w-xl items-center gap-3 rounded-md px-4 py-2 text-sm transition-all"
         style={{
-          background: 'oklch(0.11 0.013 248)',
-          border: '1px solid rgba(255,255,255,0.09)',
+          background: '#060709',
+          border: '1px solid rgba(192,195,199,0.09)',
         }}
-        onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(223,36,36,0.4)')}
-        onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.09)')}
+        onMouseEnter={e => (e.currentTarget.style.borderColor = 'rgba(227,27,55,0.45)')}
+        onMouseLeave={e => (e.currentTarget.style.borderColor = 'rgba(192,195,199,0.10)')}
       >
         <MagnifyingGlass className="h-4 w-4 text-white/30 shrink-0" />
         <span className="text-white/30 text-[0.82rem] flex-1 text-left">Search leads, inventory, deals, customers…</span>
@@ -63,18 +63,18 @@ export function Topbar({ currentRole, userName, allowRoleSwitching, authMode, on
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
-              className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[0.78rem] font-semibold text-white/70 transition-all hover:text-white"
+              className="flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[0.78rem] font-semibold text-white transition-all hover:brightness-110"
               style={{
-                background: 'linear-gradient(135deg, rgba(223,36,36,0.2) 0%, rgba(223,36,36,0.1) 100%)',
-                border: '1px solid rgba(223,36,36,0.3)',
+                background: 'linear-gradient(135deg, #E31B37 0%, #c0152d 100%)',
+                boxShadow: '0 0 12px rgba(227,27,55,0.3)',
               }}
             >
-              <Lightning className="h-3.5 w-3.5 text-red-400" weight="fill" />
+              <Lightning className="h-3.5 w-3.5 text-white/80" weight="fill" />
               Quick Actions
-              <CaretDown className="h-3 w-3 text-white/40" />
+              <CaretDown className="h-3 w-3 text-white/60" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-52" style={{ background: 'oklch(0.14 0.016 248)', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <DropdownMenuContent align="end" className="w-52" style={{ background: '#1B1E23', border: '1px solid rgba(192,195,199,0.10)' }}>
             <DropdownMenuItem className="text-sm text-white/80 hover:bg-white/5">New Lead</DropdownMenuItem>
             <DropdownMenuItem className="text-sm text-white/80 hover:bg-white/5">New Deal</DropdownMenuItem>
             <DropdownMenuItem className="text-sm text-white/80 hover:bg-white/5">New Credit App</DropdownMenuItem>
@@ -90,7 +90,7 @@ export function Topbar({ currentRole, userName, allowRoleSwitching, authMode, on
           className="relative flex h-8 w-8 items-center justify-center rounded-lg text-white/50 hover:text-white/80 transition-colors hover:bg-white/5"
         >
           <ChatCircle className="h-4 w-4" />
-          <span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_6px_rgba(44,105,255,0.8)]" />
+          <span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-blue-700 shadow-[0_0_6px_rgba(30,58,138,0.8)]" />
         </button>
 
         {/* Notifications */}
@@ -99,7 +99,7 @@ export function Topbar({ currentRole, userName, allowRoleSwitching, authMode, on
           className="relative flex h-8 w-8 items-center justify-center rounded-lg text-white/50 hover:text-white/80 transition-colors hover:bg-white/5"
         >
           <Bell className="h-4 w-4" />
-          <span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-red-500 shadow-[0_0_6px_rgba(223,36,36,0.8)]" />
+          <span className="absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-red-600 shadow-[0_0_6px_rgba(227,27,55,0.8)]" />
         </button>
 
         {/* User */}
@@ -108,7 +108,7 @@ export function Topbar({ currentRole, userName, allowRoleSwitching, authMode, on
             <button className="flex items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-white/70 hover:text-white/90 transition-colors hover:bg-white/5">
               <div
                 className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white shrink-0"
-                style={{ background: 'linear-gradient(135deg, #1e40af, #3b82f6)' }}
+                style={{ background: 'linear-gradient(135deg, #E31B37, #c0152d)' }}
               >
                 {userName.charAt(0).toUpperCase()}
               </div>
@@ -119,7 +119,7 @@ export function Topbar({ currentRole, userName, allowRoleSwitching, authMode, on
               <CaretDown className="h-3 w-3 text-white/30" />
             </button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56" style={{ background: 'oklch(0.14 0.016 248)', border: '1px solid rgba(255,255,255,0.1)' }}>
+          <DropdownMenuContent align="end" className="w-56" style={{ background: '#1B1E23', border: '1px solid rgba(192,195,199,0.10)' }}>
             <div className="px-3 py-2 text-xs text-white/40">
               {ROLE_LABELS[currentRole]} · {authMode}
             </div>

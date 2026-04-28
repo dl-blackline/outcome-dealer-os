@@ -10,10 +10,10 @@ import {
 } from 'recharts'
 
 const PANEL_STYLE: React.CSSProperties = {
-  background: 'linear-gradient(145deg, oklch(0.16 0.018 248), oklch(0.13 0.015 248))',
-  border: '1px solid rgba(255,255,255,0.07)',
+  background: 'linear-gradient(145deg, #0F1215 0%, #0C0E11 100%)',
+  border: '1px solid rgba(192,195,199,0.08)',
   borderRadius: '0.75rem',
-  boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.5)',
+  boxShadow: '0 8px 32px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.03)',
 }
 
 const SALES_TREND = [
@@ -49,7 +49,7 @@ const TOP_REPS = [
 ]
 
 const FUNNEL_DATA = [
-  { stage: 'New Leads', count: 1248, pct: 100, color: '#2c69ff' },
+  { stage: 'New Leads', count: 1248, pct: 100, color: '#1E3A8A' },
   { stage: 'Contacted', count: 892, pct: 71.5, color: '#7c3aed' },
   { stage: 'Appointment', count: 445, pct: 35.7, color: '#f97316' },
   { stage: 'Demo', count: 267, pct: 21.4, color: '#e31837' },
@@ -81,29 +81,29 @@ export function AnalyticsPage() {
 
   return (
     <div className="space-y-4 pb-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-black text-white tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-            Analytics &amp; Reports
-          </h1>
-          <p className="text-[0.78rem] text-white/40 mt-0.5">
-            Dealership intelligence, performance metrics, and data insights
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-[0.78rem] text-white/60 transition-colors hover:text-white/80"
-            style={{ border: '1px solid rgba(255,255,255,0.1)' }}
-          >
-            <Download className="h-3.5 w-3.5" /> Export PDF
-          </button>
-          <button
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-[0.78rem] text-white/60 transition-colors hover:text-white/80"
-            style={{ border: '1px solid rgba(255,255,255,0.1)' }}
-          >
-            <Download className="h-3.5 w-3.5" /> Export CSV
-          </button>
+      {/* Header — bold mockup-style */}
+      <div className="relative overflow-hidden rounded-2xl px-6 py-6" style={{
+        background: 'linear-gradient(112deg, #0C0E13 0%, #0F1318 60%, #0A0C10 100%)',
+        border: '1px solid rgba(99,102,241,0.18)',
+        boxShadow: '0 0 60px rgba(99,102,241,0.04)',
+      }}>
+        <div className="absolute left-0 top-0 bottom-0 w-1" style={{ background: 'linear-gradient(180deg, #6366f1 0%, #1E3A8A 100%)' }} />
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, #6366f1 0%, rgba(99,102,241,0.3) 40%, transparent 100%)' }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(ellipse at 0% 50%, rgba(99,102,241,0.06) 0%, transparent 60%)' }} />
+        <div className="relative flex items-start justify-between">
+          <div className="pl-3">
+            <div className="text-[0.62rem] font-bold uppercase tracking-[0.25em] mb-1.5" style={{ color: '#818cf8' }}>National Car Mart · Dealer OS</div>
+            <h1 className="text-3xl font-black uppercase text-white leading-none sm:text-4xl" style={{ fontFamily: 'Oswald, Barlow Condensed, Space Grotesk, sans-serif', letterSpacing: '0.04em' }}>ANALYTICS &amp; REPORTS</h1>
+            <p className="text-[0.78rem] mt-1.5 font-medium" style={{ color: 'rgba(192,195,199,0.55)' }}>Dealership intelligence, performance metrics, and data insights</p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button className="flex items-center gap-2 rounded-lg px-3 py-2 text-[0.78rem] text-white/60 transition-colors hover:text-white/80" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+              <Download className="h-3.5 w-3.5" /> Export PDF
+            </button>
+            <button className="flex items-center gap-2 rounded-lg px-3 py-2 text-[0.78rem] text-white/60 transition-colors hover:text-white/80" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
+              <Download className="h-3.5 w-3.5" /> Export CSV
+            </button>
+          </div>
         </div>
       </div>
 
@@ -131,7 +131,7 @@ export function AnalyticsPage() {
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6">
         {[
           { label: 'TOTAL REVENUE', value: '$2.84M', delta: '+22%', accent: '#10b981', up: true },
-          { label: 'UNITS SOLD', value: '741', delta: '+18%', accent: '#2c69ff', up: true },
+          { label: 'UNITS SOLD', value: '741', delta: '+18%', accent: '#1E3A8A', up: true },
           { label: 'AVG GROSS/UNIT', value: '$3,842', delta: '+7.4%', accent: '#7c3aed', up: true },
           { label: 'LEAD-TO-SALE', value: '13.6%', delta: '+2.8%', accent: '#f97316', up: true },
           { label: 'CUSTOMER SAT', value: '94%', delta: '+3pp', accent: '#e31837', up: true },
@@ -163,16 +163,16 @@ export function AnalyticsPage() {
             <AreaChart data={SALES_TREND}>
               <defs>
                 <linearGradient id="unitsGradient" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#2c69ff" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#2c69ff" stopOpacity={0.02} />
+                  <stop offset="5%" stopColor="#1E3A8A" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#1E3A8A" stopOpacity={0.02} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />
               <XAxis dataKey="month" stroke="rgba(255,255,255,0.2)" tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10 }} />
               <YAxis stroke="rgba(255,255,255,0.2)" tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10 }} />
               <Tooltip {...CHART_TOOLTIP_STYLE} />
-              <Area type="monotone" dataKey="units" stroke="#2c69ff" fill="url(#unitsGradient)" strokeWidth={2} dot={false} />
-              <Area type="monotone" dataKey="target" stroke="#df2424" strokeDasharray="4 2" fill="none" strokeWidth={1.5} dot={false} />
+              <Area type="monotone" dataKey="units" stroke="#1E3A8A" fill="url(#unitsGradient)" strokeWidth={2} dot={false} />
+              <Area type="monotone" dataKey="target" stroke="#E31B37" strokeDasharray="4 2" fill="none" strokeWidth={1.5} dot={false} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
@@ -189,7 +189,7 @@ export function AnalyticsPage() {
               <XAxis type="number" stroke="rgba(255,255,255,0.2)" tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10 }} />
               <YAxis type="category" dataKey="source" stroke="rgba(255,255,255,0.2)" tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 10 }} width={60} />
               <Tooltip {...CHART_TOOLTIP_STYLE} />
-              <Bar dataKey="leads" fill="#2c69ff" opacity={0.7} radius={[0, 3, 3, 0]} />
+              <Bar dataKey="leads" fill="#1E3A8A" opacity={0.7} radius={[0, 3, 3, 0]} />
               <Bar dataKey="converted" fill="#10b981" radius={[0, 3, 3, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -234,7 +234,7 @@ export function AnalyticsPage() {
                       width: `${Math.min(rep.pct, 100)}%`,
                       background: rep.pct >= 100
                         ? 'linear-gradient(90deg, #10b981, #34d399)'
-                        : 'linear-gradient(90deg, #2c69ff, #60a5fa)',
+                        : 'linear-gradient(90deg, #1E3A8A, #60a5fa)',
                     }}
                   />
                 </div>
@@ -277,7 +277,7 @@ export function AnalyticsPage() {
         <div
           className="rounded-xl p-4"
           style={{
-            background: 'linear-gradient(145deg, rgba(124,58,237,0.12) 0%, rgba(44,105,255,0.08) 100%)',
+            background: 'linear-gradient(145deg, rgba(124,58,237,0.12) 0%, rgba(30,58,138,0.08) 100%)',
             border: '1px solid rgba(124,58,237,0.2)',
             borderRadius: '0.75rem',
           }}

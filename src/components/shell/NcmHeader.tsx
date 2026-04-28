@@ -39,7 +39,7 @@ export function NcmHeader() {
         backdropFilter: 'blur(10px)',
       }}
     >
-      <div style={{ height: '2px', background: 'linear-gradient(90deg, rgba(223,36,36,0.85) 0%, rgba(44,105,255,0.9) 52%, rgba(255,255,255,0.12) 100%)' }} />
+      <div style={{ height: '2px', background: 'linear-gradient(90deg, rgba(227,27,55,0.85) 0%, rgba(30,58,138,0.9) 52%, rgba(255,255,255,0.12) 100%)' }} />
 
       <div className="mx-auto flex h-[60px] max-w-[1400px] items-center justify-between px-4 sm:px-6 lg:px-8">
         <button
@@ -81,7 +81,7 @@ export function NcmHeader() {
           <button
             onClick={() => navigate('/finance/apply')}
             className="ncm-btn-red flex items-center gap-1.5 px-4 py-2.5 text-[0.74rem]"
-            style={{ borderRadius: '0.55rem', boxShadow: '0 10px 30px rgba(223,36,36,0.6), inset 0 1px 0 rgba(255,255,255,0.3)' }}
+            style={{ borderRadius: '0.55rem', boxShadow: '0 10px 30px rgba(227,27,55,0.6), inset 0 1px 0 rgba(255,255,255,0.3)' }}
           >
             GET APPROVED
             <span style={{ fontSize: '1rem', lineHeight: 1 }}>›</span>
@@ -108,7 +108,7 @@ export function NcmHeader() {
             boxShadow: '0 16px 36px rgba(0,0,0,0.6)',
           }}
         >
-          <div style={{ height: '1px', background: 'linear-gradient(90deg, rgba(223,36,36,0.8), rgba(44,105,255,0.8), transparent)' }} />
+          <div style={{ height: '1px', background: 'linear-gradient(90deg, rgba(227,27,55,0.8), rgba(30,58,138,0.8), transparent)' }} />
           <div className="px-4 py-3 flex flex-col gap-2">
             {NAV.map((item) => (
               <button

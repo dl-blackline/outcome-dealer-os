@@ -34,62 +34,89 @@
   ---break---
 */
 :root {
+  /* ═══════════════════════════════════════════════════════════════
+     NATIONAL CAR MART — Brand Color System
+     Dark. Steel. Powerful.
+  ═══════════════════════════════════════════════════════════════ */
   --radius: 0.625rem;
-  --bg-base: #07080d;
-  --bg-elevated: #0d1018;
-  --bg-panel: #111520;
-  --border-subtle: rgba(226, 233, 255, 0.08);
-  --border-strong: rgba(226, 233, 255, 0.18);
-  --red-accent: #df2424;
-  --blue-accent: #2c69ff;
-  --silver-text: #e9efff;
-  --muted-text: #7a8aab;
-  --premium-shadow: 0 22px 70px rgba(0, 0, 0, 0.7);
-  --panel-glow: 0 0 0 1px rgba(255,255,255,0.04), 0 8px 32px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.07);
-  --red-glow: 0 0 16px rgba(223, 36, 36, 0.35), 0 0 32px rgba(223, 36, 36, 0.15);
-  --blue-glow: 0 0 16px rgba(44, 105, 255, 0.35), 0 0 32px rgba(44, 105, 255, 0.15);
-  --hero-overlay-gradient: linear-gradient(180deg, rgba(7, 8, 13, 0.1) 0%, rgba(7, 8, 13, 0.66) 52%, rgba(7, 8, 13, 0.96) 100%);
+
+  /* Brand palette — exact hex values */
+  --ncm-red: #E31B37;
+  --ncm-blue: #1E3A8A;
+  --ncm-silver: #C0C3C7;
+  --ncm-charcoal: #111418;
+  --ncm-steel: #1B1E23;
+  --ncm-black: #0B0D10;
+
+  /* Surface system */
+  --bg-base: #111418;
+  --bg-elevated: #1B1E23;
+  --bg-panel: #1B1E23;
+  --bg-deep: #0B0D10;
+  --border-subtle: rgba(192, 195, 199, 0.10);
+  --border-strong: rgba(192, 195, 199, 0.22);
+
+  /* Brand accents */
+  --red-accent: #E31B37;
+  --blue-accent: #1E3A8A;
+  --silver-text: #C0C3C7;
+  --muted-text: #6b7280;
+
+  /* Shadows & glows */
+  --premium-shadow: 0 22px 70px rgba(0, 0, 0, 0.75);
+  --panel-glow: 0 0 0 1px rgba(192,195,199,0.06), 0 8px 32px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.05);
+  --red-glow: 0 0 16px rgba(227, 27, 55, 0.4), 0 0 32px rgba(227, 27, 55, 0.18);
+  --blue-glow: 0 0 16px rgba(30, 58, 138, 0.4), 0 0 32px rgba(30, 58, 138, 0.18);
+
+  /* Hero & section */
+  --hero-overlay-gradient: linear-gradient(180deg, rgba(11, 13, 16, 0.1) 0%, rgba(11, 13, 16, 0.66) 52%, rgba(11, 13, 16, 0.97) 100%);
   --card-radius: 0.75rem;
   --section-spacing: clamp(2.85rem, 6vw, 5.25rem);
   --heading-scale: clamp(2.1rem, 5.7vw, 5.6rem);
-  --badge-new-bg: linear-gradient(120deg, #0f8b45 0%, #1dcf6e 100%);
-  --badge-value-bg: linear-gradient(120deg, #1546c8 0%, #3f84ff 100%);
-  --badge-family-bg: linear-gradient(120deg, #b51212 0%, #ee3838 100%);
 
-  /* Internal portal — ALWAYS dark */
-  --background: oklch(0.11 0.015 248);
-  --foreground: oklch(0.93 0.008 228);
-  --card: oklch(0.14 0.016 248);
-  --card-foreground: oklch(0.93 0.008 228);
-  --popover: oklch(0.13 0.016 248);
-  --popover-foreground: oklch(0.93 0.008 228);
-  --primary: oklch(0.57 0.22 22);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.19 0.018 248);
-  --secondary-foreground: oklch(0.92 0.006 228);
-  --muted: oklch(0.18 0.016 248);
-  --muted-foreground: oklch(0.55 0.018 235);
-  --accent: oklch(0.19 0.018 248);
-  --accent-foreground: oklch(0.92 0.006 228);
-  --destructive: oklch(0.60 0.24 22);
-  --destructive-foreground: oklch(0.985 0 0);
-  --border: oklch(1 0 0 / 9%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.57 0.22 22);
-  --chart-1: oklch(0.57 0.22 22);
-  --chart-2: oklch(0.60 0.20 258);
-  --chart-3: oklch(0.65 0.17 162);
-  --chart-4: oklch(0.73 0.19 70);
-  --chart-5: oklch(0.62 0.26 304);
-  /* Sidebar — deep steel */
-  --sidebar: oklch(0.10 0.014 248);
-  --sidebar-foreground: oklch(0.90 0.007 228);
-  --sidebar-primary: oklch(0.57 0.22 22);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.16 0.018 248);
-  --sidebar-accent-foreground: oklch(0.93 0.006 228);
-  --sidebar-border: oklch(1 0 0 / 8%);
-  --sidebar-ring: oklch(0.57 0.22 22);
+  /* Badge presets */
+  --badge-new-bg: linear-gradient(120deg, #0f8b45 0%, #1dcf6e 100%);
+  --badge-value-bg: linear-gradient(120deg, #1E3A8A 0%, #2d56c4 100%);
+  --badge-family-bg: linear-gradient(120deg, #b51212 0%, #E31B37 100%);
+  --badge-certified-bg: linear-gradient(120deg, #1E3A8A 0%, #3563e9 100%);
+
+  /* ─── shadcn/ui design tokens — ALWAYS dark ────────────────── */
+  --background: #111418;
+  --foreground: #f1f3f5;
+  --card: #1B1E23;
+  --card-foreground: #f1f3f5;
+  --popover: #141720;
+  --popover-foreground: #f1f3f5;
+  --primary: #E31B37;
+  --primary-foreground: #ffffff;
+  --secondary: #1B1E23;
+  --secondary-foreground: #C0C3C7;
+  --muted: #1f2329;
+  --muted-foreground: #6b7280;
+  --accent: #1E3A8A;
+  --accent-foreground: #ffffff;
+  --destructive: #E31B37;
+  --destructive-foreground: #ffffff;
+  --border: rgba(192, 195, 199, 0.10);
+  --input: rgba(192, 195, 199, 0.12);
+  --ring: #E31B37;
+
+  /* Chart colors */
+  --chart-1: #E31B37;
+  --chart-2: #3b82f6;
+  --chart-3: #10b981;
+  --chart-4: #f59e0b;
+  --chart-5: #8b5cf6;
+
+  /* Sidebar — deep black steel */
+  --sidebar: #0B0D10;
+  --sidebar-foreground: #C0C3C7;
+  --sidebar-primary: #E31B37;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1B1E23;
+  --sidebar-accent-foreground: #f1f3f5;
+  --sidebar-border: rgba(192, 195, 199, 0.08);
+  --sidebar-ring: #E31B37;
 }
 
 /*

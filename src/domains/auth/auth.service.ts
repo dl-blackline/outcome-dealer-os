@@ -147,7 +147,8 @@ export class AuthService {
 
   static buildCurrentAppUser(sessionUser: SessionUser): CurrentAppUser {
     const permissions = ROLE_PERMISSIONS[sessionUser.role]
-    const displayName = sessionUser.login || sessionUser.email.split('@')[0]
+    const safeEmail = sessionUser.email || ''
+    const displayName = sessionUser.login || safeEmail.split('@')[0] || 'staff'
 
     return {
       ...sessionUser,
@@ -209,5 +210,6 @@ export function getUserRoleLabel(role: AppRole): string {
 }
 
 export function getUserDisplayName(login: string, email: string): string {
-  return login || email.split('@')[0]
+  const safeEmail = email || ''
+  return login || safeEmail.split('@')[0] || 'staff'
 }

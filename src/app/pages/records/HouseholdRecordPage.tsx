@@ -10,14 +10,14 @@ import {
 } from '@phosphor-icons/react'
 
 const PANEL_STYLE: React.CSSProperties = {
-  background: 'linear-gradient(145deg, oklch(0.16 0.018 248), oklch(0.13 0.015 248))',
-  border: '1px solid rgba(255,255,255,0.07)',
+  background: 'linear-gradient(145deg, #1B1E23 0%, #141720 100%)',
+  border: '1px solid rgba(192,195,199,0.09)',
   borderRadius: '0.75rem',
-  boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.5)',
+  boxShadow: '0 0 0 1px rgba(192,195,199,0.04), 0 8px 32px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.04)',
 }
 
 const TIMELINE_EVENTS = [
-  { time: '10:30 AM', type: 'call', label: 'Outbound Call', desc: 'Spoke with customer about X5 availability and scheduled demo.', actor: 'Sarah Mitchell', actorRole: 'Sales Manager', color: '#2c69ff' },
+  { time: '10:30 AM', type: 'call', label: 'Outbound Call', desc: 'Spoke with customer about X5 availability and scheduled demo.', actor: 'Sarah Mitchell', actorRole: 'Sales Manager', color: '#1E3A8A' },
   { time: '9:15 AM', type: 'text', label: 'Text Message', desc: 'Sent quick spec comparison and pricing overview.', actor: 'Sarah Mitchell', actorRole: 'Sales Manager', color: '#7c3aed' },
 ]
 
@@ -108,7 +108,7 @@ export function HouseholdRecordPage() {
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-3 flex-wrap mb-2">
               <h2 className="text-2xl font-black text-white" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{hh.name}</h2>
-              <span className="px-2.5 py-0.5 rounded-full text-[0.65rem] font-bold uppercase text-blue-300" style={{ background: 'rgba(44,105,255,0.2)', border: '1px solid rgba(44,105,255,0.3)' }}>VIP</span>
+              <span className="px-2.5 py-0.5 rounded-full text-[0.65rem] font-bold uppercase text-blue-300" style={{ background: 'rgba(30,58,138,0.2)', border: '1px solid rgba(30,58,138,0.3)' }}>VIP</span>
               <span className="px-2.5 py-0.5 rounded-full text-[0.65rem] font-bold uppercase text-emerald-300" style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.25)' }}>Loyal Customer</span>
             </div>
             <div className="flex flex-wrap gap-x-5 gap-y-1 text-[0.73rem] text-white/55">
@@ -160,7 +160,7 @@ export function HouseholdRecordPage() {
         {/* Quick actions */}
         <div className="flex gap-2 mt-4 pt-4 flex-wrap" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
           {[
-            { label: 'Call', icon: Phone, color: '#2c69ff' },
+            { label: 'Call', icon: Phone, color: '#1E3A8A' },
             { label: 'Text', icon: Chat, color: '#7c3aed' },
             { label: 'Email', icon: EnvelopeSimple, color: '#10b981' },
             { label: 'Schedule', icon: CalendarBlank, color: '#f97316' },
@@ -170,7 +170,7 @@ export function HouseholdRecordPage() {
               {btn.label}
             </button>
           ))}
-          <button className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[0.78rem] font-bold text-white transition-all hover:brightness-110" style={{ background: 'linear-gradient(135deg, #c01818, #e83232)', boxShadow: '0 2px 12px rgba(223,36,36,0.3)' }}
+          <button className="flex items-center gap-2 rounded-xl px-5 py-2.5 text-[0.78rem] font-bold text-white transition-all hover:brightness-110" style={{ background: 'linear-gradient(135deg, #E31B37 0%, #c0152d 100%)', boxShadow: '0 2px 12px rgba(227,27,55,0.3)' }}
             onClick={() => navigate('/app/records/deals/new')}>
             <Plus className="h-3.5 w-3.5" /> Create Deal
           </button>
@@ -250,7 +250,7 @@ export function HouseholdRecordPage() {
           <div className="flex gap-1 px-4 pt-3 overflow-x-auto">
             {['All Activity', 'Communications', 'Appointments', 'Tasks', 'Milestones'].map(t => (
               <button key={t} onClick={() => setTimelineTab(t)} className="shrink-0 px-3 py-1.5 rounded-lg text-[0.7rem] font-medium transition-all"
-                style={timelineTab === t ? { background: 'rgba(223,36,36,0.15)', color: '#f87171', border: '1px solid rgba(223,36,36,0.25)' } : { color: 'rgba(255,255,255,0.4)', border: '1px solid transparent' }}
+                style={timelineTab === t ? { background: 'rgba(227,27,55,0.15)', color: '#f87171', border: '1px solid rgba(227,27,55,0.25)' } : { color: 'rgba(255,255,255,0.4)', border: '1px solid transparent' }}
               >{t}</button>
             ))}
           </div>
@@ -398,7 +398,7 @@ export function HouseholdRecordPage() {
           </div>
 
           <div className="rounded-xl p-4" style={{
-            background: 'linear-gradient(145deg, rgba(124,58,237,0.12), rgba(44,105,255,0.08))',
+            background: 'linear-gradient(145deg, rgba(124,58,237,0.12), rgba(30,58,138,0.08))',
             border: '1px solid rgba(124,58,237,0.2)',
             borderRadius: '0.75rem',
           }}>

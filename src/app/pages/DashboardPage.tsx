@@ -4,70 +4,37 @@ import { useInventory } from '@/domains/inventory/inventory.hooks'
 import { useTasks } from '@/domains/tasks/task.hooks'
 import { useRouter } from '@/app/router'
 import {
-  TrendUp, TrendDown, SpinnerGap, ArrowRight,
+  TrendUp, ArrowRight,
   Users, Car, CurrencyDollar, Robot,
   Lightning, Bell, CheckSquare, Square, Calendar, ClockCountdown,
 } from '@phosphor-icons/react'
 
 const PANEL_STYLE: React.CSSProperties = {
-  background: 'linear-gradient(145deg, oklch(0.16 0.018 248), oklch(0.13 0.015 248))',
-  border: '1px solid rgba(255,255,255,0.07)',
+  background: 'linear-gradient(145deg, #0F1215 0%, #0C0E11 100%)',
+  border: '1px solid rgba(192,195,199,0.08)',
   borderRadius: '0.75rem',
-  boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.5)',
+  boxShadow: '0 0 0 1px rgba(192,195,199,0.03), 0 8px 40px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.03)',
 }
 
-const SAMPLE_FUNNEL = [
-  { stage: 'New Leads', count: 412, color: '#2c69ff', pct: 100 },
-  { stage: 'Contacted', count: 238, color: '#7c3aed', pct: 58 },
-  { stage: 'Appt Set', count: 118, color: '#df7c00', pct: 29 },
-  { stage: 'Demo', count: 61, color: '#df2424', pct: 15 },
-  { stage: 'Delivered', count: 28, color: '#10b981', pct: 7 },
-]
+function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(amount)
+}
 
-const SAMPLE_ATTENTION = [
-  { label: 'Overdue Follow-ups', count: 23, type: 'urgent' as const },
-  { label: 'Deals at Risk', count: 7, type: 'warning' as const },
-  { label: 'Pending Approvals', count: 12, type: 'info' as const },
-  { label: 'Unsold Aged Units', count: 18, type: 'warning' as const },
-  { label: 'Incomplete Tasks', count: 18, type: 'urgent' as const },
-]
+function sameDay(a: Date, b: Date): boolean {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate()
+}
 
-const SAMPLE_ACTIVITY = [
-  { user: 'Justin Ramirez', action: 'Closed a deal on 2024 Tesla Model Y', time: '5m ago', value: '+$8,750', color: '#10b981' },
-  { user: 'Maria Sanchez', action: 'Set appointment with David Thompson', time: '14m ago', color: '#2c69ff' },
-  { user: 'Chris Donovan', action: 'Appraised 2021 BMW 3 Series', time: '22m ago', value: '+$450', color: '#7c3aed' },
-  { user: 'Samantha Lee', action: 'Added new lead: Robert Johnson', time: '28m ago', color: '#df2424' },
-]
-
-const INVENTORY_SPOTLIGHT = [
-  { tag: 'NEW ARRIVAL', tagColor: '#10b981', year: '2024', make: 'BMW', model: 'X5 xDrive40i', stock: 'B24127', price: '$62,995', miles: '12 mi', views: '15 Views' },
-  { tag: 'HOT UNIT', tagColor: '#ef4444', year: '2024', make: 'Ford', model: 'F-150 Lariat', stock: 'F24189', price: '$54,995', miles: '8 mi', views: '28 Views' },
-  { tag: 'PRICE DROP', tagColor: '#f97316', year: '2023', make: 'Dodge', model: 'Challenger R/T', stock: 'D23156', price: '$42,995', miles: '18,245 mi', views: '42 Views' },
-  { tag: 'CERTIFIED', tagColor: '#2c69ff', year: '2023', make: 'Audi', model: 'Q5 Premium', stock: 'A23177', price: '$38,995', miles: '22,104 mi', views: '31 Views' },
-]
-
-const UPCOMING_EVENTS = [
-  { time: '9:00 AM', label: 'Staff Meeting', sub: 'Conference Room' },
-  { time: '11:00 AM', label: 'Sales Training', sub: 'Training Room' },
-  { time: '2:00 PM', label: 'Inventory Meeting', sub: 'Online' },
-  { time: '4:30 PM', label: 'Happy Hour', sub: 'Rooftop Lounge' },
-]
-
-const TODAYS_TASKS = [
-  { label: 'Follow up with 5 hot leads', priority: 'High', due: '11:00 AM', done: false },
-  { label: 'Send proposals to 3 customers', priority: 'High', due: '1:00 PM', done: false },
-  { label: 'Complete manager approvals', priority: 'Medium', due: '2:00 PM', done: false },
-  { label: 'Update aged inventory pricing', priority: 'Medium', due: '3:00 PM', done: false },
-  { label: 'Weekly sales report', priority: 'Low', due: '5:00 PM', done: false },
-]
-
-const LIVE_LEADS = [
-  { name: 'Sarah Mitchell', phone: '(216) 555-0142', source: 'Website', vehicle: '2024 BMW X5', age: '5m', owner: 'Justin R.' },
-  { name: 'David Thompson', phone: '(216) 555-0188', source: 'Google Ads', vehicle: '2024 Ford F-150', age: '12m', owner: 'Maria S.' },
-  { name: 'James Anderson', phone: '(216) 555-0173', source: 'Walk-In', vehicle: '2023 Dodge Charger', age: '18m', owner: 'Chris D.' },
-  { name: 'Jennifer Lee', phone: '(216) 555-0167', source: 'Referral', vehicle: '2024 Tesla Model Y', age: '25m', owner: 'Justin R.' },
-  { name: 'Robert Johnson', phone: '(216) 555-0139', source: 'Facebook', vehicle: '2024 Chevy Silverado', age: '32m', owner: 'Maria S.' },
-]
+function toRelativeTime(iso?: string): string {
+  if (!iso) return 'now'
+  const parsed = new Date(iso)
+  if (Number.isNaN(parsed.getTime())) return 'now'
+  const mins = Math.max(0, Math.round((Date.now() - parsed.getTime()) / 60000))
+  if (mins < 60) return `${mins}m ago`
+  const hrs = Math.round(mins / 60)
+  if (hrs < 24) return `${hrs}h ago`
+  const days = Math.round(hrs / 24)
+  return `${days}d ago`
+}
 
 interface KpiCardProps {
   label: string; value: string; sub: string; accent: string; trend?: 'up' | 'down'; trendVal?: string; onClick?: () => void
@@ -75,9 +42,18 @@ interface KpiCardProps {
 
 function KpiCard({ label, value, sub, accent, trend, trendVal, onClick }: KpiCardProps) {
   return (
-    <button type="button" onClick={onClick} className="relative flex flex-col justify-between rounded-xl p-4 text-left transition-all hover:scale-[1.01] w-full" style={{ ...PANEL_STYLE, borderTop: `2px solid ${accent}`, cursor: onClick ? 'pointer' : 'default' }}>
+    <button type="button" onClick={onClick} className="relative flex flex-col justify-between rounded-xl p-4 text-left transition-all hover:scale-[1.02] hover:brightness-110 w-full" style={{
+      background: `linear-gradient(145deg, #0F1215 0%, #0A0C0F 100%)`,
+      borderLeft: `1px solid ${accent}30`,
+      borderRight: `1px solid ${accent}30`,
+      borderBottom: `1px solid ${accent}30`,
+      borderTop: `2px solid ${accent}`,
+      borderRadius: '0.75rem',
+      boxShadow: `0 8px 32px rgba(0,0,0,0.7), 0 0 20px ${accent}08`,
+      cursor: onClick ? 'pointer' : 'default',
+    }}>
       <div className="flex items-start justify-between mb-3">
-        <span className="text-[0.68rem] font-semibold uppercase tracking-widest text-white/40">{label}</span>
+        <span className="text-[0.65rem] font-bold uppercase tracking-[0.16em]" style={{ color: `${accent}cc` }}>{label}</span>
         {trend && trendVal && (
           <span className={`flex items-center gap-0.5 text-[0.68rem] font-semibold ${trend === 'up' ? 'text-emerald-400' : 'text-red-400'}`}>
             {trend === 'up' ? <TrendUp className="h-3 w-3" /> : <TrendDown className="h-3 w-3" />}
@@ -85,8 +61,8 @@ function KpiCard({ label, value, sub, accent, trend, trendVal, onClick }: KpiCar
           </span>
         )}
       </div>
-      <div className="text-[1.9rem] font-black tracking-tight text-white leading-none mb-1" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{value}</div>
-      <div className="text-[0.68rem] text-white/35">{sub}</div>
+      <div className="text-[2rem] font-black tracking-tight text-white leading-none mb-1.5" style={{ fontFamily: 'Oswald, Space Grotesk, sans-serif', textShadow: `0 0 30px ${accent}40` }}>{value}</div>
+      <div className="text-[0.65rem] font-medium" style={{ color: 'rgba(192,195,199,0.45)' }}>{sub}</div>
     </button>
   )
 }
@@ -116,41 +92,121 @@ export function DashboardPage() {
   const tasks = useTasks()
   const { navigate } = useRouter()
 
-  const loading = leads.loading || deals.loading || inventory.loading || tasks.loading
+  const leadsData = leads.data ?? []
+  const dealsData = deals.data ?? []
+  const inventoryData = inventory.data ?? []
+  const tasksData = tasks.data ?? []
+  const now = new Date()
 
-  if (loading) {
-    return <div className="flex min-h-96 items-center justify-center"><SpinnerGap className="h-8 w-8 animate-spin text-red-500/60" /></div>
-  }
+  const totalLeads = leadsData.length
+  const todayLeads = leadsData.filter((l) => sameDay(new Date(l.createdAt), now)).length
+  const appointmentsSet = leadsData.filter((l) => l.status === 'qualified' || l.status === 'converted').length
+  const openTasks = tasksData.filter(t => t.status !== 'completed').length
+  const completedTasks = tasksData.filter(t => t.status === 'completed').length
+  const fundedDeals = dealsData.filter(d => d.status === 'funded').length
+  const grossProfit = dealsData
+    .filter((d) => ['funded', 'delivered', 'sold_pending_delivery'].includes(d.status))
+    .reduce((sum, deal) => sum + (deal.amount || 0), 0)
+  const closeRate = totalLeads > 0 ? (dealsData.length / totalLeads) * 100 : 0
+  const taskCompletionRate = tasksData.length > 0 ? Math.round((completedTasks / tasksData.length) * 100) : 0
 
-  const totalLeads = leads.data.length
-  const openTasks = tasks.data.filter(t => t.status !== 'completed').length
-  const fundedDeals = deals.data.filter(d => d.status === 'funded').length
+  const funnelStages = [
+    { stage: 'New Leads', count: leadsData.filter((l) => l.status === 'new').length, color: '#1E3A8A' },
+    { stage: 'Contacted', count: leadsData.filter((l) => l.status === 'contacted').length, color: '#7c3aed' },
+    { stage: 'Qualified', count: leadsData.filter((l) => l.status === 'qualified').length, color: '#df7c00' },
+    { stage: 'Converted', count: leadsData.filter((l) => l.status === 'converted').length, color: '#E31B37' },
+    { stage: 'Funded Deals', count: fundedDeals, color: '#10b981' },
+  ]
+  const funnelBase = Math.max(totalLeads, 1)
+
+  const needsAttention = [
+    { label: 'Overdue Tasks', count: tasksData.filter((t) => t.status !== 'completed' && new Date(t.dueDate) < now).length, type: 'urgent' as const },
+    { label: 'Deals In Progress', count: dealsData.filter((d) => ['structured', 'quoted', 'signed'].includes(d.status)).length, type: 'warning' as const },
+    { label: 'Aged Inventory (60+ days)', count: inventoryData.filter((u) => u.daysInStock >= 60).length, type: 'warning' as const },
+    { label: 'Open Tasks', count: openTasks, type: 'info' as const },
+  ]
+
+  const recentActivity = [
+    ...dealsData.slice(0, 3).map((deal) => ({
+      user: deal.salesperson || 'Unassigned',
+      action: `Updated deal for ${deal.customerName}`,
+      time: toRelativeTime(deal.updatedAt || deal.createdAt),
+      value: deal.amount ? `+${formatCurrency(deal.amount)}` : undefined,
+      color: '#10b981',
+    })),
+    ...leadsData.slice(0, 3).map((lead) => ({
+      user: lead.assignedTo || 'Unassigned',
+      action: `Lead captured: ${lead.customerName}`,
+      time: toRelativeTime(lead.updatedAt || lead.createdAt),
+      value: undefined,
+      color: '#1E3A8A',
+    })),
+  ].slice(0, 5)
+
+  const liveLeadQueue = [...leadsData]
+    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+    .slice(0, 6)
+
+  const inventorySpotlight = inventoryData.slice(0, 4).map((unit) => ({
+    tag: unit.status.toUpperCase(),
+    tagColor: unit.status === 'frontline' ? '#10b981' : unit.status === 'aging' ? '#f97316' : unit.status === 'recon' ? '#1E3A8A' : '#C0C3C7',
+    year: String(unit.year),
+    make: unit.make,
+    model: unit.model,
+    stock: unit.id.slice(0, 8).toUpperCase(),
+    price: formatCurrency(unit.askingPrice || 0),
+    miles: unit.daysInStock ? `${unit.daysInStock} days` : 'New',
+    views: `VIN ${unit.vin?.slice(-6) || 'N/A'}`,
+  }))
+
+  const upcomingEvents = tasksData
+    .filter((t) => t.status !== 'completed')
+    .sort((a, b) => new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime())
+    .slice(0, 4)
+    .map((task) => ({
+      time: new Date(task.dueDate).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }),
+      label: task.title,
+      sub: task.assignedTo,
+    }))
+
+  const todaysTasks = tasksData.filter((t) => t.status !== 'completed').slice(0, 5)
 
   const kpis: KpiCardProps[] = [
-    { label: 'Units Sold', value: String(fundedDeals || 28), sub: '+16% vs. Yesterday', accent: '#e31837', trend: 'up', trendVal: '+16%', onClick: () => navigate('/app/records/deals') },
-    { label: 'Appointments Set', value: '52', sub: '+24% vs. Yesterday', accent: '#2563eb', trend: 'up', trendVal: '+24%' },
-    { label: 'Leads Today', value: String(totalLeads || 142), sub: '+18% vs. Yesterday', accent: '#7c3aed', trend: 'up', trendVal: '+18%', onClick: () => navigate('/app/records/leads') },
-    { label: 'Gross Profit', value: '$184,750', sub: '+22% vs. Yesterday', accent: '#10b981', trend: 'up', trendVal: '+22%' },
-    { label: 'Close Rate', value: '24.6%', sub: '-5.2pp vs. Yesterday', accent: '#f97316', trend: 'down', trendVal: '-5.2pp' },
-    { label: 'Active Tasks', value: String(openTasks || 18), sub: '-4 vs. Yesterday', accent: '#a855f7', trend: 'down', trendVal: '-4', onClick: () => navigate('/app/workstation') },
+    { label: 'Units Sold', value: String(fundedDeals), sub: 'Funded deals', accent: '#E31B37', onClick: () => navigate('/app/records/deals') },
+    { label: 'Appointments Set', value: String(appointmentsSet), sub: 'Qualified or converted leads', accent: '#1E3A8A' },
+    { label: 'Leads Today', value: String(todayLeads), sub: `${totalLeads} total leads`, accent: '#7c3aed', onClick: () => navigate('/app/records/leads') },
+    { label: 'Gross Profit', value: formatCurrency(grossProfit), sub: 'From funded/delivered deals', accent: '#10b981' },
+    { label: 'Close Rate', value: `${closeRate.toFixed(1)}%`, sub: 'Deals vs. leads', accent: '#f97316' },
+    { label: 'Active Tasks', value: String(openTasks), sub: `${completedTasks} completed`, accent: '#C0C3C7', onClick: () => navigate('/app/workstation') },
   ]
 
   return (
-    <div className="space-y-4 pb-4">
+    <div className="space-y-5 pb-6">
 
-      {/* Page header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-black text-white tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>Control Center</h1>
-          <p className="text-[0.78rem] text-white/40 mt-0.5">National Car Mart · {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <button onClick={() => navigate('/app/records/leads/new')} className="flex items-center gap-2 rounded-lg px-4 py-2 text-[0.8rem] font-semibold text-white transition-all hover:brightness-110" style={{ background: 'linear-gradient(135deg, #c01818, #e83232)', boxShadow: '0 2px 12px rgba(223,36,36,0.3)' }}>
-            <Lightning className="h-3.5 w-3.5" /> New Lead
-          </button>
-          <button onClick={() => navigate('/app/records/deals/new')} className="flex items-center gap-2 rounded-lg px-4 py-2 text-[0.8rem] font-semibold text-white/70 transition-all hover:text-white" style={{ border: '1px solid rgba(255,255,255,0.1)' }}>
-            <CurrencyDollar className="h-3.5 w-3.5" /> New Deal
-          </button>
+      {/* Page header — mockup-style bold title bar */}
+      <div className="relative overflow-hidden rounded-2xl px-6 py-6" style={{
+        background: 'linear-gradient(112deg, #0C0E13 0%, #0F1318 60%, #0A0C10 100%)',
+        border: '1px solid rgba(227,27,55,0.18)',
+        boxShadow: '0 0 60px rgba(227,27,55,0.06), 0 1px 0 rgba(255,255,255,0.03)',
+      }}>
+        {/* Accent lines */}
+        <div className="absolute left-0 top-0 bottom-0 w-1" style={{ background: 'linear-gradient(180deg, #E31B37 0%, #1E3A8A 100%)' }} />
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, #E31B37 0%, rgba(227,27,55,0.3) 40%, transparent 100%)' }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(ellipse at 0% 50%, rgba(227,27,55,0.08) 0%, transparent 60%), radial-gradient(ellipse at 100% 50%, rgba(30,58,138,0.06) 0%, transparent 60%)' }} />
+        <div className="relative flex items-start justify-between">
+          <div className="pl-3">
+            <div className="text-[0.62rem] font-bold uppercase tracking-[0.25em] mb-1.5" style={{ color: '#E31B37' }}>National Car Mart · Dealer OS</div>
+            <h1 className="text-3xl font-black uppercase text-white leading-none sm:text-4xl" style={{ fontFamily: 'Oswald, Barlow Condensed, Space Grotesk, sans-serif', letterSpacing: '0.04em', textShadow: '0 0 40px rgba(227,27,55,0.25)' }}>CONTROL CENTER</h1>
+            <p className="text-[0.78rem] mt-1.5 font-medium" style={{ color: 'rgba(192,195,199,0.55)' }}>{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })} · Live operations mode</p>
+          </div>
+          <div className="flex items-center gap-2 shrink-0">
+            <button onClick={() => navigate('/app/records/leads/new')} className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-[0.8rem] font-bold text-white transition-all hover:brightness-115 hover:scale-[1.02]" style={{ background: 'linear-gradient(135deg, #E31B37 0%, #c0152d 100%)', boxShadow: '0 2px 16px rgba(227,27,55,0.5), 0 0 0 1px rgba(227,27,55,0.3)' }}>
+              <Lightning className="h-3.5 w-3.5" /> New Lead
+            </button>
+            <button onClick={() => navigate('/app/records/deals/new')} className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-[0.8rem] font-semibold text-white/70 transition-all hover:text-white hover:border-white/30 hover:bg-white/5" style={{ border: '1px solid rgba(192,195,199,0.15)', background: 'rgba(255,255,255,0.03)' }}>
+              <CurrencyDollar className="h-3.5 w-3.5" /> New Deal
+            </button>
+          </div>
         </div>
       </div>
 
@@ -172,11 +228,11 @@ export function DashboardPage() {
               <span className="text-[0.65rem] text-white/30 border border-white/10 rounded px-2 py-0.5">vs. Daily Goal</span>
             </div>
             <div className="space-y-3">
-              <PaceBar label="Units Sold" current={fundedDeals || 28} goal="45" pct={62} color="#e31837" />
-              <PaceBar label="Gross Profit" current="$184,750" goal="$250K" pct={74} color="#2563eb" />
-              <PaceBar label="Appointments Set" current={52} goal="70" pct={74} color="#7c3aed" />
-              <PaceBar label="Show Rate" current="62%" goal="70%" pct={89} color="#f97316" />
-              <PaceBar label="Close Rate" current="24.6%" goal="25%" pct={98} color="#10b981" />
+              <PaceBar label="Units Sold" current={fundedDeals} goal={fundedDeals > 0 ? String(fundedDeals) : 'N/A'} pct={fundedDeals > 0 ? 100 : 0} color="#e31837" />
+              <PaceBar label="Gross Profit" current={formatCurrency(grossProfit)} goal={grossProfit > 0 ? formatCurrency(grossProfit) : 'N/A'} pct={grossProfit > 0 ? 100 : 0} color="#2563eb" />
+              <PaceBar label="Appointments Set" current={appointmentsSet} goal={appointmentsSet > 0 ? String(appointmentsSet) : 'N/A'} pct={appointmentsSet > 0 ? 100 : 0} color="#7c3aed" />
+              <PaceBar label="Lead Volume" current={todayLeads} goal={todayLeads > 0 ? String(todayLeads) : 'N/A'} pct={todayLeads > 0 ? 100 : 0} color="#f97316" />
+              <PaceBar label="Task Completion" current={`${taskCompletionRate}%`} goal="100%" pct={taskCompletionRate} color="#10b981" />
             </div>
             <button className="mt-3 text-[0.7rem] text-red-400 hover:text-red-300 flex items-center gap-1 transition-colors">
               All Goals <ArrowRight className="h-3 w-3" />
@@ -190,27 +246,30 @@ export function DashboardPage() {
               <span className="text-[0.65rem] text-white/30 border border-white/10 rounded px-2 py-0.5">This Month</span>
             </div>
             <div className="space-y-2.5">
-              {SAMPLE_FUNNEL.map((stage) => (
+              {funnelStages.map((stage) => {
+                const pct = Math.min(100, Math.round((stage.count / funnelBase) * 100))
+                return (
                 <div key={stage.stage}>
                   <div className="flex items-center justify-between text-[0.72rem] mb-1">
                     <span className="text-white/55">{stage.stage}</span>
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-white/80 tabular-nums">{stage.count}</span>
-                      <span className="text-white/30 text-[0.65rem]">{stage.pct}%</span>
+                      <span className="text-white/30 text-[0.65rem]">{pct}%</span>
                     </div>
                   </div>
                   <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                    <div className="h-full rounded-full" style={{ width: `${stage.pct}%`, background: stage.color, boxShadow: `0 0 6px ${stage.color}80` }} />
+                    <div className="h-full rounded-full" style={{ width: `${pct}%`, background: stage.color, boxShadow: `0 0 6px ${stage.color}80` }} />
                   </div>
                 </div>
-              ))}
+                )
+              })}
             </div>
             <div className="mt-3 pt-3 border-t border-white/5">
               <div className="flex items-center justify-between">
                 <span className="text-[0.68rem] text-white/40">Overall Conversion Rate</span>
                 <div className="flex items-center gap-1.5">
-                  <span className="text-lg font-black text-white" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>6.8%</span>
-                  <span className="text-[0.65rem] text-emerald-400 flex items-center gap-0.5"><TrendUp className="h-2.5 w-2.5" />1.2pp vs. Last Month</span>
+                  <span className="text-lg font-black text-white" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>{closeRate.toFixed(1)}%</span>
+                  <span className="text-[0.65rem] text-emerald-400 flex items-center gap-0.5"><TrendUp className="h-2.5 w-2.5" />Live conversion</span>
                 </div>
               </div>
             </div>
@@ -232,26 +291,29 @@ export function DashboardPage() {
             ))}
           </div>
           <div className="divide-y divide-white/[0.04]">
-            {LIVE_LEADS.map((lead, i) => (
-              <div key={i} className="grid px-4 py-2.5 cursor-pointer transition-colors hover:bg-white/[0.025]"
+            {liveLeadQueue.map((lead) => (
+              <div key={lead.id} className="grid px-4 py-2.5 cursor-pointer transition-colors hover:bg-white/[0.025]"
                 style={{ gridTemplateColumns: '1fr 100px 120px 50px 80px' }}
                 onClick={() => navigate('/app/records/leads')}
               >
                 <div>
-                  <div className="text-[0.78rem] font-semibold text-white/85">{lead.name}</div>
-                  <div className="text-[0.65rem] text-white/35">{lead.phone}</div>
+                  <div className="text-[0.78rem] font-semibold text-white/85">{lead.customerName}</div>
+                  <div className="text-[0.65rem] text-white/35">{lead.phone || 'No phone'}</div>
                 </div>
-                <div className="text-[0.73rem] text-white/50 self-center">{lead.source}</div>
-                <div className="text-[0.73rem] text-white/65 self-center">{lead.vehicle}</div>
+                <div className="text-[0.73rem] text-white/50 self-center">{lead.source || 'Unknown'}</div>
+                <div className="text-[0.73rem] text-white/65 self-center">{lead.interestedVehicle || 'Not set'}</div>
                 <div className="self-center">
-                  <span className="text-[0.68rem] font-bold text-red-400">{lead.age}</span>
+                  <span className="text-[0.68rem] font-bold text-red-400">{toRelativeTime(lead.createdAt)}</span>
                 </div>
-                <div className="text-[0.73rem] text-white/50 self-center">{lead.owner}</div>
+                <div className="text-[0.73rem] text-white/50 self-center">{lead.assignedTo || 'Unassigned'}</div>
               </div>
             ))}
+            {liveLeadQueue.length === 0 && (
+              <div className="px-4 py-8 text-center text-[0.72rem] text-white/40">No live leads yet. New leads will appear here.</div>
+            )}
           </div>
           <div className="px-4 py-2.5 text-[0.65rem] text-white/30 text-center" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
-            142 Total Leads
+            {totalLeads} Total Leads
           </div>
         </div>
 
@@ -268,7 +330,7 @@ export function DashboardPage() {
               <button className="text-[0.65rem] text-red-400 hover:text-red-300">View All</button>
             </div>
             <div className="space-y-2">
-              {SAMPLE_ATTENTION.map((item) => (
+              {needsAttention.map((item) => (
                 <div key={item.label} className="flex items-center justify-between p-2 rounded-lg cursor-pointer transition-colors"
                   style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}
                   onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.05)')}
@@ -294,7 +356,7 @@ export function DashboardPage() {
               <button className="text-[0.65rem] text-blue-400 hover:text-blue-300">View All</button>
             </div>
             <div className="space-y-3">
-              {SAMPLE_ACTIVITY.map((item, i) => (
+              {recentActivity.map((item, i) => (
                 <div key={i} className="flex items-start gap-2.5">
                   <div className="h-6 w-6 rounded-full flex items-center justify-center shrink-0 text-[0.6rem] font-black text-white" style={{ background: item.color + '33', border: `1px solid ${item.color}60` }}>
                     {item.user.charAt(0)}
@@ -309,6 +371,9 @@ export function DashboardPage() {
                   </div>
                 </div>
               ))}
+              {recentActivity.length === 0 && (
+                <div className="text-[0.72rem] text-white/40">No recent activity yet.</div>
+              )}
             </div>
           </div>
         </div>
@@ -323,7 +388,7 @@ export function DashboardPage() {
           </button>
         </div>
         <div className="grid grid-cols-2 gap-3 p-4 lg:grid-cols-4">
-          {INVENTORY_SPOTLIGHT.map((unit) => (
+          {inventorySpotlight.map((unit) => (
             <div key={unit.stock} className="rounded-lg overflow-hidden cursor-pointer transition-all hover:scale-[1.02]"
               style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)' }}
               onClick={() => navigate('/app/records/inventory')}
@@ -348,6 +413,9 @@ export function DashboardPage() {
               </div>
             </div>
           ))}
+          {inventorySpotlight.length === 0 && (
+            <div className="col-span-full rounded-lg border border-white/10 p-8 text-center text-[0.75rem] text-white/45">No inventory synced yet.</div>
+          )}
         </div>
       </div>
 
@@ -356,7 +424,7 @@ export function DashboardPage() {
 
         {/* AI Copilot dock */}
         <div className="rounded-xl p-4" style={{
-          background: 'linear-gradient(135deg, rgba(124,58,237,0.15) 0%, rgba(44,105,255,0.1) 100%)',
+          background: 'linear-gradient(135deg, rgba(124,58,237,0.15) 0%, rgba(30,58,138,0.1) 100%)',
           border: '1px solid rgba(124,58,237,0.25)',
           boxShadow: '0 0 30px rgba(124,58,237,0.08)',
         }}>
@@ -410,7 +478,7 @@ export function DashboardPage() {
               <div className="text-[0.62rem] text-white/35">FRIDAY</div>
             </div>
             <div className="flex-1 space-y-1.5">
-              {UPCOMING_EVENTS.map((ev) => (
+              {upcomingEvents.map((ev) => (
                 <div key={ev.time} className="flex items-center gap-2">
                   <span className="text-[0.65rem] text-white/35 w-14 shrink-0">{ev.time}</span>
                   <div>
@@ -419,6 +487,9 @@ export function DashboardPage() {
                   </div>
                 </div>
               ))}
+              {upcomingEvents.length === 0 && (
+                <div className="text-[0.72rem] text-white/40">No upcoming events from open tasks.</div>
+              )}
             </div>
           </div>
         </div>
@@ -429,34 +500,37 @@ export function DashboardPage() {
             <div className="flex items-center gap-2">
               <CheckSquare className="h-3.5 w-3.5 text-amber-400" />
               <h2 className="text-[0.78rem] font-bold text-white/80 uppercase tracking-widest">Today's Tasks</h2>
-              <span className="text-[0.65rem] text-white/30">{openTasks || 18} Incomplete</span>
+              <span className="text-[0.65rem] text-white/30">{openTasks} Incomplete</span>
             </div>
             <button onClick={() => navigate('/app/workstation')} className="text-[0.65rem] text-amber-400 hover:text-amber-300">View All</button>
           </div>
           <div className="space-y-2">
-            {TODAYS_TASKS.map((task) => (
-              <div key={task.label} className="flex items-center gap-2.5 p-2 rounded-lg transition-colors cursor-pointer"
+            {todaysTasks.map((task) => (
+              <div key={task.id} className="flex items-center gap-2.5 p-2 rounded-lg transition-colors cursor-pointer"
                 style={{ background: 'rgba(255,255,255,0.02)' }}
                 onMouseEnter={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.04)')}
                 onMouseLeave={e => (e.currentTarget.style.background = 'rgba(255,255,255,0.02)')}
               >
                 <Square className="h-4 w-4 text-white/20 shrink-0" />
-                <span className="flex-1 text-[0.73rem] text-white/70">{task.label}</span>
-                <span className={`text-[0.62rem] font-bold px-1.5 py-0.5 rounded ${task.priority === 'High' ? 'text-red-400 bg-red-500/10' : task.priority === 'Medium' ? 'text-amber-400 bg-amber-500/10' : 'text-white/30 bg-white/5'}`}>{task.priority}</span>
+                <span className="flex-1 text-[0.73rem] text-white/70">{task.title}</span>
+                <span className={`text-[0.62rem] font-bold px-1.5 py-0.5 rounded ${task.priority === 'high' ? 'text-red-400 bg-red-500/10' : task.priority === 'medium' ? 'text-amber-400 bg-amber-500/10' : 'text-white/30 bg-white/5'}`}>{task.priority.toUpperCase()}</span>
                 <div className="flex items-center gap-0.5 text-[0.62rem] text-white/30">
                   <ClockCountdown className="h-3 w-3" />
-                  {task.due}
+                  {new Date(task.dueDate).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
                 </div>
               </div>
             ))}
+            {todaysTasks.length === 0 && (
+              <div className="text-[0.72rem] text-white/40">No open tasks yet.</div>
+            )}
           </div>
           <div className="mt-3 pt-3 border-t border-white/5">
             <div className="flex items-center justify-between text-[0.68rem] text-white/35">
-              <span>5 of {openTasks || 18} completed</span>
+              <span>{completedTasks} of {tasksData.length} completed</span>
               <div className="flex-1 mx-3 h-1 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.08)' }}>
-                <div className="h-full rounded-full bg-red-500" style={{ width: '28%' }} />
+                <div className="h-full rounded-full bg-red-500" style={{ width: `${taskCompletionRate}%` }} />
               </div>
-              <span>28%</span>
+              <span>{taskCompletionRate}%</span>
             </div>
           </div>
         </div>

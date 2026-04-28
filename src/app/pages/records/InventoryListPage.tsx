@@ -4,15 +4,15 @@ import { useInventoryCatalog } from '@/domains/inventory/inventory.runtime'
 import { MagnifyingGlass, SpinnerGap, Warning, Export, ArrowUpRight, TrendUp, TrendDown, List, FloppyDisk, Funnel } from '@phosphor-icons/react'
 
 const PANEL_STYLE: React.CSSProperties = {
-  background: 'linear-gradient(145deg, oklch(0.16 0.018 248), oklch(0.13 0.015 248))',
-  border: '1px solid rgba(255,255,255,0.07)',
+  background: 'linear-gradient(145deg, #0F1215 0%, #0C0E11 100%)',
+  border: '1px solid rgba(192,195,199,0.08)',
   borderRadius: '0.75rem',
-  boxShadow: '0 0 0 1px rgba(255,255,255,0.03), 0 8px 32px rgba(0,0,0,0.5)',
+  boxShadow: '0 0 0 1px rgba(192,195,199,0.03), 0 8px 40px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.03)',
 }
 
 const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }> = {
-  frontline:  { bg: 'rgba(44,105,255,0.15)',  text: '#60a5fa', label: 'Frontline' },
-  available:  { bg: 'rgba(44,105,255,0.15)',  text: '#60a5fa', label: 'Available' },
+  frontline:  { bg: 'rgba(30,58,138,0.15)',  text: '#60a5fa', label: 'Frontline' },
+  available:  { bg: 'rgba(30,58,138,0.15)',  text: '#60a5fa', label: 'Available' },
   recon:      { bg: 'rgba(245,158,11,0.15)',  text: '#fbbf24', label: 'Recon' },
   inventory:  { bg: 'rgba(245,158,11,0.15)',  text: '#fbbf24', label: 'Inventory' },
   aging:      { bg: 'rgba(239,68,68,0.15)',   text: '#f87171', label: 'Aging' },
@@ -24,7 +24,7 @@ const STATUS_STYLES: Record<string, { bg: string; text: string; label: string }>
 const TAG_PRESETS = [
   { tag: 'NEW ARRIVAL', color: '#10b981' },
   { tag: 'HOT UNIT', color: '#ef4444' },
-  { tag: 'CERTIFIED', color: '#2c69ff' },
+  { tag: 'CERTIFIED', color: '#1E3A8A' },
   { tag: 'AGED 30+', color: '#f97316' },
   { tag: 'AGED 60+', color: '#ef4444' },
   { tag: 'PRICE DROP', color: '#f59e0b' },
@@ -33,7 +33,7 @@ const TAG_PRESETS = [
 const MARKET_ALERTS = [
   { label: 'Market adjustment detected', sub: 'Ford F-150 values down 2.4% in your area', time: '2h ago', color: '#ef4444' },
   { label: 'High demand detected', sub: 'Jeep Grand Cherokee (+18% VDP) vs. market average', time: '4h ago', color: '#10b981' },
-  { label: 'New competitor inventory', sub: '12 similar units added in last 48 hours', time: '6h ago', color: '#2c69ff' },
+  { label: 'New competitor inventory', sub: '12 similar units added in last 48 hours', time: '6h ago', color: '#1E3A8A' },
 ]
 
 const SOLD_STATUSES = new Set(['sold', 'delivered'])
@@ -84,61 +84,57 @@ export function InventoryListPage() {
   const newArrivals = inventory.records.filter(u => u.daysInStock <= 7).length
 
   return (
-    <div className="space-y-4 pb-4">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <div className="text-[0.65rem] font-semibold uppercase tracking-widest text-white/30 mb-1">INVENTORY</div>
-          <h1 className="text-xl font-black text-white tracking-tight" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
-            Inventory Command
-          </h1>
-          <p className="text-[0.78rem] text-white/40 mt-0.5">Real-time inventory intelligence and pricing optimization</p>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="relative">
-            <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/30" />
-            <input
-              type="text"
-              placeholder="Search inventory..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              className="rounded-lg py-2 pl-9 pr-4 text-[0.82rem] text-white/80 placeholder-white/25 outline-none w-48"
-              style={{ background: 'oklch(0.13 0.014 248)', border: '1px solid rgba(255,255,255,0.1)' }}
-              onFocus={e => (e.currentTarget.style.borderColor = 'rgba(223,36,36,0.5)')}
-              onBlur={e => (e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)')}
-            />
+    <div className="space-y-5 pb-6">
+      {/* Header — bold mockup-style */}
+      <div className="relative overflow-hidden rounded-2xl px-6 py-6" style={{
+        background: 'linear-gradient(112deg, #0C0E13 0%, #0F1318 60%, #0A0C10 100%)',
+        border: '1px solid rgba(30,58,138,0.25)',
+        boxShadow: '0 0 60px rgba(30,58,138,0.06), 0 1px 0 rgba(255,255,255,0.03)',
+      }}>
+        <div className="absolute left-0 top-0 bottom-0 w-1" style={{ background: 'linear-gradient(180deg, #1E3A8A 0%, #E31B37 100%)' }} />
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, #1E3A8A 0%, rgba(30,58,138,0.3) 40%, transparent 100%)' }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(ellipse at 0% 50%, rgba(30,58,138,0.08) 0%, transparent 60%), radial-gradient(ellipse at 100% 50%, rgba(227,27,55,0.04) 0%, transparent 60%)' }} />
+        <div className="relative flex items-start justify-between">
+          <div className="pl-3">
+            <div className="text-[0.62rem] font-bold uppercase tracking-[0.25em] mb-1.5" style={{ color: '#60a5fa' }}>National Car Mart · Dealer OS</div>
+            <h1 className="text-3xl font-black uppercase text-white leading-none sm:text-4xl" style={{ fontFamily: 'Oswald, Barlow Condensed, Space Grotesk, sans-serif', letterSpacing: '0.04em', textShadow: '0 0 40px rgba(30,58,138,0.35)' }}>INVENTORY COMMAND</h1>
+            <p className="text-[0.78rem] mt-1.5 font-medium" style={{ color: 'rgba(192,195,199,0.55)' }}>Real-time inventory intelligence · {total} units total</p>
           </div>
-          <button
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-[0.78rem] font-medium text-white/60"
-            style={{ border: '1px solid rgba(255,255,255,0.1)' }}
-          >
-            <Funnel className="h-3.5 w-3.5" /> Saved Filters
-          </button>
-          <button
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-[0.78rem] font-medium text-white/60"
-            style={{ border: '1px solid rgba(255,255,255,0.1)' }}
-          >
-            Bulk Actions
-          </button>
-          <button
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-[0.78rem] font-semibold text-white"
-            style={{ background: 'linear-gradient(135deg, #c01818, #e83232)', boxShadow: '0 2px 12px rgba(223,36,36,0.3)' }}
-          >
-            Import
-          </button>
-          <button
-            className="flex items-center gap-2 rounded-lg px-3 py-2 text-[0.78rem] font-medium text-white/60"
-            style={{ border: '1px solid rgba(255,255,255,0.1)' }}
-          >
-            <Export className="h-3.5 w-3.5" /> Export
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="relative">
+              <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/30" />
+              <input
+                type="text"
+                placeholder="Search inventory..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="rounded-lg py-2 pl-9 pr-4 text-[0.82rem] text-white/80 placeholder-white/25 outline-none w-52"
+                style={{ background: 'rgba(0,0,0,0.4)', border: '1px solid rgba(192,195,199,0.12)' }}
+                onFocus={e => (e.currentTarget.style.borderColor = 'rgba(30,58,138,0.6)')}
+                onBlur={e => (e.currentTarget.style.borderColor = 'rgba(192,195,199,0.12)')}
+              />
+            </div>
+            <button className="flex items-center gap-2 rounded-lg px-3 py-2 text-[0.78rem] font-medium text-white/60 hover:text-white/80 transition-colors" style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)' }}>
+              <Funnel className="h-3.5 w-3.5" /> Filters
+            </button>
+            <button className="flex items-center gap-2 rounded-lg px-3 py-2 text-[0.78rem] font-medium text-white/60 hover:text-white/80 transition-colors" style={{ border: '1px solid rgba(255,255,255,0.1)', background: 'rgba(255,255,255,0.03)' }}>
+              <Export className="h-3.5 w-3.5" /> Export
+            </button>
+            <button
+              onClick={() => navigate('/app/settings/inventory-import')}
+              className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-[0.8rem] font-bold text-white transition-all hover:brightness-115"
+              style={{ background: 'linear-gradient(135deg, #1E3A8A 0%, #1d3478 100%)', boxShadow: '0 2px 16px rgba(30,58,138,0.5)' }}
+            >
+              <ArrowUpRight className="h-3.5 w-3.5" /> Import
+            </button>
+          </div>
         </div>
       </div>
 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
         {[
-          { label: 'TOTAL UNITS', value: String(total || 386), delta: '+12 vs. yesterday', accent: '#2c69ff', up: true },
+          { label: 'TOTAL UNITS', value: String(total || 386), delta: '+12 vs. yesterday', accent: '#1E3A8A', up: true },
           { label: 'NEW ARRIVALS', value: String(newArrivals || 24), delta: '+8 vs. yesterday', accent: '#10b981', up: true },
           { label: 'AGED 30+ DAYS', value: String(aged30 || 112), delta: '28.9% of inventory', accent: '#f59e0b', up: false },
           { label: 'AGED 60+ DAYS', value: String(aged60 || 47), delta: '12.2% of inventory', accent: '#ef4444', up: false },
@@ -273,7 +269,7 @@ export function InventoryListPage() {
             <div className="mt-4 space-y-2">
               <button
                 className="w-full py-2 rounded-lg text-[0.78rem] font-bold text-white transition-all hover:brightness-110"
-                style={{ background: 'linear-gradient(135deg, #c01818, #e83232)', boxShadow: '0 2px 12px rgba(223,36,36,0.25)' }}
+                style={{ background: 'linear-gradient(135deg, #E31B37 0%, #c0152d 100%)', boxShadow: '0 2px 12px rgba(227,27,55,0.25)' }}
               >
                 Apply Filters
               </button>
@@ -308,14 +304,14 @@ export function InventoryListPage() {
                 <button
                   onClick={() => setViewMode('grid')}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-[0.73rem] transition-all"
-                  style={viewMode === 'grid' ? { background: 'rgba(223,36,36,0.2)', color: '#f87171' } : { color: 'rgba(255,255,255,0.4)' }}
+                  style={viewMode === 'grid' ? { background: 'rgba(227,27,55,0.2)', color: '#E31B37' } : { color: 'rgba(255,255,255,0.4)' }}
                 >
                   <span className="text-xs">⊞</span> Grid
                 </button>
                 <button
                   onClick={() => setViewMode('table')}
                   className="flex items-center gap-1.5 px-3 py-1.5 text-[0.73rem] transition-all"
-                  style={viewMode === 'table' ? { background: 'rgba(223,36,36,0.2)', color: '#f87171' } : { color: 'rgba(255,255,255,0.4)' }}
+                  style={viewMode === 'table' ? { background: 'rgba(227,27,55,0.2)', color: '#E31B37' } : { color: 'rgba(255,255,255,0.4)' }}
                 >
                   <List className="h-3.5 w-3.5" /> Table
                 </button>
@@ -342,7 +338,7 @@ export function InventoryListPage() {
                     {/* Vehicle image area */}
                     <div
                       className="relative h-36 flex items-center justify-center"
-                      style={{ background: 'linear-gradient(135deg, #0a0d14 0%, #12161f 100%)' }}
+                    style={{ background: 'linear-gradient(135deg, #0B0D10 0%, #1B1E23 100%)' }}
                     >
                       <span
                         className="absolute top-2 left-2 px-2 py-0.5 rounded text-[0.6rem] font-bold tracking-wide"
@@ -544,7 +540,7 @@ export function InventoryListPage() {
               {[
                 { label: '47 units over 60 days', sub: 'At risk of significant aging', color: '#ef4444' },
                 { label: '112 units over 30 days', sub: 'Consider pricing adjustments', color: '#f97316' },
-                { label: 'Price optimization', sub: '128 units need price review', color: '#2c69ff' },
+                { label: 'Price optimization', sub: '128 units need price review', color: '#1E3A8A' },
               ].map((a, i) => (
                 <div
                   key={i}

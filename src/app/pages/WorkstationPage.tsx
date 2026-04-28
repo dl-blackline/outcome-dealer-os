@@ -1,6 +1,4 @@
 import { useState, useCallback } from 'react'
-import { SectionHeader } from '@/components/core/SectionHeader'
-import { Button } from '@/components/ui/button'
 import {
   DEFAULT_COLUMNS,
   type WorkstationCard,
@@ -55,11 +53,30 @@ export function WorkstationPage() {
 
   return (
     <div className="space-y-6 pb-8">
-      <SectionHeader
-        title="Workstation"
-        description="Your cross-department execution board"
-        action={<Button size="sm" className="gap-2" onClick={() => setQuickCreateOpen(true)}><Plus className="h-4 w-4" /> New Card</Button>}
-      />
+      {/* Header — bold mockup-style */}
+      <div className="relative overflow-hidden rounded-2xl px-6 py-6" style={{
+        background: 'linear-gradient(112deg, #0C0E13 0%, #0F1318 60%, #0A0C10 100%)',
+        border: '1px solid rgba(251,191,36,0.18)',
+        boxShadow: '0 0 60px rgba(251,191,36,0.04)',
+      }}>
+        <div className="absolute left-0 top-0 bottom-0 w-1" style={{ background: 'linear-gradient(180deg, #f59e0b 0%, #E31B37 100%)' }} />
+        <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, #f59e0b 0%, rgba(251,191,36,0.3) 40%, transparent 100%)' }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: 'radial-gradient(ellipse at 0% 50%, rgba(251,191,36,0.06) 0%, transparent 60%)' }} />
+        <div className="relative flex items-start justify-between">
+          <div className="pl-3">
+            <div className="text-[0.62rem] font-bold uppercase tracking-[0.25em] mb-1.5" style={{ color: '#fbbf24' }}>National Car Mart · Dealer OS</div>
+            <h1 className="text-3xl font-black uppercase text-white leading-none sm:text-4xl" style={{ fontFamily: 'Oswald, Barlow Condensed, Space Grotesk, sans-serif', letterSpacing: '0.04em' }}>WORKSTATION</h1>
+            <p className="text-[0.78rem] mt-1.5 font-medium" style={{ color: 'rgba(192,195,199,0.55)' }}>Your cross-department execution board · {cards.length} active cards</p>
+          </div>
+          <button
+            onClick={() => setQuickCreateOpen(true)}
+            className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-[0.8rem] font-bold text-white transition-all hover:brightness-115 hover:scale-[1.02] shrink-0"
+            style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', boxShadow: '0 2px 16px rgba(245,158,11,0.45)' }}
+          >
+            <Plus className="h-4 w-4" /> New Card
+          </button>
+        </div>
+      </div>
 
       <WorkstationFilters
         queueFilter={queueFilter}

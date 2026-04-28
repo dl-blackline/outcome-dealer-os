@@ -21,7 +21,7 @@ export function NcmFooter() {
         boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.08)',
       }}
     >
-      <div style={{ height: '2px', background: 'linear-gradient(90deg, rgba(223,36,36,0.85) 0%, rgba(44,105,255,0.9) 56%, transparent 100%)' }} />
+      <div style={{ height: '2px', background: 'linear-gradient(90deg, rgba(227,27,55,0.85) 0%, rgba(30,58,138,0.9) 56%, transparent 100%)' }} />
 
       <div className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6 lg:px-8">
         <div
